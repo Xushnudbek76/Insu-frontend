@@ -1,0 +1,45 @@
+/** IMPORTS **/
+@import 'variables.scss';
+@import 'reset.scss';
+
+/** GLOBAL **/
+body {
+  font-family: $font;
+  overflow-x: hidden;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  .MuiPopover-paper {
+    box-shadow: none;
+  }
+}
+
+a {
+  white-space: nowrap;
+  text-decoration: none;
+  color: $dark;
+}
+
+button {
+  text-transform: none;
+  box-shadow: none;
+}
+
+span, p {
+  line-height: 1.2;
+}
+
+hr {
+  border-width: 0;
+  border-bottom-width: thin;
+  border-color: $border;
+  margin: auto;
+}
+
+/** VERSION: PC **/
+@import 'pc/general.scss';
+@import 'pc/homepage/homepage.scss';

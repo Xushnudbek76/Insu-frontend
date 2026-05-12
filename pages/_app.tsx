@@ -1,4 +1,4 @@
-import '@/styles/globals.css';
+import '@/scss/app.scss';
 
 import { ApolloProvider } from '@apollo/client/react';
 import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';

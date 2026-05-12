@@ -1,0 +1,77 @@
+/** HOMEPAGE **/
+
+.homepage-hero {
+  padding: 80px 0;
+
+  .hero-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    align-items: flex-start;
+
+    .hero-label {
+      font-family: $font;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: $primary;
+    }
+
+    .hero-title {
+      font-family: $font;
+      font-size: 48px;
+      font-weight: 700;
+      line-height: 1.15;
+      color: $dark;
+      max-width: 720px;
+    }
+
+    .hero-desc {
+      font-family: $font;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 1.7;
+      color: $grey;
+      max-width: 680px;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-direction: row;
+      gap: 16px;
+
+      a.hero-btn {
+        padding: 14px 32px;
+        font-family: $font;
+        font-size: 15px;
+        font-weight: 600;
+        border-radius: 30px;
+        text-decoration: none;
+        transition: background 0.2s;
+
+        &.primary {
+          background: $primary;
+          color: $white;
+
+          &:hover {
+            background: darken($primary, 8%);
+          }
+        }
+
+        &.secondary {
+          border: 1.5px solid $border;
+          color: $dark;
+
+          &:hover {
+            border-color: $primary;
+            color: $primary;
+          }
+        }
+      }
+    }
+  }
+}

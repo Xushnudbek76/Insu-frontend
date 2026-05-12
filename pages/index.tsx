@@ -1,7 +1,6 @@
 import Head from 'next/head';
 import type { NextPageWithLayout } from '@/libs/types/next';
 import type { ReactElement } from 'react';
-import { Box, Button, Container, Typography } from '@mui/material';
 import NextLink from 'next/link';
 
 import LayoutHome from '@/layout/LayoutHome';
@@ -12,28 +11,26 @@ const HomePage: NextPageWithLayout = () => {
       <Head>
         <title>INSU Web</title>
       </Head>
-      <Box sx={{ py: { xs: 6, md: 10 } }}>
-        <Container maxWidth="lg">
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, alignItems: 'flex-start' }}>
-            <Typography variant="overline" color="primary.main" sx={{ letterSpacing: 2 }}>
-              Insurance-AI Frontend
-            </Typography>
-            <Typography variant="h2" sx={{ fontWeight: 700, maxWidth: 720 }}>
-              Day 2 complete: Layout, navigation, and auth shell are ready.
-            </Typography>
-            <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 680 }}>
-              We mirrored nestar-next structure with reusable layouts, top navigation, footer, Apollo wiring, and login/register flow.
-            </Typography>
-            <Box sx={{ display: 'flex', gap: 2 }}>
-              <NextLink href="/account/join" passHref legacyBehavior>
-                <Button component="a" variant="contained" size="large">
-                  Open Login/Register
-                </Button>
-              </NextLink>
-            </Box>
-          </Box>
-        </Container>
-      </Box>
+      <section className="homepage-hero">
+        <div className="hero-inner">
+          <span className="hero-label">Insurance-AI Platform</span>
+          <h1 className="hero-title">
+            Find the right insurance coverage for you
+          </h1>
+          <p className="hero-desc">
+            Smart marketplace powered by AI. Compare plans, connect with agents,
+            and manage your policies in one place.
+          </p>
+          <div className="hero-actions">
+            <NextLink href="/packages" className="hero-btn primary">
+              Browse Packages
+            </NextLink>
+            <NextLink href="/account/join" className="hero-btn secondary">
+              Login / Register
+            </NextLink>
+          </div>
+        </div>
+      </section>
     </>
   );
 };

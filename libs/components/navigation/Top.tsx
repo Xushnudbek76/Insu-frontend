@@ -1,29 +1,15 @@
 import { useState, useMemo, useEffect } from 'react';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
-import {
-  AppBar,
-  Avatar,
-  Box,
-  Button,
-  IconButton,
-  Menu,
-  MenuItem,
-  Stack,
-  Toolbar,
-  Typography,
-  Container,
-} from '@mui/material';
+import { Avatar, IconButton, Menu, MenuItem } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
+
 import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
 import { userVar } from '@/apollo/store';
 import { logOut } from '@/libs/auth';
 
-type NavLink = {
-  href: string;
-  label: string;
-};
+type NavLink = { href: string; label: string };
 
 const baseLinks: NavLink[] = [
   { href: '/', label: 'Home' },
@@ -41,120 +27,77 @@ const Top = () => {
   const [profileMenuAnchor, setProfileMenuAnchor] = useState<null | HTMLElement>(null);
 
   useEffect(() => {
-    const dispose = userVar.onNextChange((nextUser) => {
-      setUser(nextUser);
-    });
-
-    return () => {
-      if (typeof dispose === 'function') {
-        dispose();
-      }
-    };
+    const dispose = userVar.onNextChange((nextUser) => setUser(nextUser));
+    return () => { if (typeof dispose === 'function') dispose(); };
   }, []);
 
   const links = useMemo(() => {
-    if (user) {
-      return [...baseLinks, { href: '/mypage', label: 'My Page' }];
-    }
-    return baseLinks;
+    return user ? [...baseLinks, { href: '/mypage', label: 'My Page' }] : baseLinks;
   }, [user]);
 
-  const handleToggleMobileMenu = () => {
-    setMobileMenuOpen((prev) => !prev);
-  };
+  const handleOpenProfileMenu = (e: React.MouseEvent<HTMLElement>) => setProfileMenuAnchor(e.currentTarget);
+  const handleCloseProfileMenu = () => setProfileMenuAnchor(null);
+  const handleLogout = () => { handleCloseProfileMenu(); logOut(); };
 
-  const handleOpenProfileMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setProfileMenuAnchor(event.currentTarget);
-  };
-
-  const handleCloseProfileMenu = () => {
-    setProfileMenuAnchor(null);
-  };
-
-  const handleLogout = () => {
-    handleCloseProfileMenu();
-    logOut();
-  };
-
-  const renderLinks = (orientation: 'row' | 'column') => (
-    <Stack component="nav" direction={orientation} spacing={orientation === 'row' ? 3 : 2} sx={{ mt: orientation === 'column' ? 2 : 0 }}>
-      {links.map((link) => {
-        const isActive = router.pathname === link.href;
-        return (
-          <NextLink key={link.href} href={link.href} passHref legacyBehavior>
-            <Button
-              component="a"
-              color={isActive ? 'primary' : 'inherit'}
-              sx={{
-                fontWeight: isActive ? 600 : 500,
-                textTransform: 'none',
-              }}
-            >
-              {link.label}
-            </Button>
-          </NextLink>
-        );
-      })}
-    </Stack>
-  );
+  const renderLinks = () =>
+    links.map((link) => (
+      <NextLink key={link.href} href={link.href} passHref legacyBehavior>
+        <a className={`nav-link${router.pathname === link.href ? ' active' : ''}`}>{link.label}</a>
+      </NextLink>
+    ));
 
   if (device === 'mobile') {
     return (
-      <AppBar position="static" color="transparent" elevation={0} sx={{ borderBottom: '1px solid', borderColor: 'divider' }}>
-        <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', px: 2 }}>
-          <NextLink href="/" passHref legacyBehavior>
-            <Typography component="a" variant="h6" sx={{ fontWeight: 700, color: 'primary.main', textDecoration: 'none' }}>
-              INSU
-            </Typography>
-          </NextLink>
-
-          <IconButton onClick={handleToggleMobileMenu} aria-label="toggle navigation">
-            {mobileMenuOpen ? <CloseIcon /> : <MenuIcon />}
-          </IconButton>
-        </Toolbar>
-
-        {mobileMenuOpen && (
-          <Stack spacing={2} sx={{ px: 2, pb: 3 }}>
-            {renderLinks('column')}
-            {user ? (
-              <Button variant="outlined" color="primary" onClick={handleLogout}>
-                Logout
-              </Button>
-            ) : (
-              <NextLink href="/account/join" passHref legacyBehavior>
-                <Button component="a" variant="contained" color="primary">
-                  Login / Register
-                </Button>
+      <div id="top">
+        <nav className="navbar mobile">
+          <div className="navbar-inner">
+            <div className="logo-box">
+              <NextLink href="/" passHref legacyBehavior>
+                <a>INSU</a>
               </NextLink>
-            )}
-          </Stack>
-        )}
-      </AppBar>
+            </div>
+            <IconButton onClick={() => setMobileMenuOpen((p) => !p)} aria-label="toggle navigation">
+              {mobileMenuOpen ? <CloseIcon /> : <MenuIcon />}
+            </IconButton>
+          </div>
+          {mobileMenuOpen && (
+            <div className="mobile-menu">
+              {renderLinks()}
+              {user ? (
+                <button className="join-btn" onClick={handleLogout}>Logout</button>
+              ) : (
+                <NextLink href="/account/join" passHref legacyBehavior>
+                  <a className="join-btn">Login / Register</a>
+                </NextLink>
+              )}
+            </div>
+          )}
+        </nav>
+      </div>
     );
   }
 
   return (
-    <AppBar
-      position="sticky"
-      color="transparent"
-      elevation={0}
-      sx={{ backdropFilter: 'blur(16px)', backgroundColor: 'rgba(255, 255, 255, 0.85)', borderBottom: '1px solid', borderColor: 'divider' }}
-    >
-      <Container maxWidth="lg">
-        <Toolbar disableGutters sx={{ display: 'flex', justifyContent: 'space-between', minHeight: 72 }}>
-          <NextLink href="/" passHref legacyBehavior>
-            <Typography component="a" variant="h5" sx={{ fontWeight: 700, color: 'primary.main', textDecoration: 'none' }}>
-              INSU
-            </Typography>
-          </NextLink>
+    <div id="top">
+      <nav className="navbar">
+        <div className="navbar-inner">
+          <div className="logo-box">
+            <NextLink href="/" passHref legacyBehavior>
+              <a>INSU</a>
+            </NextLink>
+          </div>
 
-          {renderLinks('row')}
+          <div className="router-box">{renderLinks()}</div>
 
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <div className="user-box">
             {user ? (
               <>
                 <IconButton onClick={handleOpenProfileMenu} size="small" aria-haspopup="true" aria-controls="profile-menu">
-                  <Avatar src={user.memberImage ?? undefined} alt={user.memberNick ?? 'Profile'} sx={{ width: 36, height: 36 }} />
+                  <Avatar
+                    src={user.memberImage ?? undefined}
+                    alt={user.memberNick ?? 'Profile'}
+                    className="profile-avatar"
+                  />
                 </IconButton>
                 <Menu
                   id="profile-menu"
@@ -170,15 +113,13 @@ const Top = () => {
               </>
             ) : (
               <NextLink href="/account/join" passHref legacyBehavior>
-                <Button component="a" variant="contained" color="primary">
-                  Login / Register
-                </Button>
+                <a className="join-btn">Login / Register</a>
               </NextLink>
             )}
-          </Box>
-        </Toolbar>
-      </Container>
-    </AppBar>
+          </div>
+        </div>
+      </nav>
+    </div>
   );
 };
 
