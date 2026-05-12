@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { ReactElement } from 'react';
+import { NextPage } from 'next';
 import {
   Alert,
   Box,
@@ -13,12 +13,11 @@ import {
   Typography,
 } from '@mui/material';
 
-import LayoutBasic from '@/layout/LayoutBasic';
+import withLayoutBasic from '@/layout/LayoutBasic';
 import { logIn, signUp } from '@/libs/auth';
 import { sweetTopSuccessAlert } from '@/libs/sweetAlert';
-import type { NextPageWithLayout } from '@/libs/types/next';
 
-const JoinPage: NextPageWithLayout = () => {
+const JoinPage: NextPage = () => {
   const [activeTab, setActiveTab] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -164,8 +163,4 @@ const JoinPage: NextPageWithLayout = () => {
   );
 };
 
-JoinPage.getLayout = (page: ReactElement) => {
-  return LayoutBasic(page);
-};
-
-export default JoinPage;
+export default withLayoutBasic(JoinPage);

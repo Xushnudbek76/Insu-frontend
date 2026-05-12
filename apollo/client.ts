@@ -7,7 +7,7 @@ import { getJwtToken } from '@/libs/auth';
 let apolloClient: ApolloClient | undefined;
 
 const GRAPHQL_ENDPOINT =
-  process.env.NEXT_PUBLIC_GRAPHQL_URL ?? 'http://localhost:3001/graphql';
+  process.env.NEXT_PUBLIC_GRAPHQL_URL ?? 'http://localhost:3007/graphql';
 
 const createAuthLink = () =>
   setContext((_, { headers }) => {

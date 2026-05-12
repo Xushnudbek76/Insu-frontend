@@ -1,42 +1,37 @@
-import Head from 'next/head';
-import type { NextPageWithLayout } from '@/libs/types/next';
-import type { ReactElement } from 'react';
-import NextLink from 'next/link';
+import { NextPage } from 'next';
+import { Stack } from '@mui/material';
+import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
+import withLayoutMain from '@/layout/LayoutHome';
+import TrendPackages from '@/libs/components/homepage/TrendPackages';
+import PopularPackages from '@/libs/components/homepage/PopularPackages';
+import Advertisement from '@/libs/components/homepage/Advertisement';
+import TopAgents from '@/libs/components/homepage/TopAgents';
+import HeaderFilter from '@/libs/components/homepage/HeaderFilter';
 
-import LayoutHome from '@/layout/LayoutHome';
+const HomePage: NextPage = () => {
+	const device = useDeviceDetect();
 
-const HomePage: NextPageWithLayout = () => {
-  return (
-    <>
-      <Head>
-        <title>INSU Web</title>
-      </Head>
-      <section className="homepage-hero">
-        <div className="hero-inner">
-          <span className="hero-label">Insurance-AI Platform</span>
-          <h1 className="hero-title">
-            Find the right insurance coverage for you
-          </h1>
-          <p className="hero-desc">
-            Smart marketplace powered by AI. Compare plans, connect with agents,
-            and manage your policies in one place.
-          </p>
-          <div className="hero-actions">
-            <NextLink href="/packages" className="hero-btn primary">
-              Browse Packages
-            </NextLink>
-            <NextLink href="/account/join" className="hero-btn secondary">
-              Login / Register
-            </NextLink>
-          </div>
-        </div>
-      </section>
-    </>
-  );
+	if (device === 'mobile') {
+		return (
+			<Stack className={'home-page'}>
+				<HeaderFilter />
+				<TrendPackages />
+				<PopularPackages />
+				<Advertisement />
+				<TopAgents />
+			</Stack>
+		);
+	} else {
+		return (
+			<Stack className={'home-page'}>
+				<HeaderFilter />
+				<TrendPackages />
+				<PopularPackages />
+				<Advertisement />
+				<TopAgents />
+			</Stack>
+		);
+	}
 };
 
-HomePage.getLayout = (page: ReactElement) => {
-  return LayoutHome(page);
-};
-
-export default HomePage;
+export default withLayoutMain(HomePage);

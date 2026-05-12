@@ -210,6 +210,16 @@
   }
 }
 
+/** CONTAINER **/
+
+.container {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 0 24px;
+  width: 100%;
+  display: flex;
+}
+
 /** LAYOUT WRAPPERS **/
 
 .page-wrap {

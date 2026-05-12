@@ -1,16 +1,29 @@
-import type { ReactElement, ReactNode } from 'react';
-
+import type { ComponentType, ReactElement } from 'react';
+import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
 import Top from '@/libs/components/navigation/Top';
 import Footer from '@/libs/components/footer/Footer';
 
-const LayoutBasic = (page: ReactElement): ReactNode => {
+const LayoutBasicInner = ({ page }: { page: ReactElement }) => {
+  const device = useDeviceDetect();
+  const wrapId = device === 'mobile' ? 'mobile-wrap' : 'pc-wrap';
+
   return (
-    <div className="page-wrap">
-      <Top />
-      <main className="layout-basic-main">{page}</main>
-      <Footer />
+    <div id={wrapId}>
+      <div className="page-wrap">
+        <Top />
+        <main className="layout-basic-main">{page}</main>
+        <Footer />
+      </div>
     </div>
   );
 };
 
-export default LayoutBasic;
+const withLayoutBasic = <P extends object>(Component: ComponentType<P>) => {
+  const Wrapped = (props: P) => (
+    <LayoutBasicInner page={<Component {...props} />} />
+  );
+  Wrapped.displayName = `withLayoutBasic(${Component.displayName ?? Component.name})`;
+  return Wrapped;
+};
+
+export default withLayoutBasic;

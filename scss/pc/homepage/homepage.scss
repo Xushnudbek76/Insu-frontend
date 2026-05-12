@@ -1,5 +1,287 @@
 /** HOMEPAGE **/
 
+#pc-wrap {
+  .home-page {
+    position: relative;
+    width: 100%;
+    height: auto;
+
+    .info-box {
+      width: 100%;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+
+      .left {
+        display: flex;
+        flex-direction: column;
+        span {
+          color: $dark;
+          font-family: $font;
+          font-size: 34px;
+          font-weight: 500;
+          line-height: 150%;
+          letter-spacing: -0.646px;
+          text-transform: capitalize;
+          &.white { color: $white; }
+        }
+        p {
+          color: $dark;
+          font-family: $font;
+          font-size: 14px;
+          font-weight: 400;
+          line-height: 26px;
+          &.white { color: $white; }
+        }
+      }
+
+      .right {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-end;
+
+        .more-box {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          cursor: pointer;
+          gap: 8px;
+          span {
+            color: $dark;
+            font-family: $font;
+            font-size: 15px;
+            font-weight: 600;
+            line-height: normal;
+            text-transform: capitalize;
+          }
+        }
+
+        .pagination-box {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          gap: 12px;
+        }
+      }
+    }
+
+    .header-filter {
+      padding: 80px 0;
+      width: 100%;
+
+      .container {
+        flex-direction: column;
+        gap: 24px;
+        align-items: flex-start;
+
+        .info {
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+          align-items: flex-start;
+
+          .hero-label {
+            font-family: $font;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: $primary;
+          }
+
+          .hero-title {
+            font-family: $font;
+            font-size: 48px;
+            font-weight: 700;
+            line-height: 1.15;
+            color: $dark;
+            max-width: 720px;
+          }
+
+          .hero-desc {
+            font-family: $font;
+            font-size: 16px;
+            font-weight: 400;
+            line-height: 1.7;
+            color: $grey;
+            max-width: 600px;
+          }
+
+          .hero-actions {
+            display: flex;
+            flex-direction: row;
+            gap: 16px;
+
+            a.hero-btn {
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
+              padding: 11px 28px;
+              font-family: $font;
+              font-size: 14px;
+              font-weight: 600;
+              line-height: 1;
+              white-space: nowrap;
+              border-radius: 10px;
+              text-decoration: none;
+              cursor: pointer;
+              transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s;
+
+              &.primary {
+                background: $primary;
+                color: $white;
+                border: 2px solid $primary;
+
+                &:hover {
+                  background: darken($primary, 8%);
+                  border-color: darken($primary, 8%);
+                  box-shadow: 0 4px 16px rgba($primary, 0.35);
+                }
+              }
+
+              &.secondary {
+                background: transparent;
+                border: 2px solid $border;
+                color: $dark;
+
+                &:hover {
+                  border-color: $primary;
+                  color: $primary;
+                  background: rgba($primary, 0.04);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .trend-packages {
+      padding: 108px 0 76px;
+      width: 100%;
+      min-height: 400px;
+      display: flex;
+      flex-direction: row;
+
+      .container {
+        flex-direction: column;
+
+        .card-box {
+          position: relative;
+          margin-top: 64px;
+          display: flex;
+          flex-direction: row;
+
+          .empty-list {
+            width: 100%;
+            height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: $grey;
+            font-family: $font;
+          }
+        }
+      }
+    }
+
+    .popular-packages {
+      padding: 132px 0 94px;
+      width: 100%;
+      min-height: 400px;
+      display: flex;
+      flex-direction: row;
+      background: #f6f6f6;
+
+      .container {
+        flex-direction: column;
+        align-items: center;
+
+        .card-box {
+          margin-top: 34px;
+          width: 100%;
+          display: flex;
+          flex-direction: row;
+          justify-content: space-between;
+
+          .empty-list {
+            width: 100%;
+            height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: $grey;
+            font-family: $font;
+          }
+        }
+
+        .pagination-box {
+          display: flex;
+          flex-direction: row;
+          justify-content: center;
+          align-items: center;
+          gap: 12px;
+        }
+      }
+    }
+
+    .advertisement {
+      width: 100%;
+      min-height: 300px;
+      display: flex;
+      flex-direction: row;
+      background: $dark;
+
+      .container {
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+
+    .top-agents {
+      position: relative;
+      padding: 153px 0 135px;
+      width: 100%;
+      min-height: 400px;
+      display: flex;
+      flex-direction: row;
+      background: #f6f6f6;
+
+      .container {
+        position: relative;
+        flex-direction: column;
+        align-items: center;
+
+        .wrapper {
+          width: 100%;
+          margin-top: 83px;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: space-between;
+
+          .card-wrapper {
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+
+            .empty-list {
+              width: 100%;
+              height: 200px;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              color: $grey;
+              font-family: $font;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
 .homepage-hero {
   padding: 80px 0;
 
@@ -45,30 +327,41 @@
       gap: 16px;
 
       a.hero-btn {
-        padding: 14px 32px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 11px 28px;
         font-family: $font;
-        font-size: 15px;
+        font-size: 14px;
         font-weight: 600;
-        border-radius: 30px;
+        line-height: 1;
+        white-space: nowrap;
+        border-radius: 10px;
         text-decoration: none;
-        transition: background 0.2s;
+        cursor: pointer;
+        transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s;
 
         &.primary {
           background: $primary;
           color: $white;
+          border: 2px solid $primary;
 
           &:hover {
             background: darken($primary, 8%);
+            border-color: darken($primary, 8%);
+            box-shadow: 0 4px 16px rgba($primary, 0.35);
           }
         }
 
         &.secondary {
-          border: 1.5px solid $border;
+          background: transparent;
+          border: 2px solid $border;
           color: $dark;
 
           &:hover {
             border-color: $primary;
             color: $primary;
+            background: rgba($primary, 0.04);
           }
         }
       }

@@ -2,12 +2,10 @@ import '@/scss/app.scss';
 
 import { ApolloProvider } from '@apollo/client/react';
 import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
-import type { ReactElement } from 'react';
 import { SnackbarProvider } from 'notistack';
 
 import { useApollo } from '@/apollo/client';
-import LayoutHome from '@/layout/LayoutHome';
-import type { AppPropsWithLayout } from '@/libs/types/next';
+import type { AppProps } from 'next/app';
 
 const theme = createTheme({
   palette: {
@@ -20,20 +18,15 @@ const theme = createTheme({
   },
 });
 
-export default function App({ Component, pageProps }: AppPropsWithLayout) {
+export default function App({ Component, pageProps }: AppProps) {
   const client = useApollo(null);
-  const getLayout =
-    Component.getLayout ??
-    ((page: ReactElement) => {
-      return LayoutHome(page);
-    });
 
   return (
     <ApolloProvider client={client}>
       <ThemeProvider theme={theme}>
         <SnackbarProvider maxSnack={3} autoHideDuration={2500}>
           <CssBaseline />
-          {getLayout(<Component {...pageProps} />)}
+          <Component {...pageProps} />
         </SnackbarProvider>
       </ThemeProvider>
     </ApolloProvider>
