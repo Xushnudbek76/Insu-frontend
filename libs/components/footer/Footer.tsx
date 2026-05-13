@@ -10,7 +10,7 @@ const Footer = () => {
           <div className="brand-col">
             <span className="logo">INSU</span>
             <p>
-              Smart insurance marketplace powered by AI. Discover tailored packages,
+              Smart insurance marketplace powered by AI. Discover tailored insurance,
               compare coverage, and manage your policies effortlessly.
             </p>
           </div>
@@ -18,7 +18,7 @@ const Footer = () => {
           <div className="links-col">
             <div className="link-group">
               <strong>Explore</strong>
-              <NextLink href="/packages">Packages</NextLink>
+              <NextLink href="/packages">Insurance</NextLink>
               <NextLink href="/agents">Agents</NextLink>
               <NextLink href="/community">Community</NextLink>
             </div>

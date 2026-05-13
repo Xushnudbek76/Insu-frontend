@@ -121,12 +121,12 @@ const PopularPackages: React.FC = () => {
 			<Stack className={'popular-packages'}>
 				<Stack className={'container'}>
 					<Stack className={'info-box'}>
-						<span>Popular Packages</span>
+						<span>Popular Insurance</span>
 					</Stack>
 					<Stack className={'card-box'}>
 						{loading && (
 							<Box component={'div'} className={'empty-list'}>
-								Loading popular packages...
+								Loading popular insurance...
 							</Box>
 						)}
 						{!loading && error && (
@@ -157,7 +157,7 @@ const PopularPackages: React.FC = () => {
 												<span className={'package-meta'}>
 													{typeof pkg.packageViews === 'number'
 														? `${pkg.packageViews.toLocaleString()} views`
-														: 'New package'}
+														: 'New insurance'}
 												</span>
 												<IconButton
 													className={'like-btn'}
@@ -181,7 +181,7 @@ const PopularPackages: React.FC = () => {
 						)}
 						{!loading && !error && !hasPackages && (
 							<Box component={'div'} className={'empty-list'}>
-								No popular packages yet
+								No popular insurance yet
 							</Box>
 						)}
 					</Stack>
@@ -195,19 +195,19 @@ const PopularPackages: React.FC = () => {
 			<Stack className={'container'}>
 				<Stack className={'info-box'}>
 					<Box component={'div'} className={'left'}>
-						<span>Popular Packages</span>
+						<span>Popular Insurance</span>
 						<p>Popularity is based on views</p>
 					</Box>
 					<Box component={'div'} className={'right'}>
 						<div className={'more-box'}>
-							<NextLink href={'/packages'}>See All Packages</NextLink>
+							<NextLink href={'/packages'}>See All Insurance</NextLink>
 						</div>
 					</Box>
 				</Stack>
 				<Stack className={'card-box'}>
 					{loading && (
 						<Box component={'div'} className={'empty-list'}>
-							Loading popular packages...
+							Loading popular insurance...
 						</Box>
 					)}
 					{!loading && error && (
@@ -238,7 +238,7 @@ const PopularPackages: React.FC = () => {
 											<span className={'package-meta'}>
 												{typeof pkg.packageViews === 'number'
 														? `${pkg.packageViews.toLocaleString()} views`
-														: 'New package'}
+														: 'New insurance'}
 											</span>
 											<IconButton
 												className={'like-btn'}
@@ -262,7 +262,7 @@ const PopularPackages: React.FC = () => {
 					)}
 					{!loading && !error && !hasPackages && (
 						<Box component={'div'} className={'empty-list'}>
-							No popular packages yet
+							No popular insurance yet
 						</Box>
 					)}
 				</Stack>

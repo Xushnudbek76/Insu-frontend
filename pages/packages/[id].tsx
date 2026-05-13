@@ -59,9 +59,9 @@ const PackageDetailPage: NextPage = () => {
         const graphQLErrorMessage =
           err?.graphQLErrors?.[0]?.message ?? err?.message ?? '';
         if (graphQLErrorMessage === 'No data found!') {
-          setError('Package not found.');
+          setError('Insurance not found.');
         } else {
-          setError('Failed to load package. Please try again.');
+          setError('Failed to load insurance. Please try again.');
         }
       })
       .finally(() => {
@@ -75,14 +75,14 @@ const PackageDetailPage: NextPage = () => {
         <Stack className={'container'}>
           <Stack className={'info-box'}>
             <Box component={'div'} className={'left'}>
-              <span>Package details</span>
-              <p>View full coverage, pricing, and age range for this plan.</p>
+              <span>Insurance details</span>
+              <p>View full coverage, pricing, and age range for this insurance.</p>
             </Box>
           </Stack>
 
           {loading && (
             <Box component={'div'} className={'empty-list'}>
-              Loading package...
+              Loading insurance...
             </Box>
           )}
 

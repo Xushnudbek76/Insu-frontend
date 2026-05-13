@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e8eaf6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#c5cae9;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="500" fill="url(#bg)" />
+
+  <!-- Subtle grid pattern -->
+  <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#b3b9e8" stroke-width="0.5" opacity="0.5"/>
+  </pattern>
+  <rect width="800" height="500" fill="url(#grid)" />
+
+  <!-- Camera icon group, centered -->
+  <g transform="translate(400, 250)">
+    <!-- Camera body -->
+    <rect x="-54" y="-36" width="108" height="76" rx="10" ry="10"
+          fill="none" stroke="#9fa8da" stroke-width="5"/>
+    <!-- Lens circle -->
+    <circle cx="0" cy="10" r="22" fill="none" stroke="#9fa8da" stroke-width="5"/>
+    <!-- Inner lens -->
+    <circle cx="0" cy="10" r="12" fill="#9fa8da" opacity="0.3"/>
+    <!-- Viewfinder bump -->
+    <rect x="-14" y="-52" width="28" height="18" rx="4" ry="4"
+          fill="none" stroke="#9fa8da" stroke-width="5"/>
+    <!-- Flash dot -->
+    <circle cx="38" cy="-22" r="5" fill="#9fa8da" opacity="0.5"/>
+  </g>
+
+  <!-- Label -->
+  <text x="400" y="320"
+        font-family="'Segoe UI', Arial, sans-serif"
+        font-size="16"
+        font-weight="500"
+        fill="#7986cb"
+        text-anchor="middle"
+        letter-spacing="2">
+    NO IMAGE
+  </text>
+</svg>

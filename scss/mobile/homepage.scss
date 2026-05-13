@@ -79,4 +79,327 @@
       }
     }
   }
+
+  .advertisement {
+    padding: 36px 0 32px;
+    background: $dark;
+
+    .container {
+      padding: 0 16px;
+    }
+
+    .ad-inner {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .ad-header {
+      text-align: left;
+
+      .ad-title {
+        display: block;
+        font-family: $font;
+        font-size: 22px;
+        font-weight: 600;
+        color: $white;
+        margin-bottom: 6px;
+      }
+
+      .ad-subtitle {
+        margin: 0;
+        font-family: $font;
+        font-size: 13px;
+        font-weight: 400;
+        line-height: 1.7;
+        color: rgba(255, 255, 255, 0.78);
+      }
+    }
+
+    .ad-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .ad-card {
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: #1f222a;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.32);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .ad-card-label {
+      font-family: $font;
+      font-size: 13px;
+      font-weight: 600;
+      color: $white;
+    }
+
+    .ad-card-desc {
+      margin: 0;
+      font-family: $font;
+      font-size: 12px;
+      font-weight: 400;
+      line-height: 1.7;
+      color: rgba(226, 232, 240, 0.9);
+    }
+
+    .ad-cta {
+      margin-top: 4px;
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-start;
+    }
+
+    .ad-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 20px;
+      border-radius: 999px;
+      font-family: $font;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      border: 2px solid $primary;
+      background: $primary;
+      color: $white;
+      cursor: pointer;
+      width: auto;
+      transition: background 0.15s, border-color 0.15s;
+
+      &:active {
+        background: darken($primary, 8%);
+        border-color: darken($primary, 8%);
+      }
+    }
+  }
+
+  .home-comments {
+    padding: 56px 0 56px;
+    background: #f6f6f6;
+
+    .container {
+      padding: 0 16px;
+    }
+
+    .comments-wrapper {
+      width: 100%;
+      margin-top: 32px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .swiper {
+      width: 100%;
+      padding-bottom: 24px;
+    }
+
+    .swiper .swiper-wrapper {
+      transition-timing-function: linear !important;
+    }
+
+    .swiper-slide {
+      display: flex;
+      height: auto;
+    }
+
+    .comment-card {
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: $white;
+      box-shadow: 0 8px 22px rgba(15, 23, 42, 0.12);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .comment-header {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .comment-avatar {
+      width: 36px;
+      height: 36px;
+    }
+
+    .comment-author {
+      display: flex;
+      flex-direction: column;
+
+      .name {
+        font-family: $font;
+        font-size: 13px;
+        font-weight: 600;
+        color: $dark;
+      }
+    }
+
+    .comment-content {
+      margin: 0;
+      font-family: $font;
+      font-size: 13px;
+      font-weight: 400;
+      line-height: 1.6;
+      color: $grey;
+    }
+
+    .empty-list {
+      width: 100%;
+      height: 160px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: $grey;
+      font-family: $font;
+    }
+
+    .swiper-pagination-bullets {
+      margin-top: 18px;
+      position: static;
+    }
+
+    .swiper-pagination-bullet {
+      background: rgba(15, 23, 42, 0.25);
+      opacity: 1;
+
+      &-active {
+        background: $brand;
+      }
+    }
+  }
+
+  .board-articles {
+    width: 100%;
+    background: $white;
+
+    .hero-inner {
+      padding: 48px 20px;
+
+      /* stacked on mobile */
+      .community-main {
+        display: flex;
+        flex-direction: column;
+        gap: 40px;
+
+        .community-left,
+        .community-right {
+          display: flex;
+          flex-direction: column;
+        }
+      }
+
+      /* section header */
+      .section-header {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-end;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid $border;
+
+        .section-title {
+          font-family: $font;
+          font-size: 20px;
+          font-weight: 800;
+          color: $dark;
+          text-transform: uppercase;
+          letter-spacing: -0.2px;
+          line-height: 1;
+        }
+
+        .view-all {
+          display: flex;
+          align-items: center;
+          gap: 2px;
+          cursor: pointer;
+
+          .view-all-text {
+            font-family: $font;
+            font-size: 13px;
+            font-weight: 500;
+            color: $grey;
+          }
+
+          .view-all-icon {
+            font-size: 14px !important;
+            color: $grey;
+          }
+        }
+      }
+
+      /* 2x2 grid on mobile too */
+      .articles-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+
+        .vertical-card {
+          cursor: pointer;
+
+          .article-image-wrapper {
+            position: relative;
+            width: 100%;
+            height: 150px;
+            overflow: hidden;
+            margin-bottom: 10px;
+
+            .article-image {
+              width: 100%;
+              height: 100%;
+              background-size: cover;
+              background-position: center;
+              background-repeat: no-repeat;
+              transition: transform 0.4s ease;
+            }
+
+            .number-badge {
+              position: absolute;
+              top: 0;
+              left: 0;
+              width: 30px;
+              height: 30px;
+              background: #eb6753;
+              color: $white;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-family: $font;
+              font-size: 14px;
+              font-weight: 700;
+            }
+          }
+
+          .article-title {
+            font-family: $font;
+            font-size: 13px;
+            font-weight: 700;
+            line-height: 1.35;
+            color: $dark;
+            margin-bottom: 5px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+          }
+
+          .article-label {
+            font-family: $font;
+            font-size: 11px;
+            font-weight: 400;
+            color: $grey;
+          }
+        }
+      }
+    }
+  }
 }

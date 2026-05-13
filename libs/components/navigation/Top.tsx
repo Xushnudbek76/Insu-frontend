@@ -13,7 +13,7 @@ type NavLink = { href: string; label: string };
 
 const baseLinks: NavLink[] = [
   { href: '/', label: 'Home' },
-  { href: '/packages', label: 'Packages' },
+  { href: '/packages', label: 'Insurance' },
   { href: '/agents', label: 'Agents' },
   { href: '/community', label: 'Community' },
   { href: '/cs', label: 'CS' },

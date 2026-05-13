@@ -5,7 +5,8 @@ import withLayoutMain from '@/layout/LayoutHome';
 import TrendPackages from '@/libs/components/homepage/TrendPackages';
 import PopularPackages from '@/libs/components/homepage/PopularPackages';
 import Advertisement from '@/libs/components/homepage/Advertisement';
-import TopAgents from '@/libs/components/homepage/TopAgents';
+import HomeComments from '@/libs/components/homepage/HomeComments';
+import BoardArticles from '@/libs/components/homepage/BoardArticles';
 import HeaderFilter from '@/libs/components/homepage/HeaderFilter';
 
 const HomePage: NextPage = () => {
@@ -18,7 +19,8 @@ const HomePage: NextPage = () => {
 				<TrendPackages />
 				<PopularPackages />
 				<Advertisement />
-				<TopAgents />
+				<HomeComments />
+				<BoardArticles />
 			</Stack>
 		);
 	} else {
@@ -28,7 +30,8 @@ const HomePage: NextPage = () => {
 				<TrendPackages />
 				<PopularPackages />
 				<Advertisement />
-				<TopAgents />
+				<HomeComments />
+				<BoardArticles />
 			</Stack>
 		);
 	}

@@ -20,7 +20,7 @@ const HeaderFilter = () => {
 						</p>
 						<Box component={'div'} className={'hero-actions'}>
 							<NextLink href={'/packages'} className={'hero-btn primary'}>
-								Browse Packages
+								Browse Insurance
 							</NextLink>
 							<NextLink href={'/account/join'} className={'hero-btn secondary'}>
 								Find a Plan
@@ -45,7 +45,7 @@ const HeaderFilter = () => {
 						</p>
 						<Box component={'div'} className={'hero-actions'}>
 							<NextLink href={'/packages'} className={'hero-btn primary'}>
-								Visit your member account
+								Browse Insurance
 							</NextLink>
 							<NextLink href={'/account/join'} className={'hero-btn secondary'}>
 								Find a plan

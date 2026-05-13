@@ -1,5 +1,6 @@
 import React, { FormEvent, useState } from 'react';
 import { Stack, Box } from '@mui/material';
+import { useRouter } from 'next/router';
 import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
 import { GET_INSURANCE_RECOMMENDATION } from '@/apollo/user/query';
 import { initializeApollo } from '@/apollo/client';
@@ -41,6 +42,7 @@ const INSURANCE_TYPE_OPTIONS: { value: InsuranceTypeValue; label: string }[] = [
 
 const TrendPackages: React.FC = () => {
 	const device = useDeviceDetect();
+	const router = useRouter();
 	const [selectedTypes, setSelectedTypes] = useState<InsuranceTypeValue[]>(['AUTO']);
 	const [age, setAge] = useState('');
 	const [budget, setBudget] = useState('');
@@ -118,7 +120,7 @@ const TrendPackages: React.FC = () => {
 					error?.graphQLErrors?.[0]?.message ?? error?.message ?? '';
 				if (graphQLErrorMessage === 'No data found!') {
 					setApiError(
-						'No matching packages found for your criteria. Try increasing your budget or changing insurance type.',
+						'No matching insurance plans found for your criteria. Try increasing your budget or changing insurance type.',
 					);
 				} else {
 					setApiError('Something went wrong. Please try again.');
@@ -138,7 +140,7 @@ const TrendPackages: React.FC = () => {
 						<strong className={'section-title'}>AI Insurance Advisor</strong>
 						<p className={'section-desc'}>
 							Tell us what you want to protect and we&apos;ll suggest the best
-							insurance packages for you.
+							insurance plans for you.
 						</p>
 					</Box>
 				</Stack>
@@ -241,6 +243,7 @@ const TrendPackages: React.FC = () => {
 											key={pkg._id}
 											component={'div'}
 											className={'package-card'}
+											onClick={() => router.push(`/packages/${pkg._id}`)}
 										>
 											<span className={'package-type'}>
 												{formatInsuranceType(pkg.packageType)}
