@@ -7,26 +7,50 @@ export const GET_PACKAGES = gql`
         _id
         packageType
         packageStatus
-        packageTitle
+        packageTitle: packageName
         packagePrice
         packageViews
         packageLikes
         packageRank
-        packageImage
         packageDesc
-        memberId
-        createdAt
-        updatedAt
-        memberData {
-          _id
-          memberNick
-          memberImage
-          memberType
+        meLiked {
+          myFavorite
         }
       }
       metaCounter {
         total
       }
+    }
+  }
+`;
+
+export const GET_PACKAGE = gql`
+  query GetPackage($packageId: String!) {
+    getPackage(packageId: $packageId) {
+      _id
+      packageType
+      packageStatus
+      packageTitle: packageName
+      packageDesc
+      packagePrice
+      packageCoverageLimit
+      packageMinAge
+      packageMaxAge
+      packageAssetTags
+      packageImages
+      packageViews
+      packageLikes
+      packageComments
+      memberData {
+        _id
+        memberNick
+        memberImage
+      }
+      meLiked {
+        myFavorite
+      }
+      createdAt
+      updatedAt
     }
   }
 `;

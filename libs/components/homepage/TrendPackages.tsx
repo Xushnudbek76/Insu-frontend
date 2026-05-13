@@ -53,15 +53,36 @@ const TrendPackages: React.FC = () => {
 	const [apiError, setApiError] = useState<string | null>(null);
 
 	const handleToggleType = (value: InsuranceTypeValue) => {
-		setSelectedTypes((prev) =>
-			prev.includes(value) ? prev.filter((type) => type !== value) : [...prev, value],
-		);
+		setSelectedTypes((prev) => {
+			if (prev.includes(value)) {
+				// Do not allow removing the last remaining type
+				if (prev.length === 1) {
+					return prev;
+				}
+				return prev.filter((type) => type !== value);
+			}
+			return [...prev, value];
+		});
 	};
 
 	const handleSubmit = (event: FormEvent) => {
 		event.preventDefault();
 		if (!selectedTypes.length) {
 			setFormError('Please select at least one insurance type.');
+			return;
+		}
+
+		const trimmedAge = age.trim();
+		const ageValue = Number(trimmedAge);
+		if (!trimmedAge || Number.isNaN(ageValue) || ageValue <= 0) {
+			setFormError('Please enter a valid age.');
+			return;
+		}
+
+		const trimmedBudget = budget.trim();
+		const budgetValue = Number(trimmedBudget);
+		if (!trimmedBudget || Number.isNaN(budgetValue) || budgetValue <= 0) {
+			setFormError('Please enter your monthly budget.');
 			return;
 		}
 
@@ -72,17 +93,9 @@ const TrendPackages: React.FC = () => {
 
 		const input: InsuranceRecommendationVariables['input'] = {
 			types: selectedTypes,
+			age: ageValue,
+			budget: budgetValue,
 		};
-
-		const ageValue = Number(age);
-		if (!Number.isNaN(ageValue) && ageValue > 0) {
-			input.age = ageValue;
-		}
-
-		const budgetValue = Number(budget);
-		if (!Number.isNaN(budgetValue) && budgetValue > 0) {
-			input.budget = budgetValue;
-		}
 
 		const textValue = text.trim();
 		if (textValue) {
@@ -98,10 +111,18 @@ const TrendPackages: React.FC = () => {
 			.then((response) => {
 				setResult(response.data.getInsuranceRecommendation);
 			})
-			.catch((error) => {
+			.catch((error: any) => {
 				// eslint-disable-next-line no-console
 				console.error('Error, getInsuranceRecommendation', error);
-				setApiError('Something went wrong. Please try again.');
+				const graphQLErrorMessage =
+					error?.graphQLErrors?.[0]?.message ?? error?.message ?? '';
+				if (graphQLErrorMessage === 'No data found!') {
+					setApiError(
+						'No matching packages found for your criteria. Try increasing your budget or changing insurance type.',
+					);
+				} else {
+					setApiError('Something went wrong. Please try again.');
+				}
 			})
 			.finally(() => {
 				setLoading(false);
@@ -152,7 +173,7 @@ const TrendPackages: React.FC = () => {
 									className={'text-input'}
 									value={age}
 									onChange={(event) => setAge(event.target.value)}
-									placeholder={device === 'mobile' ? 'Optional' : ''}
+									placeholder={device === 'mobile' ? 'Your age' : ''}
 								/>
 							</Box>
 							<Box component={'div'} className={'field'}>
@@ -165,7 +186,7 @@ const TrendPackages: React.FC = () => {
 									className={'text-input'}
 									value={budget}
 									onChange={(event) => setBudget(event.target.value)}
-									placeholder={device === 'mobile' ? 'Optional' : ''}
+									placeholder={device === 'mobile' ? 'Budget per month' : ''}
 								/>
 							</Box>
 						</Box>
