@@ -31,6 +31,23 @@ export const GET_PACKAGES = gql`
   }
 `;
 
+export const GET_INSURANCE_RECOMMENDATION = gql`
+  query GetInsuranceRecommendation($input: InsuranceRecommendationInput!) {
+    getInsuranceRecommendation(input: $input) {
+      riskScore
+      reason
+      rawFactors
+      recommendedPackages {
+        _id
+        packageType
+        packageTitle: packageName
+        packagePrice
+        packageDesc
+      }
+    }
+  }
+`;
+
 export const GET_AGENTS = gql`
   query GetAgents($input: AgentsInquiry!) {
     getAgents(input: $input) {

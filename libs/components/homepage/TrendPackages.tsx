@@ -1,49 +1,273 @@
-import React, { useState } from 'react';
+import React, { FormEvent, useState } from 'react';
 import { Stack, Box } from '@mui/material';
 import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
+import { GET_INSURANCE_RECOMMENDATION } from '@/apollo/user/query';
+import { initializeApollo } from '@/apollo/client';
 
-const TrendPackages = () => {
+type InsuranceTypeValue = 'AUTO' | 'HOME' | 'HEALTH' | 'TRAVEL';
+
+interface InsuranceRecommendationPackage {
+	_id: string;
+	packageType: string;
+	packageTitle: string;
+	packagePrice: number;
+	packageDesc?: string | null;
+}
+
+interface InsuranceRecommendationData {
+	getInsuranceRecommendation: {
+		riskScore: number;
+		reason: string;
+		rawFactors?: string[] | null;
+		recommendedPackages: InsuranceRecommendationPackage[];
+	};
+}
+
+interface InsuranceRecommendationVariables {
+	input: {
+		types: InsuranceTypeValue[];
+		age?: number;
+		budget?: number;
+		text?: string;
+	};
+}
+
+const INSURANCE_TYPE_OPTIONS: { value: InsuranceTypeValue; label: string }[] = [
+	{ value: 'AUTO', label: 'Car' },
+	{ value: 'HOME', label: 'Home' },
+	{ value: 'HEALTH', label: 'Health' },
+	{ value: 'TRAVEL', label: 'Travel' },
+];
+
+const TrendPackages: React.FC = () => {
 	const device = useDeviceDetect();
+	const [selectedTypes, setSelectedTypes] = useState<InsuranceTypeValue[]>(['AUTO']);
+	const [age, setAge] = useState('');
+	const [budget, setBudget] = useState('');
+	const [text, setText] = useState('');
+	const [formError, setFormError] = useState<string | null>(null);
+	const [result, setResult] = useState<InsuranceRecommendationData['getInsuranceRecommendation'] | null>(
+		null,
+	);
+	const [loading, setLoading] = useState(false);
+	const [apiError, setApiError] = useState<string | null>(null);
 
-	if (device === 'mobile') {
-		return (
-			<Stack className={'trend-packages'}>
-				<Stack className={'container'}>
-					<Stack className={'info-box'}>
-						<span>Trend Packages</span>
-					</Stack>
-					<Stack className={'card-box'}>
-						<Box component={'div'} className={'empty-list'}>
-							No trend packages yet
+	const handleToggleType = (value: InsuranceTypeValue) => {
+		setSelectedTypes((prev) =>
+			prev.includes(value) ? prev.filter((type) => type !== value) : [...prev, value],
+		);
+	};
+
+	const handleSubmit = (event: FormEvent) => {
+		event.preventDefault();
+		if (!selectedTypes.length) {
+			setFormError('Please select at least one insurance type.');
+			return;
+		}
+
+		setFormError(null);
+		setApiError(null);
+		setLoading(true);
+		setResult(null);
+
+		const input: InsuranceRecommendationVariables['input'] = {
+			types: selectedTypes,
+		};
+
+		const ageValue = Number(age);
+		if (!Number.isNaN(ageValue) && ageValue > 0) {
+			input.age = ageValue;
+		}
+
+		const budgetValue = Number(budget);
+		if (!Number.isNaN(budgetValue) && budgetValue > 0) {
+			input.budget = budgetValue;
+		}
+
+		const textValue = text.trim();
+		if (textValue) {
+			input.text = textValue;
+		}
+
+		const client = initializeApollo(null);
+		client
+			.query<InsuranceRecommendationData, InsuranceRecommendationVariables>({
+				query: GET_INSURANCE_RECOMMENDATION,
+				variables: { input },
+			})
+			.then((response) => {
+				setResult(response.data.getInsuranceRecommendation);
+			})
+			.catch((error) => {
+				// eslint-disable-next-line no-console
+				console.error('Error, getInsuranceRecommendation', error);
+				setApiError('Something went wrong. Please try again.');
+			})
+			.finally(() => {
+				setLoading(false);
+			});
+	};
+
+	return (
+		<Stack className={'trend-packages ai-recommendation'}>
+			<Stack className={'container'}>
+				<Stack className={'ai-header'}>
+					<Box component={'div'} className={'ai-header-text'}>
+						<span className={'section-label'}>AI Recommendation</span>
+						<strong className={'section-title'}>AI Insurance Advisor</strong>
+						<p className={'section-desc'}>
+							Tell us what you want to protect and we&apos;ll suggest the best
+							insurance packages for you.
+						</p>
+					</Box>
+				</Stack>
+				<Stack className={'ai-content'}>
+					<Box component={'form'} className={'ai-form'} onSubmit={handleSubmit}>
+						<Box component={'div'} className={'field-group'}>
+							<label className={'field-label'}>What do you want to insure?</label>
+							<Box component={'div'} className={'type-chip-group'}>
+								{INSURANCE_TYPE_OPTIONS.map((option) => (
+									<button
+										key={option.value}
+										type="button"
+										className={
+											'type-chip' +
+											(selectedTypes.includes(option.value) ? ' active' : '')
+										}
+										onClick={() => handleToggleType(option.value)}
+									>
+										{option.label}
+									</button>
+								))}
+							</Box>
 						</Box>
-					</Stack>
+						<Box component={'div'} className={'field-row'}>
+							<Box component={'div'} className={'field'}>
+								<label className={'field-label'} htmlFor="ai-age">
+									Age
+								</label>
+								<input
+									id="ai-age"
+									type="number"
+									className={'text-input'}
+									value={age}
+									onChange={(event) => setAge(event.target.value)}
+									placeholder={device === 'mobile' ? 'Optional' : ''}
+								/>
+							</Box>
+							<Box component={'div'} className={'field'}>
+								<label className={'field-label'} htmlFor="ai-budget">
+									Monthly budget ($)
+								</label>
+								<input
+									id="ai-budget"
+									type="number"
+									className={'text-input'}
+									value={budget}
+									onChange={(event) => setBudget(event.target.value)}
+									placeholder={device === 'mobile' ? 'Optional' : ''}
+								/>
+							</Box>
+						</Box>
+						<Box component={'div'} className={'field'}>
+							<label className={'field-label'} htmlFor="ai-text">
+								Tell us more (optional)
+							</label>
+							<textarea
+								id="ai-text"
+								className={'text-area'}
+								rows={3}
+								value={text}
+								onChange={(event) => setText(event.target.value)}
+								placeholder="Example: I drive a new car and want full coverage, plus basic health protection."
+							/>
+						</Box>
+						{formError && <p className={'form-error'}>{formError}</p>}
+						{apiError && !formError && (
+							<p className={'form-error'}>{apiError}</p>
+						)}
+						<button type="submit" className={'primary-btn'} disabled={loading}>
+							{loading ? 'Asking AI…' : 'Get recommendation'}
+						</button>
+					</Box>
+					<Box component={'div'} className={'ai-result'}>
+						{!result && !loading && !apiError && (
+							<Box component={'div'} className={'ai-result-empty'}>
+								<strong>AI suggestions will appear here.</strong>
+								<p>
+									Choose what you want to insure and press “Get recommendation”.
+								</p>
+							</Box>
+						)}
+
+						{loading && (
+							<Box component={'div'} className={'ai-result-loading'}>
+								<span>Analyzing your options…</span>
+							</Box>
+						)}
+
+						{result && !loading && (
+							<Box component={'div'} className={'ai-result-content'}>
+								<Box component={'div'} className={'ai-summary'}>
+									<span className={'risk-badge'}>
+										Risk score: {result.riskScore}
+									</span>
+									<p className={'ai-reason'}>{result.reason}</p>
+								</Box>
+								<Box component={'div'} className={'ai-packages'}>
+									{result.recommendedPackages.map((pkg) => (
+										<Box
+											key={pkg._id}
+											component={'div'}
+											className={'package-card'}
+										>
+											<span className={'package-type'}>
+												{formatInsuranceType(pkg.packageType)}
+											</span>
+											<strong className={'package-name'}>
+												{pkg.packageTitle}
+											</strong>
+											{pkg.packageDesc && (
+												<p className={'package-desc'}>{pkg.packageDesc}</p>
+											)}
+											<span className={'package-price'}>
+												${pkg.packagePrice.toLocaleString()}
+											</span>
+										</Box>
+									))}
+								</Box>
+								{result.rawFactors && result.rawFactors.length > 0 && (
+									<Box component={'div'} className={'ai-factors'}>
+										<span className={'factors-label'}>Why these packages?</span>
+										<ul className={'factors-list'}>
+											{result.rawFactors.map((factor, index) => (
+												<li key={index}>{factor}</li>
+											))}
+										</ul>
+									</Box>
+								)}
+							</Box>
+						)}
+					</Box>
 				</Stack>
 			</Stack>
-		);
-	} else {
-		return (
-			<Stack className={'trend-packages'}>
-				<Stack className={'container'}>
-					<Stack className={'info-box'}>
-						<Box component={'div'} className={'left'}>
-							<span>Trend Packages</span>
-							<p>Trending is based on likes</p>
-						</Box>
-						<Box component={'div'} className={'right'}>
-							<div className={'pagination-box'}>
-								<div className={'swiper-trend-pagination'}></div>
-							</div>
-						</Box>
-					</Stack>
-					<Stack className={'card-box'}>
-						<Box component={'div'} className={'empty-list'}>
-							No trend packages yet
-						</Box>
-					</Stack>
-				</Stack>
-			</Stack>
-		);
-	}
+		</Stack>
+	);
 };
+
+function formatInsuranceType(type: string): string {
+	switch (type) {
+		case 'AUTO':
+			return 'Car insurance';
+		case 'HOME':
+			return 'Home insurance';
+		case 'HEALTH':
+			return 'Health insurance';
+		case 'TRAVEL':
+			return 'Travel insurance';
+		default:
+			return 'Insurance';
+	}
+}
 
 export default TrendPackages;

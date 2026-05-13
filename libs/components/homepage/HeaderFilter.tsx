@@ -9,22 +9,21 @@ const HeaderFilter = () => {
 	if (device === 'mobile') {
 		return (
 			<Stack className={'header-filter'}>
-				<Stack className={'container'}>
-					<Box component={'div'} className={'info'}>
-						<span className={'hero-label'}>Insurance-AI Platform</span>
+				<Stack className={'hero-inner'}>
+					<Box component={'div'} className={'hero-text'}>
 						<strong className={'hero-title'}>
-							Find the right insurance coverage for you
+							Health insurance made for real life
 						</strong>
 						<p className={'hero-desc'}>
-							Smart marketplace powered by AI. Compare plans, connect with agents,
-							and manage your policies in one place.
+							We make insurance affordable, easy to understand, and tailored to your needs.
+							Some plans start at $0.
 						</p>
 						<Box component={'div'} className={'hero-actions'}>
 							<NextLink href={'/packages'} className={'hero-btn primary'}>
 								Browse Packages
 							</NextLink>
 							<NextLink href={'/account/join'} className={'hero-btn secondary'}>
-								Login / Register
+								Find a Plan
 							</NextLink>
 						</Box>
 					</Box>
@@ -34,23 +33,44 @@ const HeaderFilter = () => {
 	} else {
 		return (
 			<Stack className={'header-filter'}>
-				<Stack className={'container'}>
-					<Box component={'div'} className={'info'}>
-						<span className={'hero-label'}>Insurance-AI Platform</span>
+				<Stack className={'hero-inner'}>
+					<Box component={'div'} className={'hero-text'}>
 						<strong className={'hero-title'}>
-							Find the right insurance coverage for you
+							Health insurance made for real life
 						</strong>
 						<p className={'hero-desc'}>
-							Smart marketplace powered by AI. Compare plans, connect with agents,
-							and manage your policies in one place.
+							We don’t just offer health insurance. We make sure it’s affordable,
+							easy to understand, and covers the care you really need,
+							whenever you need it. And yes, some plans start at $0.
 						</p>
 						<Box component={'div'} className={'hero-actions'}>
 							<NextLink href={'/packages'} className={'hero-btn primary'}>
-								Browse Packages
+								Visit your member account
 							</NextLink>
 							<NextLink href={'/account/join'} className={'hero-btn secondary'}>
-								Login / Register
+								Find a plan
 							</NextLink>
+						</Box>
+					</Box>
+					<Box component={'div'} className={'hero-images'}>
+						<Box component={'div'} className={'img-col left-col'}>
+							<img
+								className={'img-card top'}
+								src={'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=480&h=280&fit=crop'}
+								alt={'car insurance'}
+							/>
+							<img
+								className={'img-card bottom'}
+								src={'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=480&h=200&fit=crop'}
+								alt={'home insurance'}
+							/>
+						</Box>
+						<Box component={'div'} className={'img-col right-col'}>
+							<img
+								className={'img-card full'}
+								src={'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=380&h=500&fit=crop'}
+								alt={'personal insurance'}
+							/>
 						</Box>
 					</Box>
 				</Stack>
