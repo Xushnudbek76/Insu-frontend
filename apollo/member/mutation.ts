@@ -51,3 +51,9 @@ export const SIGNUP_MUTATION = gql`
     }
   }
 `;
+
+export const IMAGE_UPLOADER_MUTATION = gql`
+  mutation ImageUploader($file: Upload!, $target: String!) {
+    imageUploader(file: $file, target: $target)
+  }
+`;

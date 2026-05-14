@@ -1,4 +1,4 @@
-declare module 'apollo-upload-client' {
+declare module 'apollo-upload-client/UploadHttpLink.mjs' {
   import { ApolloLink } from '@apollo/client';
   import { FetchOptions } from '@apollo/client/link/http';
 
@@ -8,5 +8,7 @@ declare module 'apollo-upload-client' {
     headers?: Record<string, string>;
   }
 
-  export function createUploadLink(options?: UploadLinkOptions): ApolloLink;
+  export default class UploadHttpLink extends ApolloLink {
+    constructor(options?: UploadLinkOptions);
+  }
 }

@@ -17,6 +17,7 @@ import { userVar } from '@/apollo/store';
 import { GET_PACKAGES } from '@/apollo/user/query';
 import { LIKE_TARGET_PACKAGE } from '@/apollo/package/mutation';
 import { sweetMixinErrorAlert, sweetTopSuccessAlert } from '@/libs/sweetAlert';
+import { toAssetUrl } from '@/libs/api';
 
 const LIMIT = 9;
 
@@ -187,9 +188,7 @@ const PackagesPage: NextPage = () => {
   };
 
   const getImage = (images?: string[] | null) =>
-    images?.[0]
-      ? `${process.env.NEXT_PUBLIC_API_URL}/${images[0]}`
-      : '/img/placeholder-article.svg';
+    toAssetUrl(images?.[0]) ?? '/img/placeholder-article.svg';
 
   const formatCount = (value?: number | null) =>
     value == null ? '0' : value >= 1000 ? `${(value / 1000).toFixed(1)}k` : String(value);

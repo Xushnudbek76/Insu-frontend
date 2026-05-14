@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
-import { ApolloClient, InMemoryCache, ApolloLink, from, HttpLink } from '@apollo/client';
+import { ApolloClient, InMemoryCache, ApolloLink, from } from '@apollo/client';
 import { onError } from '@apollo/client/link/error';
 import { setContext } from '@apollo/client/link/context';
+import UploadHttpLink from 'apollo-upload-client/UploadHttpLink.mjs';
 import { getJwtToken } from '@/libs/auth';
 
 let apolloClient: ApolloClient | undefined;
@@ -16,6 +17,7 @@ const createAuthLink = () =>
     return {
       headers: {
         ...headers,
+        'apollo-require-preflight': 'true',
         ...(token
           ? {
               Authorization: `Bearer ${token}`,
@@ -26,7 +28,7 @@ const createAuthLink = () =>
   });
 
 const createHttpLink = (): ApolloLink =>
-  new HttpLink({
+  new UploadHttpLink({
     uri: GRAPHQL_ENDPOINT,
     credentials: 'include',
   });

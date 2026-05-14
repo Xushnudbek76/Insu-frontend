@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Community Forum - InsureConnect</title>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "on-tertiary-fixed-variant": "#464747",
+                "secondary": "#5d5e65",
+                "inverse-on-surface": "#f0f1f3",
+                "tertiary": "#464747",
+                "outline-variant": "#c6c4d9",
+                "on-primary-container": "#d5d4ff",
+                "tertiary-fixed-dim": "#c7c6c6",
+                "on-secondary": "#ffffff",
+                "surface-bright": "#f8f9fb",
+                "primary-fixed": "#e1e0ff",
+                "on-error": "#ffffff",
+                "on-error-container": "#93000a",
+                "error-container": "#ffdad6",
+                "error": "#ba1a1a",
+                "surface-container-low": "#f2f4f6",
+                "surface-container": "#edeef0",
+                "inverse-surface": "#2e3132",
+                "on-tertiary-fixed": "#1b1c1c",
+                "on-background": "#191c1e",
+                "on-tertiary-container": "#d9d8d7",
+                "on-primary-fixed-variant": "#2219dc",
+                "on-primary-fixed": "#06006c",
+                "outline": "#767588",
+                "primary": "#2218dc",
+                "on-tertiary": "#ffffff",
+                "secondary-fixed": "#e2e2ea",
+                "on-surface-variant": "#454556",
+                "primary-container": "#4040f2",
+                "secondary-container": "#dfdfe7",
+                "on-primary": "#ffffff",
+                "inverse-primary": "#c0c1ff",
+                "on-surface": "#191c1e",
+                "on-secondary-fixed": "#191b21",
+                "surface-variant": "#e1e2e4",
+                "surface-container-high": "#e7e8ea",
+                "surface-dim": "#d9dadc",
+                "surface-container-highest": "#e1e2e4",
+                "tertiary-container": "#5e5e5e",
+                "background": "#f8f9fb",
+                "surface-container-lowest": "#ffffff",
+                "primary-fixed-dim": "#c0c1ff",
+                "secondary-fixed-dim": "#c5c6ce",
+                "on-secondary-container": "#616269",
+                "surface-tint": "#4040f2",
+                "on-secondary-fixed-variant": "#45464d",
+                "surface": "#f8f9fb",
+                "tertiary-fixed": "#e3e2e2"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+        },
+        "spacing": {
+                "unit": "4px",
+                "lg": "24px",
+                "gutter": "24px",
+                "margin-desktop": "40px",
+                "xl": "32px",
+                "md": "16px",
+                "container-max": "1280px",
+                "sm": "8px",
+                "margin-mobile": "16px",
+                "xs": "4px"
+        },
+        "fontFamily": {
+                "headline-xl": [
+                        "Hanken Grotesk"
+                ],
+                "headline-lg-mobile": [
+                        "Hanken Grotesk"
+                ],
+                "body-lg": [
+                        "Hanken Grotesk"
+                ],
+                "label-sm": [
+                        "Hanken Grotesk"
+                ],
+                "label-md": [
+                        "Hanken Grotesk"
+                ],
+                "headline-lg": [
+                        "Hanken Grotesk"
+                ],
+                "body-md": [
+                        "Hanken Grotesk"
+                ],
+                "body-sm": [
+                        "Hanken Grotesk"
+                ],
+                "headline-md": [
+                        "Hanken Grotesk"
+                ]
+        },
+        "fontSize": {
+                "headline-xl": [
+                        "48px",
+                        {
+                                "lineHeight": "56px",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "headline-lg-mobile": [
+                        "28px",
+                        {
+                                "lineHeight": "36px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "body-lg": [
+                        "18px",
+                        {
+                                "lineHeight": "28px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "label-sm": [
+                        "12px",
+                        {
+                                "lineHeight": "14px",
+                                "letterSpacing": "0.04em",
+                                "fontWeight": "500"
+                        }
+                ],
+                "label-md": [
+                        "14px",
+                        {
+                                "lineHeight": "16px",
+                                "letterSpacing": "0.02em",
+                                "fontWeight": "600"
+                        }
+                ],
+                "headline-lg": [
+                        "32px",
+                        {
+                                "lineHeight": "40px",
+                                "letterSpacing": "-0.01em",
+                                "fontWeight": "600"
+                        }
+                ],
+                "body-md": [
+                        "16px",
+                        {
+                                "lineHeight": "24px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "body-sm": [
+                        "14px",
+                        {
+                                "lineHeight": "20px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "headline-md": [
+                        "24px",
+                        {
+                                "lineHeight": "32px",
+                                "fontWeight": "600"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased">
+<!-- TopNavBar -->
+<header class="bg-surface-container-lowest dark:bg-surface-container-lowest border-b border-surface-variant dark:border-surface-variant flat no shadows sticky top-0 z-50">
+<div class="flex justify-between items-center px-margin-desktop h-16 w-full max-w-container-max mx-auto">
+<div class="flex items-center gap-8">
+<a class="font-headline-md text-headline-md font-bold text-primary dark:text-primary" href="#">InsureConnect</a>
+<nav class="hidden md:flex gap-6 items-center h-full pt-1">
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary transition-colors font-body-md text-body-md transition-all duration-200 active:opacity-80" href="#">Home</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary transition-colors font-body-md text-body-md transition-all duration-200 active:opacity-80" href="#">Insurance</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary transition-colors font-body-md text-body-md transition-all duration-200 active:opacity-80" href="#">Agents</a>
+<a class="text-primary dark:text-primary font-bold border-b-2 border-primary dark:border-primary pb-1 hover:text-primary dark:hover:text-primary transition-colors font-body-md text-body-md transition-all duration-200 active:opacity-80" href="#">Community</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">search</span>
+</button>
+<a class="text-primary font-label-md text-label-md hover:opacity-80 transition-opacity" href="#">Sign In</a>
+<button class="bg-primary text-on-primary px-4 py-2 rounded font-label-md text-label-md hover:bg-surface-tint transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">edit</span>
+                    Write
+                </button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-surface-variant cursor-pointer hover:border-primary transition-colors">
+<img alt="User profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDMbrS73JFmdjP6_swySbHb8IowmZYeCW9Rnk8omzfQQz_VJwUjHK_1neLG2HDxGC196R5uX0MQHu7sGcv9iCue-ajyUPdbbLXWsOyCe2_I-wl6FcJLxzOGT2pM0olBdB629JDQ0XdeCz8I5utGy06lTAN5HdUYf_o8gy6tvxkMK9RKs2PzrRGsaYrHe0Cwy-xCjsp-vqakgbmP1Z2iroVCuVTVoPg9y3S_DiI_qfhr7ifFeIaLqekbhc4mGcyBVTvM1owNxv56ST8"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Hero Section -->
+<section class="relative w-full h-[300px] flex items-center bg-inverse-surface overflow-hidden">
+<div class="absolute inset-0 w-full h-full">
+<img class="w-full h-full object-cover opacity-80" data-alt="A modern, professional tech-inspired abstract background for a community forum header. Use a deep navy blue and slate palette from the Kinetic Tech brand. Subtle geometric patterns or light streaks representing connectivity and movement. High-quality, clean, and minimalist style to ensure text legibility." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBCvs5cL4Dfz0cT4flhBu3KNOVpeZJgwawFIa7Knp8S3rVS_Jwr_dmSvAydm_vMr1Ja0g9iJ5jhWhwm74lVjTFDptwl9AgYSBEweVZcw3cYBQysthaJPo44IVTwXNWmEblCKIloseSgISYGHjL7gZw2A-YHoW0PZ6rAtpt_VgscVDfj_z1ZaYeq_oZB8B63S1OrJK06PSuI2Cg2B42nHlRa5R8HpRrFBIFMDOskcq90CdSTreoguPytbDa3djdLQJLGZ4elQgu85JY"/>
+<div class="absolute inset-0 bg-black/40"></div>
+</div>
+<div class="relative z-10 w-full max-w-container-max mx-auto px-margin-desktop flex flex-col gap-2">
+<h1 class="font-headline-xl text-headline-xl text-on-primary">Community</h1>
+<p class="font-body-lg text-body-lg text-inverse-on-surface opacity-90">Home / For Rent</p>
+</div>
+</section>
+<!-- Main Content -->
+<main class="w-full max-w-container-max mx-auto px-margin-desktop py-12 flex flex-col md:flex-row gap-gutter">
+<!-- Sidebar -->
+<aside class="hidden md:block w-64 flex-shrink-0">
+<div class="bg-surface-container-low dark:bg-surface-container-low rounded-xl p-gutter sticky top-24 flex flex-col gap-unit border border-surface-variant">
+<div class="mb-6 px-4">
+<div class="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-on-primary mb-3">
+<span class="material-symbols-outlined">shield_person</span>
+</div>
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface dark:text-on-surface">Categories</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Community Channels</p>
+</div>
+<nav class="flex flex-col gap-1">
+<a class="flex items-center gap-3 px-4 py-3 bg-primary-fixed dark:bg-primary-container text-on-primary-fixed-variant dark:text-on-primary-container font-bold rounded-xl transition-all duration-150 active:scale-95 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed">forum</span>
+                        Free Board
+                    </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest rounded-xl transition-all duration-150 active:scale-95 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">thumb_up</span>
+                        Recommendations
+                    </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest rounded-xl transition-all duration-150 active:scale-95 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">newspaper</span>
+                        News
+                    </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest rounded-xl transition-all duration-150 active:scale-95 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">mood</span>
+                        Humor
+                    </a>
+</nav>
+<div class="mt-8">
+<button class="w-full bg-primary text-on-primary py-3 rounded-lg font-label-md text-label-md hover:bg-surface-tint transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">add</span>
+                        Create Post
+                    </button>
+</div>
+</div>
+</aside>
+<!-- Content Area -->
+<section class="flex-1 flex flex-col gap-8">
+<!-- Header -->
+<div class="flex justify-between items-end border-b border-surface-variant pb-4">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">FREE BOARD</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Express your opinions freely here without content restrictions</p>
+</div>
+<button class="bg-primary text-on-primary px-6 py-2 rounded font-label-md text-label-md hover:bg-surface-tint transition-colors">
+                    Write
+                </button>
+</div>
+<!-- Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<!-- Card 1 -->
+<article class="group bg-surface-container-lowest rounded-xl overflow-hidden border border-surface-variant hover:border-primary transition-colors cursor-pointer flex flex-col shadow-sm">
+<div class="relative h-48 overflow-hidden bg-surface-container">
+<img alt="Modern corporate building facade" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A low-angle view looking up at modern, angular corporate buildings against a clear blue sky. The architecture features highly reflective glass and sharp geometric lines, accented with a warm, golden-hour light hitting the facades. The style is precise, technical, and forward-leaning, fitting a developer-centric or high-performance corporate platform. Deep blues and contrasting structural elements emphasize engineered quality and clean aesthetics." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCE9RPb2GUdGI1S3MqnnI6Wi1g5OwsR_nQpseqLu-U-bNQ2Wy2hs8I7xNAaJjMPcF4DJ098-AYZItcmxs5YFDiF0kGX9ApFGlFdL2Vs_LYzriDvPcbzoahfmxQppw_jm9wnMi2H5Ru5gsQ0ZVN67zaXn4j2CwFHQ5JqEc6BX3-mYTpmsJAKKVLIdV0J35BQ-Vcj0ujgXgqRKIudQ9ZeM3ow1l1g3-xD0O3gHttKBx_u4glkrHmLGtc1gB1-QdJiyXNXC4MmSJsK_pU"/>
+<div class="absolute bottom-4 right-4 bg-surface-container-lowest text-on-surface px-3 py-2 rounded shadow-sm flex flex-col items-center">
+<span class="font-label-sm text-label-sm text-on-surface-variant">January</span>
+<span class="font-headline-md text-headline-md">13</span>
+</div>
+</div>
+<div class="p-4 flex flex-col gap-3 flex-1">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline-md text-body-md font-bold text-on-surface group-hover:text-primary transition-colors">Martin</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-1 mt-1">Coming soon</p>
+</div>
+</div>
+<div class="mt-auto flex items-center justify-end gap-4 text-on-surface-variant">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">visibility</span>
+<span class="font-label-sm text-label-sm">41</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">favorite</span>
+<span class="font-label-sm text-label-sm">17</span>
+</div>
+</div>
+</div>
+</article>
+<!-- Card 2 -->
+<article class="group bg-surface-container-lowest rounded-xl overflow-hidden border border-surface-variant hover:border-primary transition-colors cursor-pointer flex flex-col shadow-sm">
+<div class="relative h-48 overflow-hidden bg-surface-container">
+<img alt="Modern minimal office interior" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A clean, modern office interior with a focus on minimalism and productivity. A sleek leather sofa sits in the foreground, with natural light pouring in through large windows separated by vertical wooden slats. The color palette is composed of pristine whites, subtle greys, and warm wood tones, accented by a deep blue shadow cast across the floor. The aesthetic is high-end, structured, and free of unnecessary decoration." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAY6QJnAwj2O8_Dsve9CLD7eMcbH5mwiyx0bsGRJlPmDxKU38b2J6g4uOPXBvZ3_Dw8lb9hGGTgPvTsm1X4aVstAobnBzOhvLukGJdsOAMi5ee9UTZMpjSi4EU9DGS5lrtZUhn0MS-8_Dp5Aa_Tjly2ggKM2l6IQ8qD5Zn7gSVyptZLnISUk9QRR66wjnGOfpKr2BZO35Ql91AND11r986wDw2GQnB6KwhyMo3VffOO6pr_FvOOfRM3ikhwt24wJmlvkCBMi1u1R5o"/>
+<div class="absolute bottom-4 right-4 bg-surface-container-lowest text-on-surface px-3 py-2 rounded shadow-sm flex flex-col items-center">
+<span class="font-label-sm text-label-sm text-on-surface-variant">January</span>
+<span class="font-headline-md text-headline-md">15</span>
+</div>
+</div>
+<div class="p-4 flex flex-col gap-3 flex-1">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline-md text-body-md font-bold text-on-surface group-hover:text-primary transition-colors">Neo</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-1 mt-1">hi hi</p>
+</div>
+</div>
+<div class="mt-auto flex items-center justify-end gap-4 text-on-surface-variant">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">visibility</span>
+<span class="font-label-sm text-label-sm">12</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">favorite</span>
+<span class="font-label-sm text-label-sm">6</span>
+</div>
+</div>
+</div>
+</article>
+<!-- Card 3 -->
+<article class="group bg-surface-container-lowest rounded-xl overflow-hidden border border-surface-variant hover:border-primary transition-colors cursor-pointer flex flex-col shadow-sm">
+<div class="relative h-48 overflow-hidden bg-surface-container">
+<img alt="Modern minimal office interior" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A clean, modern office interior with a focus on minimalism and productivity. A sleek leather sofa sits in the foreground, with natural light pouring in through large windows separated by vertical wooden slats. The color palette is composed of pristine whites, subtle greys, and warm wood tones, accented by a deep blue shadow cast across the floor. The aesthetic is high-end, structured, and free of unnecessary decoration." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD8dVcgd_Cf0oU7rIR5lnz1kYA-pXxRCTeF3oXCyGPXBYJzoFuetF5QGmdLgcAKUcyhgLoJvHMaFGmQ6o4gPkbm_Wgcy-5KjuGWXwWGBqua6H0iAhflI_O9UU9dWMjS-FXNStT0vVvAPnnt0Gnkh12TUkP_mu3y1QvGbgGryluFqvlAkg-sVk4BLm7CM2cUzZOadYco76u2BHED8jFR23EE-wedKNAy0IponVHc-4_CbHToEQoHRPIBtOVhKJ9ryd2cVTllYbSnFSo"/>
+<div class="absolute bottom-4 right-4 bg-surface-container-lowest text-on-surface px-3 py-2 rounded shadow-sm flex flex-col items-center">
+<span class="font-label-sm text-label-sm text-on-surface-variant">February</span>
+<span class="font-headline-md text-headline-md">03</span>
+</div>
+</div>
+<div class="p-4 flex flex-col gap-3 flex-1">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline-md text-body-md font-bold text-on-surface group-hover:text-primary transition-colors">PNU</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-1 mt-1">help me</p>
+</div>
+</div>
+<div class="mt-auto flex items-center justify-end gap-4 text-on-surface-variant">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">visibility</span>
+<span class="font-label-sm text-label-sm">6</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">favorite</span>
+<span class="font-label-sm text-label-sm">4</span>
+</div>
+</div>
+</div>
+</article>
+<!-- Card 4 -->
+<article class="group bg-surface-container-lowest rounded-xl overflow-hidden border border-surface-variant hover:border-primary transition-colors cursor-pointer flex flex-col shadow-sm">
+<div class="relative h-48 overflow-hidden bg-surface-container">
+<img alt="Modern minimal office interior" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A clean, modern office interior with a focus on minimalism and productivity. A sleek leather sofa sits in the foreground, with natural light pouring in through large windows separated by vertical wooden slats. The color palette is composed of pristine whites, subtle greys, and warm wood tones, accented by a deep blue shadow cast across the floor. The aesthetic is high-end, structured, and free of unnecessary decoration." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAEnMHuXBQHPrq76ei1TMMUfcF8_LNoD4E1TLz5VZC-W0q14KQ0_hb_bAoO-AlIghGdl4J07qsRh1ZrXU5WDRnl56DiWCoFNR9r7tWL_cUvpi3HwBD-y9g7znWjM_wVzy9hAMavxoe0H-OtnO7YJ-_xhop4TmFm68lYdLDZgFRw366KYmhAanB3Rzu22y6mBQTvbnILQ7L3vVRgLTOYf2dr-URJqYd_1DuLr9GY45VCcfBFL4RAHJpneZMWV-7IvcOCjYnnhKiAUg8"/>
+<div class="absolute bottom-4 right-4 bg-surface-container-lowest text-on-surface px-3 py-2 rounded shadow-sm flex flex-col items-center">
+<span class="font-label-sm text-label-sm text-on-surface-variant">February</span>
+<span class="font-headline-md text-headline-md">18</span>
+</div>
+</div>
+<div class="p-4 flex flex-col gap-3 flex-1">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline-md text-body-md font-bold text-on-surface group-hover:text-primary transition-colors">Menbu</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-1 mt-1">test</p>
+</div>
+</div>
+<div class="mt-auto flex items-center justify-end gap-4 text-on-surface-variant">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">visibility</span>
+<span class="font-label-sm text-label-sm">3</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">favorite</span>
+<span class="font-label-sm text-label-sm">4</span>
+</div>
+</div>
+</div>
+</article>
+</div>
+<!-- Pagination & Total -->
+<div class="mt-8 flex flex-col items-center gap-4">
+<div class="flex items-center gap-2">
+<button class="w-8 h-8 flex items-center justify-center rounded text-on-surface-variant hover:bg-surface-container transition-colors disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined text-sm">chevron_left</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded bg-primary text-on-primary font-label-md text-label-md">1</button>
+<button class="w-8 h-8 flex items-center justify-center rounded text-on-surface-variant hover:bg-surface-container transition-colors font-label-md text-label-md">2</button>
+<button class="w-8 h-8 flex items-center justify-center rounded text-on-surface-variant hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant text-center">Total 11 articles available</p>
+</div>
+</section>
+</main>
+</body></html>

@@ -24,6 +24,7 @@ import { LIKE_TARGET_PACKAGE } from "@/apollo/package/mutation";
 import { GET_COMMENTS } from "@/apollo/comment/query";
 import { CREATE_COMMENT } from "@/apollo/comment/mutation";
 import { sweetMixinErrorAlert, sweetTopSuccessAlert } from "@/libs/sweetAlert";
+import { toAssetUrl } from "@/libs/api";
 
 /* ── Types ───────────────────────────────────────── */
 
@@ -70,12 +71,10 @@ interface RelatedPackage {
 /* ── Helpers ─────────────────────────────────────── */
 
 const getImage = (images?: string[] | null) =>
-  images?.[0]
-    ? `${process.env.NEXT_PUBLIC_API_URL}/${images[0]}`
-    : "/img/placeholder-article.svg";
+  toAssetUrl(images?.[0]) ?? "/img/placeholder-article.svg";
 
 const getMemberImage = (image?: string | null) =>
-  image ? `${process.env.NEXT_PUBLIC_API_URL}/${image}` : undefined;
+  toAssetUrl(image);
 
 const formatCount = (n?: number | null) => {
   if (n == null) return "0";

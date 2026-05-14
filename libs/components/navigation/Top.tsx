@@ -42,7 +42,16 @@ const Top = () => {
   const renderLinks = () =>
     links.map((link) => (
       <NextLink key={link.href} href={link.href} passHref legacyBehavior>
-        <a className={`nav-link${router.pathname === link.href ? ' active' : ''}`}>{link.label}</a>
+        <a
+          className={`nav-link${
+            router.pathname === link.href ||
+            (link.href !== '/' && router.pathname.startsWith(`${link.href}/`))
+              ? ' active'
+              : ''
+          }`}
+        >
+          {link.label}
+        </a>
       </NextLink>
     ));
 
