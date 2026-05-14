@@ -56,6 +56,61 @@ export const GET_PACKAGE = gql`
   }
 `;
 
+export const GET_MEMBER = gql`
+  query GetMember($memberId: String!) {
+    getMember(memberId: $memberId) {
+      _id
+      memberType
+      memberStatus
+      memberPhone
+      memberNick
+      memberFullName
+      memberImage
+      memberDesc
+      memberProperties
+      memberRank
+      memberArticles
+      memberPoints
+      memberLikes
+      memberViews
+      memberComments
+      meLiked {
+        memberId
+        likeRefId
+        myFavorite
+      }
+    }
+  }
+`;
+
+export const GET_AGENT_PUBLIC_PACKAGES = gql`
+  query GetAgentPublicPackages($input: PackagesInquiry!) {
+    getPackages(input: $input) {
+      list {
+        _id
+        packageType
+        packageStatus
+        packageTitle: packageName
+        packagePrice
+        packageImages
+        packageViews
+        packageLikes
+        packageComments
+        packageRank
+        packageCoverageLimit
+        packageMinAge
+        packageMaxAge
+        meLiked {
+          myFavorite
+        }
+      }
+      metaCounter {
+        total
+      }
+    }
+  }
+`;
+
 export const GET_INSURANCE_RECOMMENDATION = gql`
   query GetInsuranceRecommendation($input: InsuranceRecommendationInput!) {
     getInsuranceRecommendation(input: $input) {

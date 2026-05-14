@@ -1,5 +1,6 @@
 import { ChangeEvent, KeyboardEvent, MouseEvent, useEffect, useState } from 'react';
 import { NextPage } from 'next';
+import { useRouter } from 'next/router';
 import { useMutation, useQuery } from '@apollo/client/react';
 import { Box, Stack } from '@mui/material';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
@@ -59,6 +60,7 @@ const readableStatus = (status?: string | null) =>
   status ? status.toLowerCase().replace(/^\w/, (letter) => letter.toUpperCase()) : 'Active';
 
 const AgentsPage: NextPage = () => {
+  const router = useRouter();
   const [searchText, setSearchText] = useState('');
   const [appliedSearchText, setAppliedSearchText] = useState('');
   const [sort, setSort] = useState('createdAt');
@@ -240,7 +242,11 @@ const AgentsPage: NextPage = () => {
               const likes = likesByAgent[agent._id] ?? agent.memberLikes;
 
               return (
-                <Stack key={agent._id} className='agent-card'>
+                <Stack
+                  key={agent._id}
+                  className='agent-card'
+                  onClick={() => router.push(`/agents/${agent._id}`)}
+                >
                   <Box className='agent-image-wrap'>
                     <Box
                       component='img'
