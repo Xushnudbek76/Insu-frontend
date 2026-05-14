@@ -18,6 +18,13 @@ import { GET_PACKAGES } from '@/apollo/user/query';
 import { LIKE_TARGET_PACKAGE } from '@/apollo/package/mutation';
 import { sweetMixinErrorAlert, sweetTopSuccessAlert } from '@/libs/sweetAlert';
 import { toAssetUrl } from '@/libs/api';
+import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
+
+export const getStaticProps = async ({ locale = 'en' }: { locale?: string }) => ({
+  props: {
+    ...(await serverSideTranslations(locale, ['common'])),
+  },
+});
 
 const LIMIT = 9;
 

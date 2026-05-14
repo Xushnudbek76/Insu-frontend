@@ -3,6 +3,8 @@ import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useMutation, useQuery } from '@apollo/client/react';
 import { Box, Stack } from '@mui/material';
+import { useTranslation } from 'next-i18next/pages';
+import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
 import PhoneOutlinedIcon from '@mui/icons-material/PhoneOutlined';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -75,22 +77,19 @@ interface ReviewComment {
 const formatCount = (value?: number | null) =>
   value == null ? '0' : value >= 1000 ? `${(value / 1000).toFixed(1)}k` : String(value);
 
-const displayName = (agent?: AgentDetail | null) =>
-  agent?.memberNick || agent?.memberFullName || 'Insurance Agent';
-
 const getAsset = (path?: string | null) => toAssetUrl(path) ?? '/img/placeholder-article.svg';
 
 const getPackageImage = (images?: string[] | null) =>
   toAssetUrl(images?.[0]) ?? '/img/placeholder-article.svg';
 
-const typeLabel = (value: string) =>
-  ({ AUTO: 'Auto', HOME: 'Home', HEALTH: 'Health', TRAVEL: 'Travel' })[value] ?? value;
+const typeLabelKey = (value: string) =>
+  ({ AUTO: 'Auto', HOME: 'Home Type', HEALTH: 'Health', TRAVEL: 'Travel' })[value] ?? value;
 
 const readableStatus = (status?: string | null) =>
   status ? status.toLowerCase().replace(/^\w/, (letter) => letter.toUpperCase()) : 'Active';
 
-const formatDate = (date: string) =>
-  new Date(date).toLocaleDateString('en-US', {
+const formatDate = (date: string, locale?: string) =>
+  new Date(date).toLocaleDateString(locale === 'kr' ? 'ko-KR' : locale === 'ru' ? 'ru-RU' : 'en-US', {
     month: 'long',
     day: '2-digit',
   });
@@ -116,6 +115,7 @@ const buildPageNumbers = (page: number, totalPages: number): Array<number | '...
 
 const AgentDetailPage: NextPage = () => {
   const router = useRouter();
+  const { t } = useTranslation('common');
   const { id } = router.query;
   const agentId = typeof id === 'string' ? id : '';
 
@@ -186,6 +186,8 @@ const AgentDetailPage: NextPage = () => {
   const reviews = reviewsData?.getComments.list ?? [];
   const reviewTotal = reviewsData?.getComments.metaCounter?.[0]?.total ?? 0;
   const reviewTotalPages = Math.max(1, Math.ceil(reviewTotal / REVIEW_LIMIT));
+  const displayName = (agent?: AgentDetail | null) =>
+    agent?.memberNick || agent?.memberFullName || t('Insurance Agent');
 
   useEffect(() => {
     if (!listings.length) return;
@@ -204,7 +206,7 @@ const AgentDetailPage: NextPage = () => {
 
     const user = userVar();
     if (!user?._id) {
-      await sweetMixinErrorAlert('Please login to like packages.');
+      await sweetMixinErrorAlert(t('Please login to like packages.'));
       return;
     }
 
@@ -236,9 +238,9 @@ const AgentDetailPage: NextPage = () => {
       setPackageLiked((prev) => ({ ...prev, [packageId]: currentLiked }));
       setPackageLikes((prev) => ({ ...prev, [packageId]: currentLikes }));
       await sweetMixinErrorAlert(
-        err?.graphQLErrors?.[0]?.message?.replace('Definer: ', '') ??
+          err?.graphQLErrors?.[0]?.message?.replace('Definer: ', '') ??
           err?.message ??
-          'Could not update package like.',
+          t('Could not update package like.'),
       );
     }
   };
@@ -246,11 +248,11 @@ const AgentDetailPage: NextPage = () => {
   const handlePostReview = async () => {
     const user = userVar();
     if (!user?._id) {
-      await sweetMixinErrorAlert('Please login to submit a review.');
+      await sweetMixinErrorAlert(t('Please login to submit a review.'));
       return;
     }
     if (user._id === agentId) {
-      await sweetMixinErrorAlert('You cannot write a review for yourself.');
+      await sweetMixinErrorAlert(t('You cannot write a review for yourself.'));
       return;
     }
     if (!reviewText.trim()) return;
@@ -276,12 +278,12 @@ const AgentDetailPage: NextPage = () => {
           search: { commentRefId: agentId },
         },
       });
-      await sweetTopSuccessAlert('Review submitted!');
+      await sweetTopSuccessAlert(t('Review submitted!'));
     } catch (err: any) {
       await sweetMixinErrorAlert(
-        err?.graphQLErrors?.[0]?.message?.replace('Definer: ', '') ??
+          err?.graphQLErrors?.[0]?.message?.replace('Definer: ', '') ??
           err?.message ??
-          'Could not submit your review.',
+          t('Could not submit your review.'),
       );
     }
   };
@@ -308,8 +310,8 @@ const AgentDetailPage: NextPage = () => {
       <Stack className='agent-detail-page'>
         <Stack className='agent-detail-empty'>
           <BadgeOutlinedIcon />
-          <h1>Agent not found</h1>
-          <button onClick={() => router.push('/agents')}>Back to Agents</button>
+          <h1>{t('Agent not found')}</h1>
+          <button onClick={() => router.push('/agents')}>{t('Back to Agents')}</button>
         </Stack>
       </Stack>
     );
@@ -329,12 +331,12 @@ const AgentDetailPage: NextPage = () => {
             <h1>{displayName(agent)}</h1>
             <Stack className='agent-detail-phone'>
               <PhoneOutlinedIcon />
-              <span>{agent.memberPhone || 'Contact unavailable'}</span>
+              <span>{agent.memberPhone || t('Contact unavailable')}</span>
             </Stack>
             <Stack className='agent-detail-chips'>
-              <span>{readableStatus(agent.memberStatus)}</span>
-              <span>{agent.memberType || 'Agent'}</span>
-              {agent.memberRank != null && <span>Rank #{agent.memberRank}</span>}
+              <span>{t(readableStatus(agent.memberStatus))}</span>
+              <span>{agent.memberType || t('Agent')}</span>
+              {agent.memberRank != null && <span>{t('Rank')} #{agent.memberRank}</span>}
             </Stack>
             {agent.memberDesc && <p>{agent.memberDesc}</p>}
           </Stack>
@@ -342,24 +344,24 @@ const AgentDetailPage: NextPage = () => {
             <Stack>
               <VisibilityOutlinedIcon />
               <strong>{formatCount(agent.memberViews)}</strong>
-              <span>Views</span>
+              <span>{t('Views')}</span>
             </Stack>
             <Stack>
               <FavoriteIcon />
               <strong>{formatCount(agent.memberLikes)}</strong>
-              <span>Likes</span>
+              <span>{t('Likes')}</span>
             </Stack>
             <Stack>
               <ChatBubbleIcon />
               <strong>{formatCount(agent.memberComments)}</strong>
-              <span>Reviews</span>
+              <span>{t('Reviews')}</span>
             </Stack>
           </Stack>
         </Stack>
 
         <Stack className='agent-detail-section'>
           <Stack className='agent-detail-section-head'>
-            <h2>Active Listings ({listingTotal})</h2>
+            <h2>{t('Active Listings')} ({listingTotal})</h2>
           </Stack>
 
           {listingsLoading ? (
@@ -375,7 +377,7 @@ const AgentDetailPage: NextPage = () => {
               ))}
             </Box>
           ) : listings.length === 0 ? (
-            <Stack className='agent-detail-panel-empty'>No active listings found.</Stack>
+            <Stack className='agent-detail-panel-empty'>{t('No active listings found.')}</Stack>
           ) : (
             <Box className='agent-listing-grid'>
               {listings.map((pkg) => {
@@ -396,7 +398,7 @@ const AgentDetailPage: NextPage = () => {
                         className='agent-listing-image'
                       />
                       {pkg.packageRank != null && pkg.packageRank <= 3 && (
-                        <span className='agent-listing-top'>TOP</span>
+                        <span className='agent-listing-top'>{t('TOP')}</span>
                       )}
                       <span className='agent-listing-price'>
                         ${pkg.packagePrice.toLocaleString()}
@@ -404,13 +406,13 @@ const AgentDetailPage: NextPage = () => {
                     </Box>
                     <Stack className='agent-listing-body'>
                       <h3>{pkg.packageTitle}</h3>
-                      <p>{typeLabel(pkg.packageType)} Coverage</p>
+                      <p>{t(typeLabelKey(pkg.packageType))} {t('Coverage')}</p>
                       <Stack className='agent-listing-meta'>
                         {pkg.packageMinAge != null && (
-                          <span>Ages {pkg.packageMinAge}-{pkg.packageMaxAge ?? '∞'}</span>
+                          <span>{t('Ages')} {pkg.packageMinAge}-{pkg.packageMaxAge ?? '∞'}</span>
                         )}
                         {pkg.packageCoverageLimit != null && (
-                          <span>${pkg.packageCoverageLimit.toLocaleString()} limit</span>
+                          <span>${pkg.packageCoverageLimit.toLocaleString()} {t('limit')}</span>
                         )}
                       </Stack>
                       <Stack className='agent-listing-stats'>
@@ -464,27 +466,31 @@ const AgentDetailPage: NextPage = () => {
               </button>
             </Stack>
           )}
-          {listingTotal > 0 && <p className='agent-detail-total'>Total {listingTotal} packages available</p>}
+          {listingTotal > 0 && (
+            <p className='agent-detail-total'>
+              {t('Total packages available', { count: listingTotal })}
+            </p>
+          )}
         </Stack>
 
         <Stack className='agent-detail-reviews'>
           <Stack className='agent-detail-review-intro'>
-            <h2>Reviews</h2>
-            <p>We are glad to see your feedback again.</p>
+            <h2>{t('Reviews')}</h2>
+            <p>{t('We are glad to see your feedback again.')}</p>
           </Stack>
 
           <Stack className='agent-detail-review-list'>
             <Stack className='agent-detail-review-title'>
               <StarBorderOutlinedIcon />
               <span>
-                {reviewTotal} review{reviewTotal !== 1 ? 's' : ''}
+                {t('review count', { count: reviewTotal, plural: reviewTotal !== 1 ? 's' : '' })}
               </span>
             </Stack>
 
             {reviewsLoading ? (
-              <Stack className='agent-detail-panel-empty'>Loading reviews...</Stack>
+              <Stack className='agent-detail-panel-empty'>{t('Loading reviews...')}</Stack>
             ) : reviews.length === 0 ? (
-              <Stack className='agent-detail-panel-empty'>No reviews yet.</Stack>
+              <Stack className='agent-detail-panel-empty'>{t('No reviews yet.')}</Stack>
             ) : (
               reviews.map((review) => (
                 <Stack key={review._id} className='agent-review-card'>
@@ -492,11 +498,11 @@ const AgentDetailPage: NextPage = () => {
                     <Box
                       component='img'
                       src={getAsset(review.memberData?.memberImage)}
-                      alt={review.memberData?.memberNick ?? 'Member'}
+                      alt={review.memberData?.memberNick ?? t('Member')}
                     />
                     <Stack>
-                      <strong>{review.memberData?.memberNick ?? 'Member'}</strong>
-                      <span>{formatDate(review.createdAt)}</span>
+                      <strong>{review.memberData?.memberNick ?? t('Member')}</strong>
+                      <span>{formatDate(review.createdAt, router.locale)}</span>
                     </Stack>
                   </Stack>
                   <p>{review.commentContent}</p>
@@ -533,17 +539,17 @@ const AgentDetailPage: NextPage = () => {
           </Stack>
 
           <Stack className='agent-detail-review-form'>
-            <h3>Leave A Review</h3>
-            <label htmlFor='agent-review'>Review</label>
+            <h3>{t('Leave A Review')}</h3>
+            <label htmlFor='agent-review'>{t('Review')}</label>
             <textarea
               id='agent-review'
               value={reviewText}
-              placeholder='Write your review here...'
+              placeholder={t('Write your review here...')}
               onChange={(event: ChangeEvent<HTMLTextAreaElement>) => setReviewText(event.target.value)}
             />
             <Stack className='agent-detail-review-actions'>
               <button disabled={!reviewText.trim()} onClick={handlePostReview}>
-                <span>Submit Review</span>
+                <span>{t('Submit Review')}</span>
                 <OpenInNewOutlinedIcon />
               </button>
             </Stack>
@@ -555,3 +561,9 @@ const AgentDetailPage: NextPage = () => {
 };
 
 export default withLayoutMain(AgentDetailPage);
+
+export const getServerSideProps = async ({ locale = 'en' }: { locale?: string }) => ({
+  props: {
+    ...(await serverSideTranslations(locale, ['common'])),
+  },
+});

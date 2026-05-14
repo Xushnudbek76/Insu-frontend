@@ -10,6 +10,13 @@ import { userVar } from '@/apollo/store';
 import { CREATE_BOARD_ARTICLE } from '@/apollo/board-article/mutation';
 import { IMAGE_UPLOADER_MUTATION } from '@/apollo/member/mutation';
 import { sweetMixinErrorAlert, sweetTopSuccessAlert } from '@/libs/sweetAlert';
+import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
+
+export const getStaticProps = async ({ locale = 'en' }: { locale?: string }) => ({
+  props: {
+    ...(await serverSideTranslations(locale, ['common'])),
+  },
+});
 
 const CATEGORY_OPTIONS = [
   { value: BoardArticleCategory.FREE, label: 'Free' },

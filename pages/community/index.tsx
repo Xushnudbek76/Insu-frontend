@@ -16,6 +16,13 @@ import withLayoutMain from '@/layout/LayoutHome';
 import { GET_BOARD_ARTICLES } from '@/apollo/board-article/query';
 import { BoardArticleCategory } from '@/libs/enums/board-article.enum';
 import { toAssetUrl } from '@/libs/api';
+import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
+
+export const getStaticProps = async ({ locale = 'en' }: { locale?: string }) => ({
+  props: {
+    ...(await serverSideTranslations(locale, ['common'])),
+  },
+});
 
 const LIMIT = 8;
 

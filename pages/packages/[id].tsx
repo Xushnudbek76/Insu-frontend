@@ -25,6 +25,13 @@ import { GET_COMMENTS } from "@/apollo/comment/query";
 import { CREATE_COMMENT } from "@/apollo/comment/mutation";
 import { sweetMixinErrorAlert, sweetTopSuccessAlert } from "@/libs/sweetAlert";
 import { toAssetUrl } from "@/libs/api";
+import { serverSideTranslations } from "next-i18next/pages/serverSideTranslations";
+
+export const getServerSideProps = async ({ locale = "en" }: { locale?: string }) => ({
+  props: {
+    ...(await serverSideTranslations(locale, ["common"])),
+  },
+});
 
 /* ── Types ───────────────────────────────────────── */
 

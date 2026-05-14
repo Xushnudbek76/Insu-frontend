@@ -17,6 +17,13 @@ import { userVar } from '@/apollo/store';
 import { sweetMixinErrorAlert, sweetTopSuccessAlert } from '@/libs/sweetAlert';
 import { BoardArticleCategory } from '@/libs/enums/board-article.enum';
 import { toAssetUrl } from '@/libs/api';
+import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
+
+export const getServerSideProps = async ({ locale = 'en' }: { locale?: string }) => ({
+  props: {
+    ...(await serverSideTranslations(locale, ['common'])),
+  },
+});
 
 interface ArticleMember {
   _id: string;

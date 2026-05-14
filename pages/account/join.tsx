@@ -16,6 +16,13 @@ import {
 import withLayoutBasic from '@/layout/LayoutBasic';
 import { logIn, signUp } from '@/libs/auth';
 import { sweetTopSuccessAlert } from '@/libs/sweetAlert';
+import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
+
+export const getStaticProps = async ({ locale = 'en' }: { locale?: string }) => ({
+  props: {
+    ...(await serverSideTranslations(locale, ['common'])),
+  },
+});
 
 const JoinPage: NextPage = () => {
   const [activeTab, setActiveTab] = useState(0);

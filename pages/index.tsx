@@ -8,6 +8,13 @@ import Advertisement from '@/libs/components/homepage/Advertisement';
 import HomeComments from '@/libs/components/homepage/HomeComments';
 import BoardArticles from '@/libs/components/homepage/BoardArticles';
 import HeaderFilter from '@/libs/components/homepage/HeaderFilter';
+import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
+
+export const getStaticProps = async ({ locale = 'en' }: { locale?: string }) => ({
+	props: {
+		...(await serverSideTranslations(locale, ['common'])),
+	},
+});
 
 const HomePage: NextPage = () => {
 	const device = useDeviceDetect();

@@ -3,6 +3,8 @@ import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useMutation, useQuery } from '@apollo/client/react';
 import { Box, Stack } from '@mui/material';
+import { useTranslation } from 'next-i18next/pages';
+import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -21,10 +23,10 @@ import { toAssetUrl } from '@/libs/api';
 const LIMIT = 10;
 
 const SORT_OPTIONS = [
-  { value: 'createdAt', label: 'Recent' },
-  { value: 'memberViews', label: 'Most Views' },
-  { value: 'memberLikes', label: 'Most Likes' },
-  { value: 'memberComments', label: 'Most Comments' },
+  { value: 'createdAt', labelKey: 'Recent' },
+  { value: 'memberViews', labelKey: 'Most Views' },
+  { value: 'memberLikes', labelKey: 'Most Likes' },
+  { value: 'memberComments', labelKey: 'Most Comments' },
 ];
 
 interface AgentData {
@@ -50,8 +52,8 @@ interface GetAgentsResponse {
 const formatCount = (value?: number | null) =>
   value == null ? '0' : value >= 1000 ? `${(value / 1000).toFixed(1)}k` : String(value);
 
-const displayName = (agent: AgentData) =>
-  agent.memberNick || agent.memberFullName || 'Insurance Agent';
+const displayName = (agent: AgentData, fallback: string) =>
+  agent.memberNick || agent.memberFullName || fallback;
 
 const agentImage = (image?: string | null) =>
   toAssetUrl(image) ?? '/img/placeholder-article.svg';
@@ -61,6 +63,7 @@ const readableStatus = (status?: string | null) =>
 
 const AgentsPage: NextPage = () => {
   const router = useRouter();
+  const { t } = useTranslation('common');
   const [searchText, setSearchText] = useState('');
   const [appliedSearchText, setAppliedSearchText] = useState('');
   const [sort, setSort] = useState('createdAt');
@@ -117,7 +120,7 @@ const AgentsPage: NextPage = () => {
 
     const user = userVar();
     if (!user?._id) {
-      await sweetMixinErrorAlert('Please login to like agents.');
+      await sweetMixinErrorAlert(t('Please login to like agents.'));
       return;
     }
 
@@ -142,14 +145,14 @@ const AgentsPage: NextPage = () => {
         }));
       }
       await refetch();
-      await sweetTopSuccessAlert('Updated your favorites.');
+      await sweetTopSuccessAlert(t('Updated your favorites.'));
     } catch (err: any) {
       setLikedByAgent((prev) => ({ ...prev, [memberId]: currentLiked }));
       setLikesByAgent((prev) => ({ ...prev, [memberId]: currentLikes }));
       await sweetMixinErrorAlert(
-        err?.graphQLErrors?.[0]?.message?.replace('Definer: ', '') ??
+          err?.graphQLErrors?.[0]?.message?.replace('Definer: ', '') ??
           err?.message ??
-          'Could not update likes.',
+          t('Could not update likes.'),
       );
     }
   };
@@ -178,9 +181,9 @@ const AgentsPage: NextPage = () => {
       <Stack className='agents-hero'>
         <Box className='agents-hero-shade' />
         <Stack className='agents-shell agents-hero-content'>
-          <span className='agents-eyebrow'>Trusted Network</span>
-          <h1>Agents</h1>
-          <p>Home / Agents</p>
+          <span className='agents-eyebrow'>{t('Trusted Network')}</span>
+          <h1>{t('Agents')}</h1>
+          <p>{t('Home / Agents')}</p>
         </Stack>
       </Stack>
 
@@ -191,15 +194,15 @@ const AgentsPage: NextPage = () => {
             <input
               type='text'
               value={searchText}
-              placeholder='Search for an agent'
+              placeholder={t('Search for an agent')}
               onChange={handleSearchChange}
               onKeyDown={handleSearchEnter}
             />
-            <button onClick={handleSearchSubmit}>Search</button>
+            <button onClick={handleSearchSubmit}>{t('Search')}</button>
           </Stack>
 
           <Stack className='agents-sort-box'>
-            <span>Sort by</span>
+            <span>{t('Sort by')}</span>
             <select
               value={sort}
               onChange={(event) => {
@@ -209,7 +212,7 @@ const AgentsPage: NextPage = () => {
             >
               {SORT_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
-                  {option.label}
+                  {t(option.labelKey)}
                 </option>
               ))}
             </select>
@@ -232,8 +235,8 @@ const AgentsPage: NextPage = () => {
         ) : agents.length === 0 ? (
           <Stack className='agents-empty'>
             <BadgeOutlinedIcon />
-            <h2>No agents found</h2>
-            <p>Try changing your search terms or sorting option.</p>
+            <h2>{t('No agents found')}</h2>
+            <p>{t('Try changing your search terms or sorting option.')}</p>
           </Stack>
         ) : (
           <Box className='agents-grid'>
@@ -251,17 +254,17 @@ const AgentsPage: NextPage = () => {
                     <Box
                       component='img'
                       src={agentImage(agent.memberImage)}
-                      alt={displayName(agent)}
+                      alt={displayName(agent, t('Insurance Agent'))}
                       className='agent-image'
                     />
-                    <span className='agent-status-badge'>{readableStatus(agent.memberStatus)}</span>
+                    <span className='agent-status-badge'>{t(readableStatus(agent.memberStatus))}</span>
                   </Box>
 
                   <Stack className='agent-card-body'>
                     <Stack className='agent-title-row'>
                       <Box>
-                        <h3>{displayName(agent)}</h3>
-                        <p>{agent.memberType || 'Insurance Agent'}</p>
+                        <h3>{displayName(agent, t('Insurance Agent'))}</h3>
+                        <p>{agent.memberType || t('Insurance Agent')}</p>
                       </Box>
                     </Stack>
 
@@ -292,7 +295,7 @@ const AgentsPage: NextPage = () => {
 
         <Stack className='agents-footer-row'>
           <p>
-            Total <strong>{total}</strong> agent{total !== 1 ? 's' : ''} available
+            {t('Total agents available', { count: total, plural: total !== 1 ? 's' : '' })}
           </p>
 
           {totalPages > 1 && (
@@ -327,3 +330,9 @@ const AgentsPage: NextPage = () => {
 };
 
 export default withLayoutMain(AgentsPage);
+
+export const getStaticProps = async ({ locale = 'en' }: { locale?: string }) => ({
+  props: {
+    ...(await serverSideTranslations(locale, ['common'])),
+  },
+});
