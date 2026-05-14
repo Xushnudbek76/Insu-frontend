@@ -11,6 +11,7 @@ export const GET_PACKAGES = gql`
         packagePrice
         packageViews
         packageLikes
+        packageComments
         packageRank
         packageDesc
         meLiked {
