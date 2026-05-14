@@ -86,6 +86,14 @@ export const GET_AGENTS = gql`
         memberRank
         memberArticles
         memberPoints
+        memberLikes
+        memberViews
+        memberComments
+        meLiked {
+          memberId
+          likeRefId
+          myFavorite
+        }
       }
       metaCounter {
         total

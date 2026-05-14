@@ -1,6 +1,7 @@
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useMutation, useQuery } from '@apollo/client/react';
 import { Avatar, Box, Stack } from '@mui/material';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -8,7 +9,6 @@ import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import ChatBubbleOutlineOutlinedIcon from '@mui/icons-material/ChatBubbleOutlineOutlined';
 import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
 import withLayoutMain from '@/layout/LayoutHome';
-import { initializeApollo } from '@/apollo/client';
 import { GET_BOARD_ARTICLE } from '@/apollo/board-article/query';
 import { LIKE_TARGET_BOARD_ARTICLE } from '@/apollo/board-article/mutation';
 import { GET_COMMENTS } from '@/apollo/comment/query';
@@ -57,50 +57,53 @@ const CATEGORY_LABEL: Record<BoardArticleCategory, string> = {
 const CommunityDetailPage: NextPage = () => {
   const router = useRouter();
   const { id } = router.query;
-  const [article, setArticle] = useState<BoardArticleData | null>(null);
-  const [comments, setComments] = useState<CommentData[]>([]);
-  const [commentTotal, setCommentTotal] = useState(0);
   const [commentText, setCommentText] = useState('');
-  const [loading, setLoading] = useState(true);
   const [postingComment, setPostingComment] = useState(false);
 
-  useEffect(() => {
-    if (!id || Array.isArray(id)) return;
+  const articleId = typeof id === 'string' ? id : undefined;
 
-    const client = initializeApollo(null);
-    setLoading(true);
+  const {
+    loading: articleLoading,
+    data: articleData,
+    error: articleError,
+    refetch: refetchArticle,
+  } = useQuery<{ getBoardArticle: BoardArticleData }>(GET_BOARD_ARTICLE, {
+    skip: !articleId,
+    fetchPolicy: 'no-cache',
+    variables: { articleId },
+  });
 
-    Promise.all([
-      client.query<{ getBoardArticle: BoardArticleData }>({
-        query: GET_BOARD_ARTICLE,
-        variables: { articleId: id },
-        fetchPolicy: 'no-cache',
-      }),
-      client.query<{ getComments: { list: CommentData[]; metaCounter: { total: number }[] } }>({
-        query: GET_COMMENTS,
-        variables: {
-          input: {
-            page: 1,
-            limit: 20,
-            sort: 'createdAt',
-            direction: 'DESC',
-            search: { commentRefId: id },
-          },
+  const {
+    loading: commentsLoading,
+    data: commentsData,
+    refetch: refetchComments,
+  } = useQuery<{ getComments: { list: CommentData[]; metaCounter: { total: number }[] } }>(
+    GET_COMMENTS,
+    {
+      skip: !articleId,
+      fetchPolicy: 'no-cache',
+      variables: {
+        input: {
+          page: 1,
+          limit: 20,
+          sort: 'createdAt',
+          direction: 'DESC',
+          search: { commentRefId: articleId },
         },
-        fetchPolicy: 'no-cache',
-      }),
-    ])
-      .then(([articleRes, commentsRes]) => {
-        setArticle(articleRes.data.getBoardArticle);
-        setComments(commentsRes.data.getComments.list || []);
-        setCommentTotal(commentsRes.data.getComments.metaCounter?.[0]?.total ?? 0);
-      })
-      .catch((err) => {
-        console.error('community detail error', err);
-        setArticle(null);
-      })
-      .finally(() => setLoading(false));
-  }, [id]);
+      },
+    },
+  );
+
+  const [likeTargetBoardArticle] = useMutation<{
+    likeTargetBoardArticle: { _id: string; articleLikes: number };
+  }>(LIKE_TARGET_BOARD_ARTICLE);
+
+  const [createComment] = useMutation<{ createComment: CommentData }>(CREATE_COMMENT);
+
+  const loading = articleLoading || commentsLoading;
+  const article = articleData?.getBoardArticle ?? null;
+  const comments = commentsData?.getComments.list ?? [];
+  const commentTotal = commentsData?.getComments.metaCounter?.[0]?.total ?? 0;
 
   const getArticleImage = (image?: string | null) =>
     toAssetUrl(image) ?? '/img/placeholder-article.svg';
@@ -123,24 +126,11 @@ const CommunityDetailPage: NextPage = () => {
       return;
     }
 
-    const wasLiked = article.meLiked?.[0]?.myFavorite ?? false;
-
     try {
-      const client = initializeApollo(null);
-      const res = await client.mutate<{ likeTargetBoardArticle: { _id: string; articleLikes: number } }>({
-        mutation: LIKE_TARGET_BOARD_ARTICLE,
+      await likeTargetBoardArticle({
         variables: { articleId: article._id },
       });
-
-      setArticle((prev) =>
-        prev
-          ? {
-              ...prev,
-              articleLikes: res.data?.likeTargetBoardArticle.articleLikes ?? prev.articleLikes,
-              meLiked: [{ myFavorite: !wasLiked }],
-            }
-          : prev,
-      );
+      await refetchArticle();
     } catch (err: any) {
       await sweetMixinErrorAlert(
         err?.graphQLErrors?.[0]?.message ?? 'Could not update likes.',
@@ -159,9 +149,7 @@ const CommunityDetailPage: NextPage = () => {
 
     try {
       setPostingComment(true);
-      const client = initializeApollo(null);
-      const res = await client.mutate<{ createComment: CommentData }>({
-        mutation: CREATE_COMMENT,
+      const res = await createComment({
         variables: {
           input: {
             commentGroup: 'ARTICLE',
@@ -171,24 +159,10 @@ const CommunityDetailPage: NextPage = () => {
         },
       });
 
-      const created = res.data?.createComment;
-      if (!created) return;
+      if (!res.data?.createComment) return;
 
-      const hydratedComment: CommentData = {
-        ...created,
-        memberData: {
-          _id: user._id,
-          memberNick: user.memberNick,
-          memberImage: user.memberImage,
-        },
-      };
-
-      setComments((prev) => [hydratedComment, ...prev]);
-      setCommentTotal((prev) => prev + 1);
-      setArticle((prev) =>
-        prev ? { ...prev, articleComments: (prev.articleComments ?? 0) + 1 } : prev,
-      );
       setCommentText('');
+      await Promise.all([refetchArticle(), refetchComments()]);
       await sweetTopSuccessAlert('Comment posted.');
     } catch (err: any) {
       await sweetMixinErrorAlert(
@@ -209,7 +183,7 @@ const CommunityDetailPage: NextPage = () => {
     );
   }
 
-  if (!article) {
+  if (articleError || !article) {
     return (
       <Stack className='community-detail-page'>
         <Box className='community-shell'>

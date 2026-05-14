@@ -1,6 +1,7 @@
-import { ChangeEvent, useEffect, useMemo, useState } from 'react';
+import { ChangeEvent, useMemo, useState } from 'react';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
+import { useQuery } from '@apollo/client/react';
 import { Box, Stack } from '@mui/material';
 import ForumOutlinedIcon from '@mui/icons-material/ForumOutlined';
 import CampaignOutlinedIcon from '@mui/icons-material/CampaignOutlined';
@@ -12,7 +13,6 @@ import ChatBubbleOutlineOutlinedIcon from '@mui/icons-material/ChatBubbleOutline
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import withLayoutMain from '@/layout/LayoutHome';
-import { initializeApollo } from '@/apollo/client';
 import { GET_BOARD_ARTICLES } from '@/apollo/board-article/query';
 import { BoardArticleCategory } from '@/libs/enums/board-article.enum';
 import { toAssetUrl } from '@/libs/api';
@@ -82,52 +82,34 @@ interface GetBoardArticlesResponse {
 const CommunityPage: NextPage = () => {
   const router = useRouter();
   const [category, setCategory] = useState<BoardArticleCategory>(BoardArticleCategory.FREE);
-  const [articles, setArticles] = useState<BoardArticleData[]>([]);
   const [searchText, setSearchText] = useState('');
   const [appliedSearchText, setAppliedSearchText] = useState('');
   const [sort, setSort] = useState('createdAt');
   const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(false);
 
   const activeCategory = useMemo(
     () => CATEGORY_CONFIG.find((item) => item.value === category) ?? CATEGORY_CONFIG[0],
     [category],
   );
 
-  useEffect(() => {
-    const client = initializeApollo(null);
-    setLoading(true);
-
-    client
-      .query<GetBoardArticlesResponse>({
-        query: GET_BOARD_ARTICLES,
-        variables: {
-          input: {
-            page,
-            limit: LIMIT,
-            sort,
-            direction: 'DESC',
-            search: {
-              articleCategory: category,
-              ...(appliedSearchText.trim() ? { text: appliedSearchText.trim() } : {}),
-            },
-          },
+  const { loading, data } = useQuery<GetBoardArticlesResponse>(GET_BOARD_ARTICLES, {
+    fetchPolicy: 'no-cache',
+    variables: {
+      input: {
+        page,
+        limit: LIMIT,
+        sort,
+        direction: 'DESC',
+        search: {
+          articleCategory: category,
+          ...(appliedSearchText.trim() ? { text: appliedSearchText.trim() } : {}),
         },
-        fetchPolicy: 'no-cache',
-      })
-      .then((res) => {
-        setArticles(res.data.getBoardArticles.list || []);
-        setTotal(res.data.getBoardArticles.metaCounter?.[0]?.total ?? 0);
-      })
-      .catch((err) => {
-        console.error('getBoardArticles error', err);
-        setArticles([]);
-        setTotal(0);
-      })
-      .finally(() => setLoading(false));
-  }, [category, page, sort, appliedSearchText]);
+      },
+    },
+  });
 
+  const articles = data?.getBoardArticles.list ?? [];
+  const total = data?.getBoardArticles.metaCounter?.[0]?.total ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / LIMIT));
 
   const getArticleImage = (image?: string | null) =>

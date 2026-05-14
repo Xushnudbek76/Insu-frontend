@@ -57,3 +57,14 @@ export const IMAGE_UPLOADER_MUTATION = gql`
     imageUploader(file: $file, target: $target)
   }
 `;
+
+export const LIKE_TARGET_MEMBER = gql`
+  mutation LikeTargetMember($input: String!) {
+    likeTargetMember(memberId: $input) {
+      _id
+      memberLikes
+      memberViews
+      memberComments
+    }
+  }
+`;

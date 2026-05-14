@@ -1,12 +1,12 @@
 import { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import { NextPage } from 'next';
+import { useMutation } from '@apollo/client/react';
 import { Box, Stack } from '@mui/material';
 import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
 import withLayoutMain from '@/layout/LayoutHome';
 import { BoardArticleCategory } from '@/libs/enums/board-article.enum';
 import { userVar } from '@/apollo/store';
-import { initializeApollo } from '@/apollo/client';
 import { CREATE_BOARD_ARTICLE } from '@/apollo/board-article/mutation';
 import { IMAGE_UPLOADER_MUTATION } from '@/apollo/member/mutation';
 import { sweetMixinErrorAlert, sweetTopSuccessAlert } from '@/libs/sweetAlert';
@@ -31,6 +31,11 @@ const CommunityWritePage: NextPage = () => {
     if (!file) return '';
     return URL.createObjectURL(file);
   }, [file]);
+
+  const [uploadImage] = useMutation<{ imageUploader: string }>(IMAGE_UPLOADER_MUTATION);
+  const [createBoardArticle] = useMutation<{ createBoardArticle: { _id: string } }>(
+    CREATE_BOARD_ARTICLE,
+  );
 
   useEffect(() => {
     return () => {
@@ -57,12 +62,10 @@ const CommunityWritePage: NextPage = () => {
 
     try {
       setSubmitting(true);
-      const client = initializeApollo(null);
       let articleImage: string | undefined;
 
       if (file) {
-        const uploadRes = await client.mutate<{ imageUploader: string }>({
-          mutation: IMAGE_UPLOADER_MUTATION,
+        const uploadRes = await uploadImage({
           variables: {
             file,
             target: 'community',
@@ -71,8 +74,7 @@ const CommunityWritePage: NextPage = () => {
         articleImage = uploadRes.data?.imageUploader;
       }
 
-      const res = await client.mutate<{ createBoardArticle: { _id: string } }>({
-        mutation: CREATE_BOARD_ARTICLE,
+      const res = await createBoardArticle({
         variables: {
           input: {
             articleCategory: category,

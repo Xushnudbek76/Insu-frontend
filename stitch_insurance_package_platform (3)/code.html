@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>INSU - Agents Directory</title>
+<!-- Tailwind Config -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "inverse-surface": "#2e3132",
+                      "secondary": "#5d5e65",
+                      "surface-bright": "#f8f9fb",
+                      "secondary-fixed": "#e2e2ea",
+                      "on-tertiary-fixed-variant": "#464747",
+                      "error": "#ba1a1a",
+                      "outline-variant": "#c6c4d9",
+                      "inverse-on-surface": "#f0f1f3",
+                      "on-secondary": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "on-tertiary-container": "#d9d8d7",
+                      "on-secondary-fixed": "#191b21",
+                      "on-tertiary-fixed": "#1b1c1c",
+                      "surface-container-low": "#f2f4f6",
+                      "tertiary-fixed-dim": "#c7c6c6",
+                      "on-primary": "#ffffff",
+                      "secondary-container": "#dfdfe7",
+                      "tertiary-container": "#5e5e5e",
+                      "on-secondary-fixed-variant": "#45464d",
+                      "surface-container": "#edeef0",
+                      "primary-fixed-dim": "#c0c1ff",
+                      "primary": "#2218dc",
+                      "on-primary-fixed": "#06006c",
+                      "surface": "#f8f9fb",
+                      "tertiary-fixed": "#e3e2e2",
+                      "inverse-primary": "#c0c1ff",
+                      "surface-dim": "#d9dadc",
+                      "on-primary-fixed-variant": "#2219dc",
+                      "tertiary": "#464747",
+                      "surface-tint": "#4040f2",
+                      "on-surface": "#191c1e",
+                      "background": "#f8f9fb",
+                      "surface-variant": "#e1e2e4",
+                      "primary-container": "#4040f2",
+                      "on-primary-container": "#d5d4ff",
+                      "on-background": "#191c1e",
+                      "surface-container-high": "#e7e8ea",
+                      "on-secondary-container": "#616269",
+                      "surface-container-highest": "#e1e2e4",
+                      "primary-fixed": "#e1e0ff",
+                      "on-tertiary": "#ffffff",
+                      "on-error": "#ffffff",
+                      "secondary-fixed-dim": "#c5c6ce",
+                      "on-surface-variant": "#454556",
+                      "surface-container-lowest": "#ffffff",
+                      "outline": "#767588",
+                      "on-error-container": "#93000a"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "container-max": "1280px",
+                      "sm": "8px",
+                      "xs": "4px",
+                      "margin-desktop": "40px",
+                      "md": "16px",
+                      "unit": "4px",
+                      "lg": "24px",
+                      "margin-mobile": "16px",
+                      "xl": "32px",
+                      "gutter": "24px"
+              },
+              "fontFamily": {
+                      "label-sm": [
+                              "Hanken Grotesk"
+                      ],
+                      "label-md": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-lg": [
+                              "Hanken Grotesk"
+                      ],
+                      "body-md": [
+                              "Hanken Grotesk"
+                      ],
+                      "body-sm": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-xl": [
+                              "Hanken Grotesk"
+                      ],
+                      "body-lg": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-lg-mobile": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-md": [
+                              "Hanken Grotesk"
+                      ]
+              },
+              "fontSize": {
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "14px",
+                                      "letterSpacing": "0.04em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-xl": [
+                              "48px",
+                              {
+                                      "lineHeight": "56px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "28px",
+                              {
+                                      "lineHeight": "36px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&amp;display=swap" rel="stylesheet"/>
+<!-- Material Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<nav class="bg-surface-container-lowest dark:bg-on-background docked full-width top-0 border-b border-subtle dark:border-outline-variant flat no shadows">
+<div class="flex justify-between items-center w-full px-margin-desktop py-4 max-w-container-max mx-auto">
+<div class="flex items-center gap-8">
+<a class="font-display text-headline-md font-bold text-secondary dark:text-secondary-fixed" href="#">INSU</a>
+<div class="hidden md:flex items-center gap-4 font-body-md text-body-md">
+<a class="text-on-surface-variant dark:text-outline hover:text-secondary transition-colors" href="#">Home</a>
+<a class="text-on-surface-variant dark:text-outline hover:text-secondary transition-colors" href="#">Insurance</a>
+<a class="text-secondary font-bold bg-surface-container dark:bg-secondary-container rounded-full px-4 py-1 Active: opacity-80 transition-opacity" href="#">Agents</a>
+<a class="text-on-surface-variant dark:text-outline hover:text-secondary transition-colors" href="#">Community</a>
+<a class="text-on-surface-variant dark:text-outline hover:text-secondary transition-colors" href="#">CS</a>
+<a class="text-on-surface-variant dark:text-outline hover:text-secondary transition-colors" href="#">My Page</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="hidden text-secondary dark:text-secondary-fixed hover:text-secondary dark:hover:text-secondary-fixed transition-all">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+</button>
+<img alt="User profile avatar" class="w-10 h-10 rounded-full border border-outline-variant object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBd7iTrOO1RdCEkHfiY7seCjgsRg-uZMgSinmc64EWHyKB6drHxGoo-LBopxwZwSWu0BxQ7KUtAD6W24tkelWxMxbSbo_BYX-tFEg1lDlzMDayn6MwMa4Shr0dLg0XpuWVGrDCP4nPtv-PCJ8SWMA1oCxnqmLkVqTxZVvTHD2r0qiEUo9HXIWu9Q2IBhAOMX8qs2gv4ww1UuDBn1BlZMlxzXTBuzTEECIgj4d2xes1YDRCDUNcpOUHfjPt_fcLzYSWIo1SKE5W6fs0"/>
+</div>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="flex-grow w-full">
+<!-- Hero Section -->
+<section class="w-full h-[300px] md:h-[400px] bg-cover bg-center relative flex items-center" data-alt="A professional corporate building exterior at night against a starry sky. The building is modern with glowing lights, conveying a premium, high-end insurance corporate aesthetic. The lighting is dramatic and cinematic, with deep blues and bright highlights, establishing a trustworthy and established corporate identity. The composition is wide and architectural." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuApShorX5s6rFMAiLb472Amuomlecbg2BJfVU1fE_rvQXtZB1t2hze7MSucxJNN2iTSkf4tBcNFU_wCM179cA6EsRqmP4SyQ7gX-EpF3Sktl4Vw78cXvHCGMo0UGjaamofszdj0c7DR-XRYc2D0meKVWQc0eYKcLlVeLI_XUOjlLdxf62aPOaXm-B-9D0HlotKJ9jdRcm9UULBXGWz3J0BeD_skuvuwQ4153tS95WjQxbRifjCrLAiXbq0XQ1zEmrqs61F2vqF9Yj0');">
+<div class="absolute inset-0 bg-on-background/60"></div>
+<div class="relative z-10 max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop w-full">
+<h1 class="font-headline-xl text-headline-xl text-on-primary mb-2">Agents</h1>
+<p class="font-body-md text-body-md text-on-primary/80">Home / Agents</p>
+</div>
+</section>
+<!-- Directory Section -->
+<section class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-xl">
+<!-- Controls -->
+<div class="flex flex-col md:flex-row justify-between items-center mb-xl gap-4">
+<div class="relative w-full md:w-96">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline" data-icon="search">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface-container-lowest border border-outline-variant rounded focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 font-body-sm text-body-sm text-on-surface placeholder:text-outline transition-all" placeholder="Search for an agent" type="text"/>
+</div>
+<div class="flex items-center gap-2 w-full md:w-auto">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Sort by</span>
+<div class="relative inline-block">
+<select class="appearance-none bg-surface-container-lowest border border-outline-variant rounded pl-4 pr-10 py-2 font-label-md text-label-md text-on-surface focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 transition-all cursor-pointer">
+<option>Recent</option>
+<option>Most Views</option>
+<option>Most Likes</option>
+<option>Name A-Z</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-on-surface pointer-events-none" data-icon="keyboard_arrow_down">keyboard_arrow_down</span>
+</div>
+</div>
+</div>
+<!-- Agent Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-lg mb-xl">
+<!-- Agent Card 1 -->
+<div class="group bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col">
+<div class="relative aspect-[3/4] overflow-hidden">
+<img alt="Portrait of Annie, Insurance Agent" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A professional headshot of a young female insurance agent with long dark hair, looking directly at the camera. She is set against a blurred, warm autumnal outdoor background. The lighting is soft and flattering, creating a premium and approachable corporate portrait. The aesthetic is clean, modern, and trustworthy." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCVCtfli00-vltpBPx4D1eIAapjVk4-0Jfhb4GyQwe4UMfS6hdNa5PNUaoZQmBjlYO8kBhXi3WfLHngsyi6bNfNSD8kgS_NbL1sXcHb02NuXHyTUzfkbLCoVPuaoO1nFv_GUYzc0AFvhonM0jpxtclj3N6LZsxJRYgKFL3QK-Yh9mZJzfHyyNgM9ROoY0BJmPVbrr8yFavpaH5UKZNWF4-8wkcD2I-UeHv5-pNMq2mPrJACGniS9XiTowURVthLHXya_d8fslcV4Ko"/>
+<div class="absolute top-3 left-3 bg-primary-container text-on-primary font-label-sm text-label-sm px-2 py-1 rounded">3 properties</div>
+</div>
+<div class="p-4 flex flex-col flex-grow">
+<h3 class="font-label-md text-label-md text-on-surface mb-1">Annie</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-4">Agent</p>
+<div class="mt-auto flex justify-end gap-3 font-label-sm text-label-sm text-outline">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="visibility">visibility</span>
+<span>34</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="favorite">favorite</span>
+<span>14</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Agent Card 2 -->
+<div class="group bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col">
+<div class="relative aspect-[3/4] overflow-hidden">
+<img alt="Portrait of Shawn, Insurance Agent" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A professional headshot of an Asian male insurance agent wearing a dark suit and tie, smiling confidently with arms crossed. He is set against a brightly lit, blurred modern office interior background. The lighting is bright and clean, conveying professionalism and reliability. The aesthetic is corporate, crisp, and high-end." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCU-1cWNWV0730h8NIzMiUdwGocwNGbvHEcQJ63mctljZ9WOlWBDlzcvnEYhvuhDhcWksmJn9lQDbAJnTMnFSWWkYHjUngHh9HarJMAJiz7wK1VJjS_IpaKBnt08gQSZ51C2Shu2H-kqxcWW0q3GbCBMtM597e10zPTb4JKIWZNRg_jt9NZ4y-DdvRWSyK8pXK_KdjIAvRBp5S_oRZI518kmDrlo4VBFlnFi7aGVBRibN9-OLA9erQ5oZhpws687duyWEVsJm-8__g"/>
+<div class="absolute top-3 left-3 bg-primary-container text-on-primary font-label-sm text-label-sm px-2 py-1 rounded">2 properties</div>
+</div>
+<div class="p-4 flex flex-col flex-grow">
+<h3 class="font-label-md text-label-md text-on-surface mb-1">Shawn</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-4">Agent</p>
+<div class="mt-auto flex justify-end gap-3 font-label-sm text-label-sm text-outline">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="visibility">visibility</span>
+<span>48</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="favorite">favorite</span>
+<span>19</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Agent Card 3 -->
+<div class="group bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col">
+<div class="relative aspect-[3/4] overflow-hidden">
+<img alt="Portrait of John, Insurance Agent" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A professional headshot of a Caucasian male insurance agent in casual smart attire, smiling with arms crossed against a solid light grey background. The lighting is studio quality, soft and even, highlighting his approachable demeanor. The aesthetic is modern, clean, and minimalist, fitting a premium directory profile." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD3u11DnvOCIGBDAonN9j5aY9XSwMPBAAtnpVqh0X6C89N0UGL0gIF7Bs5KUMI-jJNlxzBUJhUSwVaVzSu5djIO1mE_9EOsYk6WXcNANN-lh5z489rzOByRprpFnPmH0Kb8MsmPfH763qNAuYwL5L7T9BndlqRMqje0xkCHFqUo0ssM6Bf_U85ra1JYqlB5_xbNQQhHhtLiQsXmPLS9jJDrjmmq8cgTo5hwyB46rHixidB4T_9X-LzeNdYbp1Q-Kq7QIrpWOCeA5oc"/>
+<div class="absolute top-3 left-3 bg-primary-container text-on-primary font-label-sm text-label-sm px-2 py-1 rounded">0 properties</div>
+</div>
+<div class="p-4 flex flex-col flex-grow">
+<h3 class="font-label-md text-label-md text-on-surface mb-1">John</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-4">Agent</p>
+<div class="mt-auto flex justify-end gap-3 font-label-sm text-label-sm text-outline">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="visibility">visibility</span>
+<span>22</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="favorite">favorite</span>
+<span>14</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Agent Card 4 -->
+<div class="group bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col">
+<div class="relative aspect-[3/4] overflow-hidden">
+<img alt="Portrait of Justin, Insurance Agent" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A professional headshot of a male insurance agent looking directly at the camera with a serious, confident expression. He is wearing a dark suit. The background is a blurred, dynamic modern setting with cool lighting tones. The aesthetic is premium, intense, and highly professional, suited for a top-tier agent profile." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBvBrAp3icX39B1JWAQ9YmuxrHcSvGeDS2TAwDs0_Q-R833jfhrIVB1003Fi11mr2IePyu2TllMwHzIwlnB89k8hK_S08kCmhenTNhDDWs5Hp_1ZlroVpHIhBpGgPP4G3GB3gVK_oB79rZAKoSZj6YzRxsTt1Ns91PFqkeKNop3CyG7PG9bdbS4DOBEsm6IUZwb-Ubuq88mAmFu6tyBPto0Nrvys6SWvb8rXY1iS37nU8a86gwr61gx0dpEwtYJjlKOq8zZ-iLD0gw"/>
+<div class="absolute top-3 left-3 bg-primary-container text-on-primary font-label-sm text-label-sm px-2 py-1 rounded">4 properties</div>
+</div>
+<div class="p-4 flex flex-col flex-grow">
+<h3 class="font-label-md text-label-md text-on-surface mb-1">Justin</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-4">Agent</p>
+<div class="mt-auto flex justify-end gap-3 font-label-sm text-label-sm text-outline">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="visibility">visibility</span>
+<span>36</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="favorite">favorite</span>
+<span>21</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Agent Card 5 -->
+<div class="group bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col">
+<div class="relative aspect-[3/4] overflow-hidden">
+<img alt="Portrait of Martin, Insurance Agent" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A professional portrait of a male insurance agent sitting in a modern cafe or casual office setting. He is wearing a casual yellow sweater and looking gently at the camera. The background is warmly lit and softly blurred, creating a friendly and approachable mood. The aesthetic is lifestyle-oriented yet professional." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA3QYWrBaGkXQMetANjhdCw8f9esMSZZrb8bMyIy7Y-ONQCU0Gd0kVIlePGqIa5tBRK7uS-FNPgnrustIJN23yhvOqjQygRDQFMXOX1kKtSnj9pDZQABAHfnY-lMkRfZcv-R5qtjjg1ezQpT1vV4rd4odfcwBrHFUrhQlJZ5HeHssExZxQirW0GNxsviiRF97aMvGCuUaGqxzXAwmOBqWrfIC8_p5LfIg9WyN9aBwGzbhLul-oR1FCyt74Zp7ubWU4_9bppIR5wXEs"/>
+<div class="absolute top-3 left-3 bg-primary-container text-on-primary font-label-sm text-label-sm px-2 py-1 rounded">4 properties</div>
+</div>
+<div class="p-4 flex flex-col flex-grow">
+<h3 class="font-label-md text-label-md text-on-surface mb-1">Martin</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-4">Agent</p>
+<div class="mt-auto flex justify-end gap-3 font-label-sm text-label-sm text-outline">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="visibility">visibility</span>
+<span>52</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="favorite">favorite</span>
+<span>21</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Total Count -->
+<div class="text-center font-body-sm text-body-sm text-on-surface-variant">
+                Total 5 agents available
+            </div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-on-background dark:bg-surface-container-lowest w-full py-8 px-margin-desktop flex flex-col md:flex-row justify-between items-center gap-4 full-width border-t border-outline-variant flat no shadows mt-auto">
+<div class="font-display text-headline-md text-on-primary">
+            INSU
+        </div>
+<div class="font-label-sm text-label-sm text-surface-container-lowest dark:text-on-background text-center">
+            © 2024 INSU Insurance Marketplace. All rights reserved.
+        </div>
+<div class="flex flex-wrap justify-center gap-4 font-label-sm text-label-sm">
+<a class="text-outline-variant hover:text-white hover:underline transition-all" href="#">Privacy Policy</a>
+<a class="text-outline-variant hover:text-white hover:underline transition-all" href="#">Terms of Service</a>
+<a class="text-outline-variant hover:text-white hover:underline transition-all" href="#">Cookie Settings</a>
+<a class="text-outline-variant hover:text-white hover:underline transition-all" href="#">Contact Support</a>
+</div>
+</footer>
+</body></html>
