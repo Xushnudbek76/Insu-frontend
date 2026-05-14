@@ -58,6 +58,32 @@ export const IMAGE_UPLOADER_MUTATION = gql`
   }
 `;
 
+export const UPDATE_MEMBER = gql`
+  mutation UpdateMember($input: MemberUpdate!) {
+    updateMember(input: $input) {
+      _id
+      memberType
+      memberStatus
+      memberAuthType
+      memberPhone
+      memberNick
+      memberFullName
+      memberImage
+      memberAddress
+      memberDesc
+      memberWarnings
+      memberBlocks
+      memberProperties
+      memberRank
+      memberArticles
+      memberPoints
+      memberLikes
+      memberViews
+      accessToken
+    }
+  }
+`;
+
 export const LIKE_TARGET_MEMBER = gql`
   mutation LikeTargetMember($input: String!) {
     likeTargetMember(memberId: $input) {

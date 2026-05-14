@@ -13,3 +13,14 @@ export const PURCHASE_POLICY = gql`
     }
   }
 `;
+
+export const CANCEL_POLICY = gql`
+  mutation CancelPolicy($policyId: String!) {
+    cancelPolicy(policyId: $policyId) {
+      _id
+      policyStatus
+      cancelledAt
+      updatedAt
+    }
+  }
+`;
