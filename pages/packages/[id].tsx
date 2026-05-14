@@ -23,6 +23,7 @@ import { GET_PACKAGE, GET_PACKAGES } from "@/apollo/user/query";
 import { LIKE_TARGET_PACKAGE } from "@/apollo/package/mutation";
 import { GET_COMMENTS } from "@/apollo/comment/query";
 import { CREATE_COMMENT } from "@/apollo/comment/mutation";
+import { PURCHASE_POLICY } from "@/apollo/policy/mutation";
 import { sweetMixinErrorAlert, sweetTopSuccessAlert } from "@/libs/sweetAlert";
 import { toAssetUrl } from "@/libs/api";
 import { serverSideTranslations } from "next-i18next/pages/serverSideTranslations";
@@ -73,6 +74,16 @@ interface RelatedPackage {
   packageTitle: string;
   packagePrice: number;
   packageImages?: string[] | null;
+}
+
+interface PurchasedPolicy {
+  _id: string;
+  policyStatus: string;
+  packageId: string;
+  packageName: string;
+  premiumAmount: number;
+  startDate: string;
+  endDate: string;
 }
 
 /* ── Helpers ─────────────────────────────────────── */
@@ -130,6 +141,7 @@ const PackageDetailPage: NextPage = () => {
   const [commentTotal, setCommentTotal] = useState(0);
   const [commentText, setCommentText] = useState("");
   const [postingComment, setPostingComment] = useState(false);
+  const [applying, setApplying] = useState(false);
 
   const [related, setRelated] = useState<RelatedPackage[]>([]);
 
@@ -268,6 +280,39 @@ const PackageDetailPage: NextPage = () => {
       );
     } finally {
       setPostingComment(false);
+    }
+  };
+
+  /* Apply */
+  const handleApply = async () => {
+    if (!id || typeof id !== "string") return;
+
+    const user = userVar();
+    if (!user?._id) {
+      await sweetMixinErrorAlert("Please login to apply for this package.");
+      router.push("/account/join");
+      return;
+    }
+
+    try {
+      setApplying(true);
+      const client = initializeApollo(null);
+      const res = await client.mutate<{ purchasePolicy: PurchasedPolicy }>({
+        mutation: PURCHASE_POLICY,
+        variables: { input: { packageId: id } },
+      });
+
+      if (res.data?.purchasePolicy) {
+        await sweetTopSuccessAlert("Application submitted successfully!");
+      }
+    } catch (err: any) {
+      await sweetMixinErrorAlert(
+        err?.graphQLErrors?.[0]?.message?.replace("Definer: ", "") ??
+          err?.message ??
+          "Could not submit your application.",
+      );
+    } finally {
+      setApplying(false);
     }
   };
 
@@ -504,7 +549,13 @@ const PackageDetailPage: NextPage = () => {
                 <CheckCircleOutlinedIcon /> Direct Digital Claims
               </li>
             </ul>
-            <button className={"pd-apply-btn"}>Apply Now</button>
+            <button
+              className={"pd-apply-btn"}
+              onClick={handleApply}
+              disabled={applying || pkg.packageStatus !== "ACTIVE"}
+            >
+              {applying ? "Applying..." : "Apply Now"}
+            </button>
           </Box>
 
           {/* Agent card */}
