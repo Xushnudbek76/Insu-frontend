@@ -18,6 +18,7 @@ import ReceiptLongOutlinedIcon from '@mui/icons-material/ReceiptLongOutlined';
 import VerifiedOutlinedIcon from '@mui/icons-material/VerifiedOutlined';
 import ShieldOutlinedIcon from '@mui/icons-material/ShieldOutlined';
 import EmptyIcon from '@mui/icons-material/InboxOutlined';
+import AdminPanelSettingsOutlinedIcon from '@mui/icons-material/AdminPanelSettingsOutlined';
 import { useTranslation } from 'next-i18next/pages';
 import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
 import withLayoutBasic from '@/layout/LayoutBasic';
@@ -207,6 +208,7 @@ const MyPage: NextPage = () => {
 
   const category = isCategory(router.query.category) ? router.query.category : 'myProfile';
   const isAgent = user?.memberType === 'AGENT';
+  const isAdmin = user?.memberType === 'ADMIN';
 
   useEffect(() => {
     const token = getJwtToken();
@@ -572,6 +574,12 @@ const MyPage: NextPage = () => {
           <Stack className='mypage-user-card'>
             <Box component='img' src={avatarUrl(profileForm.memberImage)} alt={user.memberNick} className='mypage-avatar' />
             <span className='mypage-role-chip'>{user.memberType}</span>
+            {isAdmin && (
+              <button className='mypage-admin-entry' onClick={() => router.push('/_admin/users')}>
+                <AdminPanelSettingsOutlinedIcon />
+                {t('Admin Dashboard')}
+              </button>
+            )}
             <h2>{user.memberNick}</h2>
             <p>{user.memberPhone || t('No phone registered')}</p>
             <Box className='mypage-user-stats'>
