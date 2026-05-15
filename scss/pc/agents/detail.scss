@@ -101,6 +101,55 @@ $agent-detail-font: "Hanken Grotesk", $font;
     }
   }
 
+  .agent-detail-follow-row {
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+
+    button {
+      min-height: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: 1px solid $agent-detail-blue;
+      border-radius: 999px;
+      padding: 0 18px;
+      background: $agent-detail-blue;
+      color: #ffffff;
+      font-family: $agent-detail-font;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      transition:
+        transform 0.18s ease,
+        background 0.18s ease,
+        border-color 0.18s ease,
+        color 0.18s ease;
+
+      svg {
+        width: 18px;
+        height: 18px;
+      }
+
+      &:hover {
+        transform: translateY(-1px);
+      }
+
+      &.following {
+        border-color: $agent-detail-line-strong;
+        background: #ffffff;
+        color: $agent-detail-ink;
+      }
+    }
+
+    strong {
+      color: $agent-detail-blue;
+      font-size: 13px;
+      font-weight: 800;
+    }
+  }
+
   .agent-detail-stats {
     flex-direction: row;
     align-items: stretch;
@@ -141,6 +190,14 @@ $agent-detail-font: "Hanken Grotesk", $font;
     gap: 24px;
   }
 
+  .agent-network-section {
+    gap: 18px;
+    padding: 24px;
+    border: 1px solid $agent-detail-line;
+    border-radius: 8px;
+    background: $agent-detail-panel;
+  }
+
   .agent-detail-section-head {
     padding-bottom: 12px;
     border-bottom: 1px solid $agent-detail-line;
@@ -152,6 +209,188 @@ $agent-detail-font: "Hanken Grotesk", $font;
       font-weight: 800;
       letter-spacing: -0.03em;
     }
+
+    span {
+      color: $agent-detail-blue;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+  }
+
+  .agent-network-head {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 18px;
+  }
+
+  .agent-network-tabs {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+
+    button {
+      min-height: 42px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid $agent-detail-line;
+      border-radius: 999px;
+      padding: 0 14px;
+      background: #f6f7fa;
+      color: $agent-detail-ink;
+      font-family: $agent-detail-font;
+      font-weight: 800;
+      cursor: pointer;
+
+      svg {
+        width: 18px;
+        height: 18px;
+      }
+
+      strong {
+        min-width: 24px;
+        color: $agent-detail-blue;
+        text-align: right;
+      }
+
+      &.active {
+        border-color: #050505;
+        background: #050505;
+        color: #ffffff;
+
+        strong {
+          color: #ffffff;
+        }
+      }
+    }
+  }
+
+  .agent-network-list {
+    overflow: hidden;
+    border: 1px solid $agent-detail-line;
+    border-radius: 8px;
+    background: #ffffff;
+  }
+
+  .agent-network-table-head {
+    display: grid;
+    grid-template-columns: 1.15fr 1.4fr 0.7fr;
+    gap: 18px;
+    padding: 18px 22px;
+    background: #f4f4f6;
+    color: $agent-detail-ink;
+    font-size: 14px;
+    font-weight: 900;
+  }
+
+  .agent-network-row {
+    display: grid;
+    grid-template-columns: 1.15fr 1.4fr 0.7fr;
+    align-items: center;
+    gap: 18px;
+    padding: 20px 22px;
+    border-top: 1px solid $agent-detail-line;
+    cursor: pointer;
+    transition:
+      background 0.18s ease,
+      transform 0.18s ease;
+
+    &:hover {
+      background: #fafbff;
+    }
+  }
+
+  .agent-network-name {
+    min-width: 0;
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+
+    img {
+      width: 72px;
+      height: 72px;
+      flex-shrink: 0;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #eef0f4;
+    }
+
+    strong {
+      color: $agent-detail-ink;
+      font-size: 16px;
+      font-weight: 900;
+    }
+
+    span {
+      color: $agent-detail-muted;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+  }
+
+  .agent-network-details {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 18px;
+    color: $agent-detail-ink;
+    font-size: 14px;
+    font-weight: 800;
+
+    span {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    svg {
+      width: 22px;
+      height: 22px;
+    }
+  }
+
+  .agent-network-actions {
+    align-items: flex-end;
+
+    button {
+      min-width: 112px;
+      min-height: 38px;
+      border: 1px solid #6ee978;
+      border-radius: 6px;
+      background: #73ea7c;
+      color: #050505;
+      font-family: $agent-detail-font;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+
+      &.following {
+        border-color: $agent-detail-line-strong;
+        background: #ffffff;
+        color: $agent-detail-ink;
+      }
+
+      &:disabled {
+        border-color: $agent-detail-line;
+        background: #f4f4f6;
+        color: #8f92a3;
+        cursor: not-allowed;
+      }
+    }
+  }
+
+  .agent-network-loading {
+    gap: 0;
+  }
+
+  .agent-network-skeleton {
+    height: 112px;
+    border-top: 1px solid $agent-detail-line;
   }
 
   .agent-listing-grid {
@@ -611,6 +850,30 @@ $agent-detail-font: "Hanken Grotesk", $font;
     > .MuiStack-root {
       flex: 1;
     }
+  }
+
+  .agent-network-head,
+  .agent-network-tabs {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .agent-network-table-head {
+    display: none;
+  }
+
+  .agent-network-row {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    padding: 18px;
+  }
+
+  .agent-network-details {
+    gap: 10px;
+  }
+
+  .agent-network-actions {
+    align-items: stretch;
   }
 
   .agent-listing-grid {

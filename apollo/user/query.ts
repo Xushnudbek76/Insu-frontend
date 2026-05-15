@@ -74,10 +74,77 @@ export const GET_MEMBER = gql`
       memberLikes
       memberViews
       memberComments
+      memberFollowers
+      memberFollowings
       meLiked {
         memberId
         likeRefId
         myFavorite
+      }
+      meFollowed {
+        followingId
+        followerId
+        myFollowing
+      }
+    }
+  }
+`;
+
+export const GET_MEMBER_FOLLOWERS = gql`
+  query GetMemberFollowers($input: FollowInquiry!) {
+    getMemberFollowers(input: $input) {
+      list {
+        _id
+        followingId
+        followerId
+        meFollowed {
+          followingId
+          followerId
+          myFollowing
+        }
+        followerData {
+          _id
+          memberType
+          memberNick
+          memberFullName
+          memberImage
+          memberFollowers
+          memberFollowings
+          memberLikes
+        }
+      }
+      metaCounter {
+        total
+      }
+    }
+  }
+`;
+
+export const GET_MEMBER_FOLLOWINGS = gql`
+  query GetMemberFollowings($input: FollowInquiry!) {
+    getMemberFollowings(input: $input) {
+      list {
+        _id
+        followingId
+        followerId
+        meFollowed {
+          followingId
+          followerId
+          myFollowing
+        }
+        followingData {
+          _id
+          memberType
+          memberNick
+          memberFullName
+          memberImage
+          memberFollowers
+          memberFollowings
+          memberLikes
+        }
+      }
+      metaCounter {
+        total
       }
     }
   }

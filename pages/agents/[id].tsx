@@ -12,14 +12,22 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import ChatBubbleIcon from '@mui/icons-material/ChatBubble';
 import StarBorderOutlinedIcon from '@mui/icons-material/StarBorderOutlined';
 import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
+import PersonAddAltOutlinedIcon from '@mui/icons-material/PersonAddAltOutlined';
+import PersonRemoveOutlinedIcon from '@mui/icons-material/PersonRemoveOutlined';
 import OpenInNewOutlinedIcon from '@mui/icons-material/OpenInNewOutlined';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import BadgeOutlinedIcon from '@mui/icons-material/BadgeOutlined';
 import withLayoutMain from '@/layout/LayoutHome';
 import { userVar } from '@/apollo/store';
-import { GET_AGENT_PUBLIC_PACKAGES, GET_MEMBER } from '@/apollo/user/query';
+import {
+  GET_AGENT_PUBLIC_PACKAGES,
+  GET_MEMBER,
+  GET_MEMBER_FOLLOWERS,
+  GET_MEMBER_FOLLOWINGS,
+} from '@/apollo/user/query';
 import { LIKE_TARGET_PACKAGE } from '@/apollo/package/mutation';
+import { SUBSCRIBE, UNSUBSCRIBE } from '@/apollo/member/mutation';
 import { GET_COMMENTS } from '@/apollo/comment/query';
 import { CREATE_COMMENT } from '@/apollo/comment/mutation';
 import { sweetMixinErrorAlert, sweetTopSuccessAlert } from '@/libs/sweetAlert';
@@ -27,6 +35,7 @@ import { toAssetUrl } from '@/libs/api';
 
 const LISTING_LIMIT = 6;
 const REVIEW_LIMIT = 5;
+const NETWORK_LIMIT = 5;
 
 interface AgentDetail {
   _id: string;
@@ -42,6 +51,9 @@ interface AgentDetail {
   memberLikes?: number | null;
   memberViews?: number | null;
   memberComments?: number | null;
+  memberFollowers?: number | null;
+  memberFollowings?: number | null;
+  meFollowed?: { followingId?: string | null; followerId?: string | null; myFollowing: boolean }[] | null;
 }
 
 interface AgentPackage {
@@ -73,6 +85,28 @@ interface ReviewComment {
   createdAt: string;
   memberData?: CommentMember | null;
 }
+
+interface NetworkMember {
+  _id: string;
+  memberType?: string | null;
+  memberNick?: string | null;
+  memberFullName?: string | null;
+  memberImage?: string | null;
+  memberFollowers?: number | null;
+  memberFollowings?: number | null;
+  memberLikes?: number | null;
+}
+
+interface NetworkFollow {
+  _id: string;
+  followingId: string;
+  followerId: string;
+  meFollowed?: { followingId?: string | null; followerId?: string | null; myFollowing: boolean }[] | null;
+  followerData?: NetworkMember | null;
+  followingData?: NetworkMember | null;
+}
+
+type NetworkTab = 'followers' | 'followings';
 
 const formatCount = (value?: number | null) =>
   value == null ? '0' : value >= 1000 ? `${(value / 1000).toFixed(1)}k` : String(value);
@@ -124,8 +158,12 @@ const AgentDetailPage: NextPage = () => {
   const [reviewText, setReviewText] = useState('');
   const [packageLikes, setPackageLikes] = useState<Record<string, number>>({});
   const [packageLiked, setPackageLiked] = useState<Record<string, boolean>>({});
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [followerCount, setFollowerCount] = useState(0);
+  const [networkTab, setNetworkTab] = useState<NetworkTab>('followers');
+  const [networkPage, setNetworkPage] = useState(1);
 
-  const { loading: agentLoading, data: agentData } = useQuery<{ getMember: AgentDetail }>(
+  const { loading: agentLoading, data: agentData, refetch: refetchAgent } = useQuery<{ getMember: AgentDetail }>(
     GET_MEMBER,
     {
       skip: !agentId,
@@ -174,10 +212,48 @@ const AgentDetailPage: NextPage = () => {
     },
   });
 
+  const {
+    loading: followersLoading,
+    data: followersData,
+    refetch: refetchFollowers,
+  } = useQuery<{
+    getMemberFollowers: { list: NetworkFollow[]; metaCounter: { total: number }[] };
+  }>(GET_MEMBER_FOLLOWERS, {
+    skip: !agentId || networkTab !== 'followers',
+    fetchPolicy: 'no-cache',
+    variables: {
+      input: {
+        page: networkPage,
+        limit: NETWORK_LIMIT,
+        search: { followingId: agentId },
+      },
+    },
+  });
+
+  const {
+    loading: followingsLoading,
+    data: followingsData,
+    refetch: refetchFollowings,
+  } = useQuery<{
+    getMemberFollowings: { list: NetworkFollow[]; metaCounter: { total: number }[] };
+  }>(GET_MEMBER_FOLLOWINGS, {
+    skip: !agentId || networkTab !== 'followings',
+    fetchPolicy: 'no-cache',
+    variables: {
+      input: {
+        page: networkPage,
+        limit: NETWORK_LIMIT,
+        search: { followerId: agentId },
+      },
+    },
+  });
+
   const [likeTargetPackage] = useMutation<{ likeTargetPackage: AgentPackage }>(
     LIKE_TARGET_PACKAGE,
   );
   const [createComment] = useMutation<{ createComment: ReviewComment }>(CREATE_COMMENT);
+  const [subscribe] = useMutation(SUBSCRIBE);
+  const [unsubscribe] = useMutation(UNSUBSCRIBE);
 
   const agent = agentData?.getMember ?? null;
   const listings = listingsData?.getPackages.list ?? [];
@@ -186,6 +262,15 @@ const AgentDetailPage: NextPage = () => {
   const reviews = reviewsData?.getComments.list ?? [];
   const reviewTotal = reviewsData?.getComments.metaCounter?.[0]?.total ?? 0;
   const reviewTotalPages = Math.max(1, Math.ceil(reviewTotal / REVIEW_LIMIT));
+  const followers = followersData?.getMemberFollowers.list ?? [];
+  const followings = followingsData?.getMemberFollowings.list ?? [];
+  const networkItems = networkTab === 'followers' ? followers : followings;
+  const networkTotal =
+    networkTab === 'followers'
+      ? followersData?.getMemberFollowers.metaCounter?.[0]?.total ?? followerCount
+      : followingsData?.getMemberFollowings.metaCounter?.[0]?.total ?? agent?.memberFollowings ?? 0;
+  const networkTotalPages = Math.max(1, Math.ceil(networkTotal / NETWORK_LIMIT));
+  const networkLoading = networkTab === 'followers' ? followersLoading : followingsLoading;
   const displayName = (agent?: AgentDetail | null) =>
     agent?.memberNick || agent?.memberFullName || t('Insurance Agent');
 
@@ -200,6 +285,74 @@ const AgentDetailPage: NextPage = () => {
       return next;
     });
   }, [listings]);
+
+  useEffect(() => {
+    if (!agent) return;
+    setIsFollowing(agent.meFollowed?.[0]?.myFollowing ?? false);
+    setFollowerCount(agent.memberFollowers ?? 0);
+  }, [agent]);
+
+  const refetchNetwork = async () => {
+    if (networkTab === 'followers') {
+      await refetchFollowers();
+      return;
+    }
+    await refetchFollowings();
+  };
+
+  const handleFollowTarget = async (targetId: string, currentlyFollowing: boolean, shouldRethrow = false) => {
+    const user = userVar();
+    if (!user?._id) {
+      await sweetMixinErrorAlert(t('Please login to follow agents.'));
+      return;
+    }
+    if (user._id === targetId) {
+      await sweetMixinErrorAlert(t('You cannot follow yourself.'));
+      return;
+    }
+
+    try {
+      if (currentlyFollowing) {
+        await unsubscribe({ variables: { input: targetId } });
+      } else {
+        await subscribe({ variables: { input: targetId } });
+      }
+      await refetchAgent({ memberId: agentId });
+      await refetchNetwork();
+      await sweetTopSuccessAlert(t(currentlyFollowing ? 'Unfollowed agent.' : 'Followed agent.'));
+    } catch (err: any) {
+      await sweetMixinErrorAlert(
+          err?.graphQLErrors?.[0]?.message?.replace('Definer: ', '') ??
+          err?.message ??
+          t('Could not update follow status.'),
+      );
+      if (shouldRethrow) throw err;
+    }
+  };
+
+  const handleFollowAgent = async () => {
+    const previousFollowing = isFollowing;
+    const previousCount = followerCount;
+    const nextFollowing = !isFollowing;
+
+    setIsFollowing(nextFollowing);
+    setFollowerCount((prev) => Math.max(0, prev + (nextFollowing ? 1 : -1)));
+
+    try {
+      await handleFollowTarget(agentId, previousFollowing, true);
+    } catch {
+      setIsFollowing(previousFollowing);
+      setFollowerCount(previousCount);
+    }
+  };
+
+  const changeNetworkTab = (nextTab: NetworkTab) => {
+    setNetworkTab(nextTab);
+    setNetworkPage(1);
+  };
+
+  const getNetworkMember = (item: NetworkFollow) =>
+    networkTab === 'followers' ? item.followerData : item.followingData;
 
   const handleLikePackage = async (event: MouseEvent, packageId: string) => {
     event.stopPropagation();
@@ -339,6 +492,13 @@ const AgentDetailPage: NextPage = () => {
               {agent.memberRank != null && <span>{t('Rank')} #{agent.memberRank}</span>}
             </Stack>
             {agent.memberDesc && <p>{agent.memberDesc}</p>}
+            <Stack className='agent-detail-follow-row'>
+              <button className={isFollowing ? 'following' : ''} onClick={handleFollowAgent}>
+                {isFollowing ? <PersonRemoveOutlinedIcon /> : <PersonAddAltOutlinedIcon />}
+                <span>{t(isFollowing ? 'Unfollow' : 'Follow')}</span>
+              </button>
+              {isFollowing && <strong>{t('Following')}</strong>}
+            </Stack>
           </Stack>
           <Stack className='agent-detail-stats'>
             <Stack>
@@ -356,7 +516,137 @@ const AgentDetailPage: NextPage = () => {
               <strong>{formatCount(agent.memberComments)}</strong>
               <span>{t('Reviews')}</span>
             </Stack>
+            <Stack>
+              <PersonOutlineOutlinedIcon />
+              <strong>{formatCount(followerCount)}</strong>
+              <span>{t('Followers')}</span>
+            </Stack>
           </Stack>
+        </Stack>
+
+        <Stack className='agent-network-section'>
+          <Stack className='agent-detail-section-head agent-network-head'>
+            <Stack>
+              <span>{t('Agent Network')}</span>
+              <h2>{t('Followers & Followings')}</h2>
+            </Stack>
+            <Stack className='agent-network-tabs'>
+              <button
+                className={networkTab === 'followers' ? 'active' : ''}
+                onClick={() => changeNetworkTab('followers')}
+              >
+                <PersonOutlineOutlinedIcon />
+                <span>{t('Followers')}</span>
+                <strong>{formatCount(followerCount)}</strong>
+              </button>
+              <button
+                className={networkTab === 'followings' ? 'active' : ''}
+                onClick={() => changeNetworkTab('followings')}
+              >
+                <PersonAddAltOutlinedIcon />
+                <span>{t('Followings')}</span>
+                <strong>{formatCount(agent.memberFollowings)}</strong>
+              </button>
+            </Stack>
+          </Stack>
+
+          <Stack className='agent-network-list'>
+            <Box className='agent-network-table-head'>
+              <span>{t('Name')}</span>
+              <span>{t('Details')}</span>
+              <span>{t('Subscription')}</span>
+            </Box>
+
+            {networkLoading ? (
+              <Stack className='agent-network-loading'>
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <Box key={index} className='agent-network-skeleton skeleton-block' />
+                ))}
+              </Stack>
+            ) : networkItems.length === 0 ? (
+              <Stack className='agent-detail-panel-empty'>
+                {t(networkTab === 'followers' ? 'No followers yet.' : 'No followings yet.')}
+              </Stack>
+            ) : (
+              networkItems.map((item) => {
+                const member = getNetworkMember(item);
+                const targetId = member?._id ?? '';
+                const name = member?.memberNick || member?.memberFullName || t('Member');
+                const alreadyFollowing = item.meFollowed?.[0]?.myFollowing ?? false;
+                const isCurrentUser = userVar()?._id === targetId;
+
+                return (
+                  <Stack
+                    key={item._id}
+                    className='agent-network-row'
+                    onClick={() => targetId && router.push(`/agents/${targetId}`)}
+                  >
+                    <Stack className='agent-network-name'>
+                      <Box component='img' src={getAsset(member?.memberImage)} alt={name} />
+                      <Stack>
+                        <strong>{name}</strong>
+                        <span>{member?.memberType || t('Member')}</span>
+                      </Stack>
+                    </Stack>
+                    <Stack className='agent-network-details'>
+                      <span>{t('Followers')} ({formatCount(member?.memberFollowers)})</span>
+                      <span>{t('Followings')} ({formatCount(member?.memberFollowings)})</span>
+                      <span>
+                        <FavoriteBorderIcon />
+                        ({formatCount(member?.memberLikes)})
+                      </span>
+                    </Stack>
+                    <Stack className='agent-network-actions'>
+                      <button
+                        className={alreadyFollowing ? 'following' : ''}
+                        disabled={isCurrentUser}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          if (targetId) handleFollowTarget(targetId, alreadyFollowing);
+                        }}
+                      >
+                        {isCurrentUser ? t('You') : t(alreadyFollowing ? 'Unfollow' : 'Follow')}
+                      </button>
+                    </Stack>
+                  </Stack>
+                );
+              })
+            )}
+          </Stack>
+
+          {networkTotalPages > 1 && (
+            <Stack className='agent-detail-pagination'>
+              <button disabled={networkPage === 1} onClick={() => setNetworkPage((prev) => prev - 1)}>
+                <ChevronLeftIcon />
+              </button>
+              {buildPageNumbers(networkPage, networkTotalPages).map((item, index) =>
+                item === '...' ? (
+                  <span key={`network-dots-${index}`}>...</span>
+                ) : (
+                  <button
+                    key={item}
+                    className={networkPage === item ? 'active' : ''}
+                    onClick={() => setNetworkPage(item)}
+                  >
+                    {item}
+                  </button>
+                ),
+              )}
+              <button
+                disabled={networkPage === networkTotalPages}
+                onClick={() => setNetworkPage((prev) => prev + 1)}
+              >
+                <ChevronRightIcon />
+              </button>
+            </Stack>
+          )}
+          {networkTotal > 0 && (
+            <p className='agent-detail-total'>
+              {t(networkTab === 'followers' ? 'Total followers' : 'Total followings', {
+                count: networkTotal,
+              })}
+            </p>
+          )}
         </Stack>
 
         <Stack className='agent-detail-section'>
