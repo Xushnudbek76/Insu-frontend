@@ -19,6 +19,8 @@ import { LIKE_TARGET_MEMBER } from '@/apollo/member/mutation';
 import { GET_AGENTS } from '@/apollo/user/query';
 import { sweetMixinErrorAlert, sweetTopSuccessAlert } from '@/libs/sweetAlert';
 import { toAssetUrl } from '@/libs/api';
+import { formatCount } from '@/libs/utils/format';
+import { buildPageNumbers } from '@/libs/utils/pagination';
 
 const LIMIT = 10;
 
@@ -48,9 +50,6 @@ interface GetAgentsResponse {
     metaCounter: { total: number }[];
   };
 }
-
-const formatCount = (value?: number | null) =>
-  value == null ? '0' : value >= 1000 ? `${(value / 1000).toFixed(1)}k` : String(value);
 
 const displayName = (agent: AgentData, fallback: string) =>
   agent.memberNick || agent.memberFullName || fallback;
@@ -155,25 +154,6 @@ const AgentsPage: NextPage = () => {
           t('Could not update likes.'),
       );
     }
-  };
-
-  const buildPageNumbers = (): Array<number | '...'> => {
-    if (totalPages <= 5) return Array.from({ length: totalPages }, (_, index) => index + 1);
-
-    const pages: Array<number | '...'> = [1];
-    if (page > 3) pages.push('...');
-
-    for (
-      let currentPage = Math.max(2, page - 1);
-      currentPage <= Math.min(totalPages - 1, page + 1);
-      currentPage += 1
-    ) {
-      pages.push(currentPage);
-    }
-
-    if (page < totalPages - 2) pages.push('...');
-    pages.push(totalPages);
-    return pages;
   };
 
   return (
@@ -304,7 +284,7 @@ const AgentsPage: NextPage = () => {
                 <ChevronLeftIcon />
               </button>
 
-              {buildPageNumbers().map((item, index) =>
+              {buildPageNumbers(page, totalPages).map((item, index) =>
                 item === '...' ? (
                   <span key={`dots-${index}`}>...</span>
                 ) : (

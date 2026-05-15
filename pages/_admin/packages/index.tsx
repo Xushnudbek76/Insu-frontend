@@ -5,9 +5,9 @@ import { GET_ALL_PACKAGES_BY_ADMIN } from '@/apollo/admin/query';
 import { REMOVE_PACKAGE_BY_ADMIN, UPDATE_PACKAGE_BY_ADMIN } from '@/apollo/admin/mutation';
 import PackageList from '@/libs/components/admin/packages/PackageList';
 import withLayoutAdmin from '@/layout/LayoutAdmin';
+import { getTotal } from '@/libs/utils/format';
 
 const DEFAULT_LIMIT = 8;
-const getTotal = (metaCounter: any) => metaCounter?.total ?? metaCounter?.[0]?.total ?? 0;
 
 const AdminPackages: NextPage = () => {
   const [anchorEl, setAnchorEl] = useState<Record<string, HTMLElement | null>>({});

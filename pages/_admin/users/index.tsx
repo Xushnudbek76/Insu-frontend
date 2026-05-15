@@ -5,9 +5,9 @@ import { GET_ALL_MEMBERS_BY_ADMIN } from '@/apollo/admin/query';
 import { UPDATE_MEMBER_BY_ADMIN } from '@/apollo/admin/mutation';
 import MemberList from '@/libs/components/admin/users/MemberList';
 import withLayoutAdmin from '@/layout/LayoutAdmin';
+import { getTotal } from '@/libs/utils/format';
 
 const DEFAULT_LIMIT = 8;
-const getTotal = (metaCounter: any) => metaCounter?.total ?? metaCounter?.[0]?.total ?? 0;
 
 const AdminUsers: NextPage = () => {
   const [anchorEl, setAnchorEl] = useState<Record<string, HTMLElement | null>>({});

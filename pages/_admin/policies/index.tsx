@@ -5,9 +5,9 @@ import { ADMIN_GET_ALL_POLICIES } from '@/apollo/admin/query';
 import { CANCEL_POLICY_BY_ADMIN } from '@/apollo/admin/mutation';
 import PolicyList from '@/libs/components/admin/policies/PolicyList';
 import withLayoutAdmin from '@/layout/LayoutAdmin';
+import { getTotal } from '@/libs/utils/format';
 
 const DEFAULT_LIMIT = 8;
-const getTotal = (metaCounter: any) => metaCounter?.total ?? metaCounter?.[0]?.total ?? 0;
 
 const AdminPolicies: NextPage = () => {
   const [anchorEl, setAnchorEl] = useState<Record<string, HTMLElement | null>>({});

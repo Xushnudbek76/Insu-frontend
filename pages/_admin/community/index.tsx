@@ -5,9 +5,9 @@ import { GET_ALL_BOARD_ARTICLES_BY_ADMIN } from '@/apollo/admin/query';
 import { REMOVE_BOARD_ARTICLE_BY_ADMIN, UPDATE_BOARD_ARTICLE_BY_ADMIN } from '@/apollo/admin/mutation';
 import CommunityArticleList from '@/libs/components/admin/community/CommunityArticleList';
 import withLayoutAdmin from '@/layout/LayoutAdmin';
+import { getTotal } from '@/libs/utils/format';
 
 const DEFAULT_LIMIT = 8;
-const getTotal = (metaCounter: any) => metaCounter?.total ?? metaCounter?.[0]?.total ?? 0;
 
 const AdminCommunity: NextPage = () => {
   const [anchorEl, setAnchorEl] = useState<Record<string, HTMLElement | null>>({});

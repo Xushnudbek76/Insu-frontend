@@ -5,9 +5,9 @@ import { GET_ALL_CLAIMS_BY_ADMIN } from '@/apollo/admin/query';
 import { UPDATE_CLAIM_STATUS_BY_ADMIN } from '@/apollo/admin/mutation';
 import ClaimList from '@/libs/components/admin/claims/ClaimList';
 import withLayoutAdmin from '@/layout/LayoutAdmin';
+import { getTotal } from '@/libs/utils/format';
 
 const DEFAULT_LIMIT = 8;
-const getTotal = (metaCounter: any) => metaCounter?.total ?? metaCounter?.[0]?.total ?? 0;
 
 const AdminClaims: NextPage = () => {
   const [anchorEl, setAnchorEl] = useState<Record<string, HTMLElement | null>>({});

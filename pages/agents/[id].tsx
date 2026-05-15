@@ -32,6 +32,8 @@ import { GET_COMMENTS } from '@/apollo/comment/query';
 import { CREATE_COMMENT } from '@/apollo/comment/mutation';
 import { sweetMixinErrorAlert, sweetTopSuccessAlert } from '@/libs/sweetAlert';
 import { toAssetUrl } from '@/libs/api';
+import { formatCount } from '@/libs/utils/format';
+import { buildPageNumbers } from '@/libs/utils/pagination';
 
 const LISTING_LIMIT = 6;
 const REVIEW_LIMIT = 5;
@@ -108,9 +110,6 @@ interface NetworkFollow {
 
 type NetworkTab = 'followers' | 'followings';
 
-const formatCount = (value?: number | null) =>
-  value == null ? '0' : value >= 1000 ? `${(value / 1000).toFixed(1)}k` : String(value);
-
 const getAsset = (path?: string | null) => toAssetUrl(path) ?? '/img/placeholder-article.svg';
 
 const getPackageImage = (images?: string[] | null) =>
@@ -127,25 +126,6 @@ const formatDate = (date: string, locale?: string) =>
     month: 'long',
     day: '2-digit',
   });
-
-const buildPageNumbers = (page: number, totalPages: number): Array<number | '...'> => {
-  if (totalPages <= 5) return Array.from({ length: totalPages }, (_, index) => index + 1);
-
-  const pages: Array<number | '...'> = [1];
-  if (page > 3) pages.push('...');
-
-  for (
-    let currentPage = Math.max(2, page - 1);
-    currentPage <= Math.min(totalPages - 1, page + 1);
-    currentPage += 1
-  ) {
-    pages.push(currentPage);
-  }
-
-  if (page < totalPages - 2) pages.push('...');
-  pages.push(totalPages);
-  return pages;
-};
 
 const AgentDetailPage: NextPage = () => {
   const router = useRouter();

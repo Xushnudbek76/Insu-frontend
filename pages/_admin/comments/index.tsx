@@ -5,9 +5,9 @@ import { GET_ADMIN_LATEST_COMMENTS } from '@/apollo/admin/query';
 import { REMOVE_COMMENT_BY_ADMIN } from '@/apollo/admin/mutation';
 import CommentList from '@/libs/components/admin/comments/CommentList';
 import withLayoutAdmin from '@/layout/LayoutAdmin';
+import { getTotal } from '@/libs/utils/format';
 
 const DEFAULT_LIMIT = 8;
-const getTotal = (metaCounter: any) => metaCounter?.total ?? metaCounter?.[0]?.total ?? 0;
 
 const AdminComments: NextPage = () => {
   const [comments, setComments] = useState<any[]>([]);

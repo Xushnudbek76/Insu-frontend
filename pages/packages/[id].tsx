@@ -26,6 +26,7 @@ import { CREATE_COMMENT } from "@/apollo/comment/mutation";
 import { PURCHASE_POLICY } from "@/apollo/policy/mutation";
 import { sweetMixinErrorAlert, sweetTopSuccessAlert } from "@/libs/sweetAlert";
 import { toAssetUrl } from "@/libs/api";
+import { formatCount } from '@/libs/utils/format';
 import { serverSideTranslations } from "next-i18next/pages/serverSideTranslations";
 
 export const getServerSideProps = async ({ locale = "en" }: { locale?: string }) => ({
@@ -93,12 +94,6 @@ const getImage = (images?: string[] | null) =>
 
 const getMemberImage = (image?: string | null) =>
   toAssetUrl(image);
-
-const formatCount = (n?: number | null) => {
-  if (n == null) return "0";
-  if (n >= 1000) return `${(n / 1000).toFixed(1)}k`;
-  return String(n);
-};
 
 const formatCoverage = (n?: number | null) => {
   if (n == null) return "—";

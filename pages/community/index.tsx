@@ -16,6 +16,7 @@ import withLayoutMain from '@/layout/LayoutHome';
 import { GET_BOARD_ARTICLES } from '@/apollo/board-article/query';
 import { BoardArticleCategory } from '@/libs/enums/board-article.enum';
 import { toAssetUrl } from '@/libs/api';
+import { buildPageNumbers } from '@/libs/utils/pagination';
 import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
 
 export const getStaticProps = async ({ locale = 'en' }: { locale?: string }) => ({
@@ -141,23 +142,6 @@ const CommunityPage: NextPage = () => {
   const handleChangeCategory = (value: BoardArticleCategory) => {
     setCategory(value);
     setPage(1);
-  };
-
-  const buildPageNumbers = (): Array<number | '...'> => {
-    if (totalPages <= 5) return Array.from({ length: totalPages }, (_, index) => index + 1);
-
-    const pages: Array<number | '...'> = [1];
-    if (page > 3) pages.push('...');
-    for (
-      let currentPage = Math.max(2, page - 1);
-      currentPage <= Math.min(totalPages - 1, page + 1);
-      currentPage += 1
-    ) {
-      pages.push(currentPage);
-    }
-    if (page < totalPages - 2) pages.push('...');
-    pages.push(totalPages);
-    return pages;
   };
 
   return (
@@ -330,7 +314,7 @@ const CommunityPage: NextPage = () => {
               <button disabled={page === 1} onClick={() => setPage((prev) => prev - 1)}>
                 Prev
               </button>
-              {buildPageNumbers().map((item, index) =>
+              {buildPageNumbers(page, totalPages).map((item, index) =>
                 item === '...' ? (
                   <span key={`dots-${index}`} className='community-dots'>
                     ...

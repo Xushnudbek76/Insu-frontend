@@ -18,6 +18,8 @@ import { GET_PACKAGES } from '@/apollo/user/query';
 import { LIKE_TARGET_PACKAGE } from '@/apollo/package/mutation';
 import { sweetMixinErrorAlert, sweetTopSuccessAlert } from '@/libs/sweetAlert';
 import { toAssetUrl } from '@/libs/api';
+import { formatCount } from '@/libs/utils/format';
+import { buildPageNumbers } from '@/libs/utils/pagination';
 import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
 
 export const getStaticProps = async ({ locale = 'en' }: { locale?: string }) => ({
@@ -197,9 +199,6 @@ const PackagesPage: NextPage = () => {
   const getImage = (images?: string[] | null) =>
     toAssetUrl(images?.[0]) ?? '/img/placeholder-article.svg';
 
-  const formatCount = (value?: number | null) =>
-    value == null ? '0' : value >= 1000 ? `${(value / 1000).toFixed(1)}k` : String(value);
-
   const formatCoverage = (value?: number | null) =>
     value == null
       ? null
@@ -218,25 +217,6 @@ const PackagesPage: NextPage = () => {
     };
 
   const totalPages = Math.max(1, Math.ceil(total / LIMIT));
-
-  const buildPageNumbers = (): Array<number | '...'> => {
-    if (totalPages <= 5) return Array.from({ length: totalPages }, (_, index) => index + 1);
-
-    const pages: Array<number | '...'> = [1];
-    if (page > 3) pages.push('...');
-
-    for (
-      let currentPage = Math.max(2, page - 1);
-      currentPage <= Math.min(totalPages - 1, page + 1);
-      currentPage += 1
-    ) {
-      pages.push(currentPage);
-    }
-
-    if (page < totalPages - 2) pages.push('...');
-    pages.push(totalPages);
-    return pages;
-  };
 
   return (
     <Stack className={'packages-page'}>
@@ -475,7 +455,7 @@ const PackagesPage: NextPage = () => {
                 <ChevronLeftIcon />
               </button>
 
-              {buildPageNumbers().map((pageNumber, index) =>
+              {buildPageNumbers(page, totalPages).map((pageNumber, index) =>
                 pageNumber === '...' ? (
                   <span key={`dots-${index}`} className={'pg-dots'}>
                     …
