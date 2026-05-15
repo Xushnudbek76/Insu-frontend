@@ -1,114 +1,99 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { NextPage } from 'next';
 import { useMutation, useQuery } from '@apollo/client/react';
 import { GET_ALL_CLAIMS_BY_ADMIN } from '@/apollo/admin/query';
 import { UPDATE_CLAIM_STATUS_BY_ADMIN } from '@/apollo/admin/mutation';
-import AdminResourcePage, { AdminRow } from '@/libs/components/admin/AdminResourcePage';
+import ClaimList from '@/libs/components/admin/claims/ClaimList';
 import withLayoutAdmin from '@/layout/LayoutAdmin';
 
-const LIMIT = 8;
-const STATUS_OPTIONS = [
-  { label: 'All statuses', value: '' },
-  { label: 'Pending', value: 'PENDING' },
-  { label: 'Approved', value: 'APPROVED' },
-  { label: 'Rejected', value: 'REJECTED' },
-  { label: 'Settled', value: 'SETTLED' },
-];
-
-const money = (value?: number) => `$${Number(value ?? 0).toLocaleString()}`;
-const shortDate = (date?: string) => (date ? new Date(date).toLocaleDateString() : '-');
+const DEFAULT_LIMIT = 8;
+const getTotal = (metaCounter: any) => metaCounter?.total ?? metaCounter?.[0]?.total ?? 0;
 
 const AdminClaims: NextPage = () => {
+  const [anchorEl, setAnchorEl] = useState<Record<string, HTMLElement | null>>({});
+  const [claims, setClaims] = useState<any[]>([]);
+  const [claimsTotal, setClaimsTotal] = useState(0);
   const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(DEFAULT_LIMIT);
+  const [status, setStatus] = useState('ALL');
   const [searchText, setSearchText] = useState('');
   const [submittedText, setSubmittedText] = useState('');
-  const [status, setStatus] = useState('');
   const [updateClaimStatus] = useMutation(UPDATE_CLAIM_STATUS_BY_ADMIN);
 
-  const variables = useMemo(() => ({
-    input: {
-      page,
-      limit: LIMIT,
-      sort: 'createdAt',
-      direction: 'DESC',
-      search: {
-        ...(status ? { claimStatus: status } : {}),
-        ...(submittedText ? { text: submittedText } : {}),
-      },
+  const inquiry = useMemo(() => ({
+    page,
+    limit,
+    sort: 'createdAt',
+    direction: 'DESC',
+    search: {
+      ...(status !== 'ALL' ? { claimStatus: status } : {}),
+      ...(submittedText ? { text: submittedText } : {}),
     },
-  }), [page, status, submittedText]);
+  }), [limit, page, status, submittedText]);
 
   const { data, loading, refetch } = useQuery(GET_ALL_CLAIMS_BY_ADMIN, {
-    variables,
     fetchPolicy: 'network-only',
+    notifyOnNetworkStatusChange: true,
+    variables: { input: inquiry },
   });
 
-  const updateStatus = async (claimId: string, newStatus: string) => {
-    await updateClaimStatus({ variables: { input: { claimId, newStatus } } });
-    await refetch();
+  useEffect(() => {
+    const result = data as any;
+    setClaims(result?.getAllClaimsByAdmin?.list ?? []);
+    setClaimsTotal(getTotal(result?.getAllClaimsByAdmin?.metaCounter));
+  }, [data]);
+
+  const openMenu = (key: string, event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl({ [key]: event.currentTarget });
   };
 
-  const result = data as any;
-  const claims = result?.getAllClaimsByAdmin?.list ?? [];
-  const total = result?.getAllClaimsByAdmin?.metaCounter?.total ?? 0;
-  const rows: AdminRow[] = claims.map((claim: any) => ({
-    id: claim._id,
-    title: claim.claimTitle || 'Claim request',
-    subtitle: claim.claimDesc || claim.policyId || claim._id,
-    status: claim.claimStatus,
-    cells: [
-      { label: 'Amount', value: money(claim.claimAmount) },
-      { label: 'Policy', value: claim.policyId },
-      { label: 'Agent', value: claim.agentId || '-' },
-      { label: 'Created', value: shortDate(claim.createdAt) },
-    ],
-    actions: [
-      {
-        label: 'Approve',
-        disabled: claim.claimStatus === 'APPROVED',
-        onClick: () => updateStatus(claim._id, 'APPROVED'),
-      },
-      {
-        label: 'Reject',
-        tone: 'ghost',
-        disabled: claim.claimStatus === 'REJECTED',
-        onClick: () => updateStatus(claim._id, 'REJECTED'),
-      },
-      {
-        label: 'Settle',
-        tone: 'ghost',
-        disabled: claim.claimStatus === 'SETTLED',
-        onClick: () => updateStatus(claim._id, 'SETTLED'),
-      },
-    ],
-  }));
+  const closeMenu = () => setAnchorEl({});
+
+  const syncClaims = () => {
+    refetch({ input: inquiry }).catch((error) => console.warn('Admin claims refetch failed', error));
+  };
+
+  const updateStatus = async (_id: string, newStatus: string) => {
+    closeMenu();
+    setClaims((prev) => prev.map((claim) => (claim._id === _id ? { ...claim, claimStatus: newStatus } : claim)));
+    try {
+      const result = await updateClaimStatus({ variables: { input: { claimId: _id, newStatus } } });
+      const updated = (result.data as any)?.updateClaimStatus;
+      if (updated) setClaims((prev) => prev.map((claim) => (claim._id === _id ? { ...claim, ...updated } : claim)));
+      syncClaims();
+    } catch (error) {
+      syncClaims();
+      console.warn('Admin claim update failed', error);
+    }
+  };
 
   return (
-    <AdminResourcePage
-      eyebrow='Claims'
-      title='Claims'
-      description='Review claim requests and move them through approval, rejection, or settlement.'
-      rows={rows}
-      loading={loading}
-      total={total}
+    <ClaimList
+      claims={claims}
+      loading={loading && claims.length === 0}
+      total={claimsTotal}
       page={page}
-      limit={LIMIT}
+      limit={limit}
+      activeStatus={status}
       searchText={searchText}
-      searchPlaceholder='Search claims'
-      statusValue={status}
-      statusOptions={STATUS_OPTIONS}
-      emptyTitle='No claims found'
-      emptyDescription='Try another claim status or search phrase.'
+      anchorEl={anchorEl}
+      onOpenMenu={openMenu}
+      onCloseMenu={closeMenu}
+      onUpdateClaim={updateStatus}
+      onStatusTabChange={(value) => {
+        setPage(1);
+        setStatus(value);
+      }}
       onSearchTextChange={setSearchText}
       onSearch={() => {
         setPage(1);
         setSubmittedText(searchText.trim());
       }}
-      onStatusChange={(value) => {
-        setPage(1);
-        setStatus(value);
-      }}
       onPageChange={setPage}
+      onLimitChange={(nextLimit) => {
+        setPage(1);
+        setLimit(nextLimit);
+      }}
     />
   );
 };

@@ -1,143 +1,111 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { NextPage } from 'next';
 import { useMutation, useQuery } from '@apollo/client/react';
 import { GET_ALL_BOARD_ARTICLES_BY_ADMIN } from '@/apollo/admin/query';
 import { REMOVE_BOARD_ARTICLE_BY_ADMIN, UPDATE_BOARD_ARTICLE_BY_ADMIN } from '@/apollo/admin/mutation';
-import AdminResourcePage, { AdminRow } from '@/libs/components/admin/AdminResourcePage';
-import { toAssetUrl } from '@/libs/api';
+import CommunityArticleList from '@/libs/components/admin/community/CommunityArticleList';
 import withLayoutAdmin from '@/layout/LayoutAdmin';
 
-const LIMIT = 8;
-const STATUS_OPTIONS = [
-  { label: 'All statuses', value: '' },
-  { label: 'Active', value: 'ACTIVE' },
-  { label: 'Inactive', value: 'INACTIVE' },
-  { label: 'Deleted', value: 'DELETED' },
-];
-const CATEGORY_OPTIONS = [
-  { label: 'All categories', value: '' },
-  { label: 'Notice', value: 'NOTICE' },
-  { label: 'Free', value: 'FREE' },
-  { label: 'News', value: 'NEWS' },
-  { label: 'Review', value: 'REVIEW' },
-];
-
-const shortDate = (date?: string) => (date ? new Date(date).toLocaleDateString() : '-');
+const DEFAULT_LIMIT = 8;
+const getTotal = (metaCounter: any) => metaCounter?.total ?? metaCounter?.[0]?.total ?? 0;
 
 const AdminCommunity: NextPage = () => {
+  const [anchorEl, setAnchorEl] = useState<Record<string, HTMLElement | null>>({});
+  const [articles, setArticles] = useState<any[]>([]);
+  const [articlesTotal, setArticlesTotal] = useState(0);
   const [page, setPage] = useState(1);
-  const [searchText, setSearchText] = useState('');
-  const [submittedText, setSubmittedText] = useState('');
-  const [status, setStatus] = useState('');
-  const [category, setCategory] = useState('');
+  const [limit, setLimit] = useState(DEFAULT_LIMIT);
+  const [status, setStatus] = useState('ALL');
+  const [category, setCategory] = useState('ALL');
   const [updateArticle] = useMutation(UPDATE_BOARD_ARTICLE_BY_ADMIN);
   const [removeArticle] = useMutation(REMOVE_BOARD_ARTICLE_BY_ADMIN);
 
-  const variables = useMemo(() => ({
-    input: {
-      page,
-      limit: LIMIT,
-      sort: 'createdAt',
-      direction: 'DESC',
-      search: {
-        ...(status ? { articleStatus: status } : {}),
-        ...(category ? { articleCategory: category } : {}),
-      },
+  const inquiry = useMemo(() => ({
+    page,
+    limit,
+    sort: 'createdAt',
+    direction: 'DESC',
+    search: {
+      ...(status !== 'ALL' ? { articleStatus: status } : {}),
+      ...(category !== 'ALL' ? { articleCategory: category } : {}),
     },
-  }), [category, page, status]);
+  }), [category, limit, page, status]);
 
   const { data, loading, refetch } = useQuery(GET_ALL_BOARD_ARTICLES_BY_ADMIN, {
-    variables,
     fetchPolicy: 'network-only',
+    notifyOnNetworkStatusChange: true,
+    variables: { input: inquiry },
   });
 
+  useEffect(() => {
+    const result = data as any;
+    setArticles(result?.getAllBoardArticlesByAdmin?.list ?? []);
+    setArticlesTotal(getTotal(result?.getAllBoardArticlesByAdmin?.metaCounter));
+  }, [data]);
+
+  const openMenu = (key: string, event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl({ [key]: event.currentTarget });
+  };
+
+  const closeMenu = () => setAnchorEl({});
+
+  const syncArticles = () => {
+    refetch({ input: inquiry }).catch((error) => console.warn('Admin articles refetch failed', error));
+  };
+
   const updateStatus = async (_id: string, articleStatus: string) => {
-    await updateArticle({ variables: { input: { _id, articleStatus } } });
-    await refetch();
+    closeMenu();
+    setArticles((prev) => prev.map((article) => (article._id === _id ? { ...article, articleStatus } : article)));
+    try {
+      const result = await updateArticle({ variables: { input: { _id, articleStatus } } });
+      const updated = (result.data as any)?.updateBoardArticleByAdmin;
+      if (updated) setArticles((prev) => prev.map((article) => (article._id === _id ? { ...article, ...updated } : article)));
+      syncArticles();
+    } catch (error) {
+      syncArticles();
+      console.warn('Admin article update failed', error);
+    }
   };
 
   const remove = async (_id: string, title: string) => {
     if (!window.confirm(`Remove ${title}?`)) return;
-    await removeArticle({ variables: { articleId: _id } });
-    await refetch();
+    try {
+      await removeArticle({ variables: { articleId: _id } });
+      setArticles((prev) => prev.filter((article) => article._id !== _id));
+      syncArticles();
+    } catch (error) {
+      syncArticles();
+      console.warn('Admin article remove failed', error);
+    }
   };
 
-  const result = data as any;
-  const articles = result?.getAllBoardArticlesByAdmin?.list ?? [];
-  const total = result?.getAllBoardArticlesByAdmin?.metaCounter?.total ?? 0;
-  const normalizedSearch = submittedText.trim().toLowerCase();
-  const visibleArticles = normalizedSearch
-    ? articles.filter((article: any) => `${article.articleTitle} ${article.memberData?.memberNick}`.toLowerCase().includes(normalizedSearch))
-    : articles;
-
-  const rows: AdminRow[] = visibleArticles.map((article: any) => {
-    const title = article.articleTitle || 'Community post';
-
-    return {
-      id: article._id,
-      title,
-      subtitle: article.memberData?.memberNick || article.memberId || article._id,
-      status: article.articleStatus,
-      image: toAssetUrl(article.articleImage) ?? '/img/placeholder-article.svg',
-      cells: [
-        { label: 'Category', value: article.articleCategory },
-        { label: 'Views', value: article.articleViews ?? 0 },
-        { label: 'Likes', value: article.articleLikes ?? 0 },
-        { label: 'Created', value: shortDate(article.createdAt) },
-      ],
-      actions: [
-        {
-          label: 'Active',
-          disabled: article.articleStatus === 'ACTIVE',
-          onClick: () => updateStatus(article._id, 'ACTIVE'),
-        },
-        {
-          label: 'Inactive',
-          tone: 'ghost',
-          disabled: article.articleStatus === 'INACTIVE',
-          onClick: () => updateStatus(article._id, 'INACTIVE'),
-        },
-        {
-          label: 'Remove',
-          tone: 'danger',
-          onClick: () => remove(article._id, title),
-        },
-      ],
-    };
-  });
-
   return (
-    <AdminResourcePage
-      eyebrow='Community'
-      title='Community'
-      description='Moderate public board articles and keep visible community content healthy.'
-      rows={rows}
-      loading={loading}
-      total={normalizedSearch ? rows.length : total}
+    <CommunityArticleList
+      articles={articles}
+      loading={loading && articles.length === 0}
+      total={articlesTotal}
       page={page}
-      limit={LIMIT}
-      searchText={searchText}
-      searchPlaceholder='Search loaded articles'
-      statusValue={status}
-      statusOptions={STATUS_OPTIONS}
-      typeValue={category}
-      typeOptions={CATEGORY_OPTIONS}
-      emptyTitle='No articles found'
-      emptyDescription='Try another category or status.'
-      onSearchTextChange={setSearchText}
-      onSearch={() => {
-        setPage(1);
-        setSubmittedText(searchText);
-      }}
-      onStatusChange={(value) => {
+      limit={limit}
+      activeStatus={status}
+      categoryFilter={category}
+      anchorEl={anchorEl}
+      onOpenMenu={openMenu}
+      onCloseMenu={closeMenu}
+      onUpdateArticle={updateStatus}
+      onRemoveArticle={remove}
+      onStatusTabChange={(value) => {
         setPage(1);
         setStatus(value);
       }}
-      onTypeChange={(value) => {
+      onCategoryFilterChange={(value) => {
         setPage(1);
         setCategory(value);
       }}
       onPageChange={setPage}
+      onLimitChange={(nextLimit) => {
+        setPage(1);
+        setLimit(nextLimit);
+      }}
     />
   );
 };

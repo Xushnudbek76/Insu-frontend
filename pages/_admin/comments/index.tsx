@@ -1,90 +1,82 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { NextPage } from 'next';
 import { useMutation, useQuery } from '@apollo/client/react';
 import { GET_ADMIN_LATEST_COMMENTS } from '@/apollo/admin/query';
 import { REMOVE_COMMENT_BY_ADMIN } from '@/apollo/admin/mutation';
-import AdminResourcePage, { AdminRow } from '@/libs/components/admin/AdminResourcePage';
-import { toAssetUrl } from '@/libs/api';
+import CommentList from '@/libs/components/admin/comments/CommentList';
 import withLayoutAdmin from '@/layout/LayoutAdmin';
 
-const LIMIT = 8;
-const shortDate = (date?: string) => (date ? new Date(date).toLocaleDateString() : '-');
+const DEFAULT_LIMIT = 8;
+const getTotal = (metaCounter: any) => metaCounter?.total ?? metaCounter?.[0]?.total ?? 0;
 
 const AdminComments: NextPage = () => {
+  const [comments, setComments] = useState<any[]>([]);
+  const [commentsTotal, setCommentsTotal] = useState(0);
   const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(DEFAULT_LIMIT);
   const [searchText, setSearchText] = useState('');
   const [submittedText, setSubmittedText] = useState('');
   const [removeComment] = useMutation(REMOVE_COMMENT_BY_ADMIN);
 
-  const variables = useMemo(() => ({
-    input: {
-      page,
-      limit: LIMIT,
-      sort: 'createdAt',
-      direction: 'DESC',
-    },
-  }), [page]);
+  const inquiry = useMemo(() => ({
+    page,
+    limit,
+    sort: 'createdAt',
+    direction: 'DESC',
+  }), [limit, page]);
 
   const { data, loading, refetch } = useQuery(GET_ADMIN_LATEST_COMMENTS, {
-    variables,
     fetchPolicy: 'network-only',
+    notifyOnNetworkStatusChange: true,
+    variables: { input: inquiry },
   });
+
+  useEffect(() => {
+    const result = data as any;
+    setComments(result?.getLatestComments?.list ?? []);
+    setCommentsTotal(getTotal(result?.getLatestComments?.metaCounter));
+  }, [data]);
+
+  const syncComments = () => {
+    refetch({ input: inquiry }).catch((error) => console.warn('Admin comments refetch failed', error));
+  };
 
   const remove = async (_id: string) => {
     if (!window.confirm('Remove this comment?')) return;
-    await removeComment({ variables: { commentId: _id } });
-    await refetch();
+    try {
+      await removeComment({ variables: { commentId: _id } });
+      setComments((prev) => prev.filter((comment) => comment._id !== _id));
+      syncComments();
+    } catch (error) {
+      syncComments();
+      console.warn('Admin comment remove failed', error);
+    }
   };
 
-  const result = data as any;
-  const comments = result?.getLatestComments?.list ?? [];
-  const total = result?.getLatestComments?.metaCounter?.total ?? 0;
   const normalizedSearch = submittedText.trim().toLowerCase();
   const visibleComments = normalizedSearch
-    ? comments.filter((comment: any) => `${comment.commentContent} ${comment.memberData?.memberNick}`.toLowerCase().includes(normalizedSearch))
+    ? comments.filter((comment) => `${comment.commentContent} ${comment.memberData?.memberNick}`.toLowerCase().includes(normalizedSearch))
     : comments;
 
-  const rows: AdminRow[] = visibleComments.map((comment: any) => ({
-    id: comment._id,
-    title: comment.commentContent || 'Comment',
-    subtitle: comment.memberData?.memberNick || comment.memberId || comment._id,
-    status: comment.commentStatus,
-    image: toAssetUrl(comment.memberData?.memberImage) ?? '/img/profile/defaultUser.svg',
-    cells: [
-      { label: 'Group', value: comment.commentGroup },
-      { label: 'Reference', value: comment.commentRefId },
-      { label: 'Author', value: comment.memberData?.memberNick || '-' },
-      { label: 'Created', value: shortDate(comment.createdAt) },
-    ],
-    actions: [
-      {
-        label: 'Remove',
-        tone: 'danger',
-        onClick: () => remove(comment._id),
-      },
-    ],
-  }));
-
   return (
-    <AdminResourcePage
-      eyebrow='Moderation'
-      title='Comments'
-      description='Review latest public comments and remove unsafe or irrelevant replies.'
-      rows={rows}
-      loading={loading}
-      total={normalizedSearch ? rows.length : total}
+    <CommentList
+      comments={visibleComments}
+      loading={loading && comments.length === 0}
+      total={normalizedSearch ? visibleComments.length : commentsTotal}
       page={page}
-      limit={LIMIT}
+      limit={limit}
       searchText={searchText}
-      searchPlaceholder='Search loaded comments'
-      emptyTitle='No comments found'
-      emptyDescription='Latest active comments will appear here.'
+      onRemoveComment={remove}
       onSearchTextChange={setSearchText}
       onSearch={() => {
         setPage(1);
         setSubmittedText(searchText);
       }}
       onPageChange={setPage}
+      onLimitChange={(nextLimit) => {
+        setPage(1);
+        setLimit(nextLimit);
+      }}
     />
   );
 };

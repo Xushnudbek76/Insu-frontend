@@ -1,147 +1,111 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { NextPage } from 'next';
 import { useMutation, useQuery } from '@apollo/client/react';
 import { GET_ALL_PACKAGES_BY_ADMIN } from '@/apollo/admin/query';
 import { REMOVE_PACKAGE_BY_ADMIN, UPDATE_PACKAGE_BY_ADMIN } from '@/apollo/admin/mutation';
-import AdminResourcePage, { AdminRow } from '@/libs/components/admin/AdminResourcePage';
-import { toAssetUrl } from '@/libs/api';
+import PackageList from '@/libs/components/admin/packages/PackageList';
 import withLayoutAdmin from '@/layout/LayoutAdmin';
 
-const LIMIT = 8;
-const STATUS_OPTIONS = [
-  { label: 'All statuses', value: '' },
-  { label: 'Active', value: 'ACTIVE' },
-  { label: 'Inactive', value: 'INACTIVE' },
-  { label: 'Archived', value: 'ARCHIVED' },
-];
-const TYPE_OPTIONS = [
-  { label: 'All types', value: '' },
-  { label: 'Auto', value: 'AUTO' },
-  { label: 'Home', value: 'HOME' },
-  { label: 'Health', value: 'HEALTH' },
-  { label: 'Travel', value: 'TRAVEL' },
-  { label: 'Pet', value: 'PET' },
-  { label: 'Term Life', value: 'TERM_LIFE' },
-];
-
-const money = (value?: number) => `$${Number(value ?? 0).toLocaleString()}`;
+const DEFAULT_LIMIT = 8;
+const getTotal = (metaCounter: any) => metaCounter?.total ?? metaCounter?.[0]?.total ?? 0;
 
 const AdminPackages: NextPage = () => {
+  const [anchorEl, setAnchorEl] = useState<Record<string, HTMLElement | null>>({});
+  const [packages, setPackages] = useState<any[]>([]);
+  const [packagesTotal, setPackagesTotal] = useState(0);
   const [page, setPage] = useState(1);
-  const [searchText, setSearchText] = useState('');
-  const [submittedText, setSubmittedText] = useState('');
-  const [status, setStatus] = useState('');
-  const [type, setType] = useState('');
+  const [limit, setLimit] = useState(DEFAULT_LIMIT);
+  const [status, setStatus] = useState('ALL');
+  const [type, setType] = useState('ALL');
   const [updatePackage] = useMutation(UPDATE_PACKAGE_BY_ADMIN);
   const [removePackage] = useMutation(REMOVE_PACKAGE_BY_ADMIN);
 
-  const variables = useMemo(() => ({
-    input: {
-      page,
-      limit: LIMIT,
-      sort: 'createdAt',
-      direction: 'DESC',
-      search: {
-        ...(status ? { packageStatus: status } : {}),
-        ...(type ? { packageType: type } : {}),
-        ...(submittedText ? { text: submittedText } : {}),
-      },
+  const inquiry = useMemo(() => ({
+    page,
+    limit,
+    sort: 'createdAt',
+    direction: 'DESC',
+    search: {
+      ...(status !== 'ALL' ? { packageStatus: status } : {}),
+      ...(type !== 'ALL' ? { packageType: type } : {}),
     },
-  }), [page, status, submittedText, type]);
+  }), [limit, page, status, type]);
 
   const { data, loading, refetch } = useQuery(GET_ALL_PACKAGES_BY_ADMIN, {
-    variables,
     fetchPolicy: 'network-only',
+    notifyOnNetworkStatusChange: true,
+    variables: { input: inquiry },
   });
+
+  useEffect(() => {
+    const result = data as any;
+    setPackages(result?.getAllPackagesByAdmin?.list ?? []);
+    setPackagesTotal(getTotal(result?.getAllPackagesByAdmin?.metaCounter));
+  }, [data]);
+
+  const openMenu = (key: string, event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl({ [key]: event.currentTarget });
+  };
+
+  const closeMenu = () => setAnchorEl({});
+
+  const syncPackages = () => {
+    refetch({ input: inquiry }).catch((error) => console.warn('Admin packages refetch failed', error));
+  };
 
   const updatePackageStatus = async (_id: string, packageStatus: string) => {
-    await updatePackage({ variables: { input: { _id, packageStatus } } });
-    await refetch();
+    closeMenu();
+    setPackages((prev) => prev.map((pkg) => (pkg._id === _id ? { ...pkg, packageStatus } : pkg)));
+    try {
+      const result = await updatePackage({ variables: { input: { _id, packageStatus } } });
+      const updated = (result.data as any)?.updatePackageByAdmin;
+      if (updated) setPackages((prev) => prev.map((pkg) => (pkg._id === _id ? { ...pkg, ...updated } : pkg)));
+      syncPackages();
+    } catch (error) {
+      syncPackages();
+      console.warn('Admin package update failed', error);
+    }
   };
 
-  const archivePackage = async (_id: string, title: string) => {
+  const remove = async (_id: string, title: string) => {
     if (!window.confirm(`Remove ${title}?`)) return;
-    await removePackage({ variables: { packageId: _id } });
-    await refetch();
+    try {
+      await removePackage({ variables: { packageId: _id } });
+      setPackages((prev) => prev.filter((pkg) => pkg._id !== _id));
+      syncPackages();
+    } catch (error) {
+      syncPackages();
+      console.warn('Admin package remove failed', error);
+    }
   };
-
-  const result = data as any;
-  const packages = result?.getAllPackagesByAdmin?.list ?? [];
-  const total = result?.getAllPackagesByAdmin?.metaCounter?.total ?? 0;
-  const rows: AdminRow[] = packages.map((pkg: any) => {
-    const title = pkg.packageTitle || 'Untitled package';
-
-    return {
-      id: pkg._id,
-      title,
-      subtitle: pkg.packageDesc || pkg.memberId || pkg._id,
-      status: pkg.packageStatus,
-      image: toAssetUrl(pkg.packageImages?.[0]) ?? '/img/placeholder-article.svg',
-      cells: [
-        { label: 'Type', value: pkg.packageType },
-        { label: 'Price', value: money(pkg.packagePrice) },
-        { label: 'Views', value: pkg.packageViews ?? 0 },
-        { label: 'Likes', value: pkg.packageLikes ?? 0 },
-      ],
-      actions: [
-        {
-          label: 'Active',
-          disabled: pkg.packageStatus === 'ACTIVE',
-          onClick: () => updatePackageStatus(pkg._id, 'ACTIVE'),
-        },
-        {
-          label: 'Inactive',
-          tone: 'ghost',
-          disabled: pkg.packageStatus === 'INACTIVE',
-          onClick: () => updatePackageStatus(pkg._id, 'INACTIVE'),
-        },
-        {
-          label: 'Archive',
-          tone: 'ghost',
-          disabled: pkg.packageStatus === 'ARCHIVED',
-          onClick: () => updatePackageStatus(pkg._id, 'ARCHIVED'),
-        },
-        {
-          label: 'Remove',
-          tone: 'danger',
-          onClick: () => archivePackage(pkg._id, title),
-        },
-      ],
-    };
-  });
 
   return (
-    <AdminResourcePage
-      eyebrow='Inventory'
-      title='Packages'
-      description='Moderate insurance package visibility, lifecycle status, and archived listings.'
-      rows={rows}
-      loading={loading}
-      total={total}
+    <PackageList
+      packages={packages}
+      loading={loading && packages.length === 0}
+      total={packagesTotal}
       page={page}
-      limit={LIMIT}
-      searchText={searchText}
-      searchPlaceholder='Search packages'
-      statusValue={status}
-      statusOptions={STATUS_OPTIONS}
-      typeValue={type}
-      typeOptions={TYPE_OPTIONS}
-      emptyTitle='No packages found'
-      emptyDescription='Try a different package type, status, or search phrase.'
-      onSearchTextChange={setSearchText}
-      onSearch={() => {
-        setPage(1);
-        setSubmittedText(searchText.trim());
-      }}
-      onStatusChange={(value) => {
+      limit={limit}
+      activeStatus={status}
+      typeFilter={type}
+      anchorEl={anchorEl}
+      onOpenMenu={openMenu}
+      onCloseMenu={closeMenu}
+      onUpdatePackage={updatePackageStatus}
+      onRemovePackage={remove}
+      onStatusTabChange={(value) => {
         setPage(1);
         setStatus(value);
       }}
-      onTypeChange={(value) => {
+      onTypeFilterChange={(value) => {
         setPage(1);
         setType(value);
       }}
       onPageChange={setPage}
+      onLimitChange={(nextLimit) => {
+        setPage(1);
+        setLimit(nextLimit);
+      }}
     />
   );
 };
