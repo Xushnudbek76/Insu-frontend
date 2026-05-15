@@ -2,6 +2,7 @@ import type { ComponentType, ReactElement, ReactNode } from 'react';
 import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
 import Top from '@/libs/components/navigation/Top';
 import Footer from '@/libs/components/footer/Footer';
+import Chat from '@/libs/components/Chat';
 
 const LayoutHomeInner = ({ page }: { page: ReactElement }) => {
   const device = useDeviceDetect();
@@ -12,6 +13,7 @@ const LayoutHomeInner = ({ page }: { page: ReactElement }) => {
       <div className="page-wrap">
         <Top />
         <main>{page}</main>
+        {device !== 'mobile' && <Chat />}
         <Footer />
       </div>
     </div>
