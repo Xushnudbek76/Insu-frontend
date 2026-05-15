@@ -330,7 +330,7 @@ const AgentDetailPage: NextPage = () => {
       }
       await refetchAgent({ memberId: agentId });
       await refetchNetwork();
-      await sweetTopSuccessAlert(t(currentlyFollowing ? 'Unfollowed agent.' : 'Followed agent.'));
+      await sweetTopSuccessAlert(t(currentlyFollowing ? 'Unfollowed member.' : 'Followed member.'));
     } catch (err: any) {
       await sweetMixinErrorAlert(
           err?.graphQLErrors?.[0]?.message?.replace('Definer: ', '') ??
