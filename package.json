@@ -2,6 +2,9 @@
   "name": "insu-web",
   "version": "0.1.0",
   "private": true,
+  "resolutions": {
+    "react-is": "^18.3.1"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
