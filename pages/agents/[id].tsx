@@ -163,14 +163,16 @@ const AgentDetailPage: NextPage = () => {
   const [networkTab, setNetworkTab] = useState<NetworkTab>('followers');
   const [networkPage, setNetworkPage] = useState(1);
 
-  const { loading: agentLoading, data: agentData, refetch: refetchAgent } = useQuery<{ getMember: AgentDetail }>(
-    GET_MEMBER,
-    {
-      skip: !agentId,
-      fetchPolicy: 'no-cache',
-      variables: { memberId: agentId },
-    },
-  );
+  const {
+    loading: agentLoading,
+    data: agentData,
+    previousData: previousAgentData,
+    refetch: refetchAgent,
+  } = useQuery<{ getMember: AgentDetail }>(GET_MEMBER, {
+    skip: !agentId,
+    fetchPolicy: 'no-cache',
+    variables: { memberId: agentId },
+  });
 
   const {
     loading: listingsLoading,
@@ -215,6 +217,7 @@ const AgentDetailPage: NextPage = () => {
   const {
     loading: followersLoading,
     data: followersData,
+    previousData: previousFollowersData,
     refetch: refetchFollowers,
   } = useQuery<{
     getMemberFollowers: { list: NetworkFollow[]; metaCounter: { total: number }[] };
@@ -233,6 +236,7 @@ const AgentDetailPage: NextPage = () => {
   const {
     loading: followingsLoading,
     data: followingsData,
+    previousData: previousFollowingsData,
     refetch: refetchFollowings,
   } = useQuery<{
     getMemberFollowings: { list: NetworkFollow[]; metaCounter: { total: number }[] };
@@ -255,22 +259,29 @@ const AgentDetailPage: NextPage = () => {
   const [subscribe] = useMutation(SUBSCRIBE);
   const [unsubscribe] = useMutation(UNSUBSCRIBE);
 
-  const agent = agentData?.getMember ?? null;
+  const agent = agentData?.getMember ?? previousAgentData?.getMember ?? null;
   const listings = listingsData?.getPackages.list ?? [];
   const listingTotal = listingsData?.getPackages.metaCounter?.[0]?.total ?? 0;
   const listingTotalPages = Math.max(1, Math.ceil(listingTotal / LISTING_LIMIT));
   const reviews = reviewsData?.getComments.list ?? [];
   const reviewTotal = reviewsData?.getComments.metaCounter?.[0]?.total ?? 0;
   const reviewTotalPages = Math.max(1, Math.ceil(reviewTotal / REVIEW_LIMIT));
-  const followers = followersData?.getMemberFollowers.list ?? [];
-  const followings = followingsData?.getMemberFollowings.list ?? [];
+  const followers =
+    followersData?.getMemberFollowers.list ?? previousFollowersData?.getMemberFollowers.list ?? [];
+  const followings =
+    followingsData?.getMemberFollowings.list ?? previousFollowingsData?.getMemberFollowings.list ?? [];
   const networkItems = networkTab === 'followers' ? followers : followings;
   const networkTotal =
     networkTab === 'followers'
-      ? followersData?.getMemberFollowers.metaCounter?.[0]?.total ?? followerCount
-      : followingsData?.getMemberFollowings.metaCounter?.[0]?.total ?? agent?.memberFollowings ?? 0;
+      ? followersData?.getMemberFollowers.metaCounter?.[0]?.total ??
+        previousFollowersData?.getMemberFollowers.metaCounter?.[0]?.total ??
+        followerCount
+      : followingsData?.getMemberFollowings.metaCounter?.[0]?.total ??
+        previousFollowingsData?.getMemberFollowings.metaCounter?.[0]?.total ??
+        agent?.memberFollowings ??
+        0;
   const networkTotalPages = Math.max(1, Math.ceil(networkTotal / NETWORK_LIMIT));
-  const networkLoading = networkTab === 'followers' ? followersLoading : followingsLoading;
+  const networkLoading = (networkTab === 'followers' ? followersLoading : followingsLoading) && !networkItems.length;
   const displayName = (agent?: AgentDetail | null) =>
     agent?.memberNick || agent?.memberFullName || t('Insurance Agent');
 
@@ -331,6 +342,16 @@ const AgentDetailPage: NextPage = () => {
   };
 
   const handleFollowAgent = async () => {
+    const user = userVar();
+    if (!user?._id) {
+      await sweetMixinErrorAlert(t('Please login to follow agents.'));
+      return;
+    }
+    if (user._id === agentId) {
+      await sweetMixinErrorAlert(t('You cannot follow yourself.'));
+      return;
+    }
+
     const previousFollowing = isFollowing;
     const previousCount = followerCount;
     const nextFollowing = !isFollowing;
@@ -441,7 +462,7 @@ const AgentDetailPage: NextPage = () => {
     }
   };
 
-  if (agentLoading) {
+  if (agentLoading && !agent) {
     return (
       <Stack className='agent-detail-page'>
         <Stack className='agent-detail-shell'>
