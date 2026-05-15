@@ -1,7 +1,7 @@
 import { Box, Stack } from '@mui/material';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import AdminTablePanel, { AdminTableColumn, AdminTableRow } from '@/libs/components/admin/AdminTablePanel';
-import { toAssetUrl } from '@/libs/api';
+import { adminUserImage } from '@/libs/admin/image';
 
 type CommentListProps = {
   comments: any[];
@@ -40,7 +40,7 @@ const CommentList = ({
 }: CommentListProps) => {
   const rows: AdminTableRow[] = comments.map((comment) => {
     const author = comment.memberData?.memberNick || '-';
-    const image = toAssetUrl(comment.memberData?.memberImage) ?? '/img/profile/defaultUser.svg';
+    const image = adminUserImage(comment.memberData?.memberImage);
 
     return {
       id: comment._id,

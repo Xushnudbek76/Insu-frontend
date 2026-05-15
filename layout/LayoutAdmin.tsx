@@ -6,7 +6,7 @@ import ShieldOutlinedIcon from '@mui/icons-material/ShieldOutlined';
 import { useRouter } from 'next/router';
 import { userVar } from '@/apollo/store';
 import AdminMenuList from '@/libs/components/admin/AdminMenuList';
-import { toAssetUrl } from '@/libs/api';
+import { adminUserImage } from '@/libs/admin/image';
 import { getJwtToken, logOut, updateUserInfo } from '@/libs/auth';
 import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
 import type { CustomJwtPayload } from '@/libs/types/customJwtPayload';
@@ -47,7 +47,7 @@ const LayoutAdminInner = ({ page }: { page: ReactElement }) => {
   }
 
   const adminName = user.memberNick || user.memberFullName || 'Admin';
-  const adminImage = toAssetUrl(user.memberImage) ?? '/img/profile/defaultUser.svg';
+  const adminImage = adminUserImage(user.memberImage);
 
   return (
     <Box id={wrapId}>

@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Box, Stack } from '@mui/material';
 import AdminTablePanel, { AdminInlineMenu, AdminTableColumn, AdminTableRow } from '@/libs/components/admin/AdminTablePanel';
-import { toAssetUrl } from '@/libs/api';
+import { adminUserImage } from '@/libs/admin/image';
 
 type MemberListProps = {
   members: any[];
@@ -57,7 +57,7 @@ const MemberList = ({
 }: MemberListProps) => {
   const rows: AdminTableRow[] = members.map((member) => {
     const name = member.memberNick || member.memberFullName || 'Unnamed member';
-    const memberImage = toAssetUrl(member.memberImage) ?? '/img/profile/defaultUser.svg';
+    const memberImage = adminUserImage(member.memberImage);
 
     return {
       id: member._id,
