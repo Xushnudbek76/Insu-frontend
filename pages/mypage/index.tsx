@@ -12,6 +12,7 @@ import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
 import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import AddTaskOutlinedIcon from '@mui/icons-material/AddTaskOutlined';
+import AddBusinessOutlinedIcon from '@mui/icons-material/AddBusinessOutlined';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import ReceiptLongOutlinedIcon from '@mui/icons-material/ReceiptLongOutlined';
 import VerifiedOutlinedIcon from '@mui/icons-material/VerifiedOutlined';
@@ -26,7 +27,8 @@ import { CANCEL_POLICY } from '@/apollo/policy/mutation';
 import { GET_CLAIMS_BY_AGENT, GET_MY_CLAIMS } from '@/apollo/claim/query';
 import { SUBMIT_CLAIM, UPDATE_CLAIM_STATUS } from '@/apollo/claim/mutation';
 import { GET_FAVORITE_PACKAGES } from '@/apollo/favorite/query';
-import { IMAGE_UPLOADER_MUTATION, UPDATE_MEMBER } from '@/apollo/member/mutation';
+import { IMAGE_UPLOADER_MUTATION, IMAGES_UPLOADER_MUTATION, UPDATE_MEMBER } from '@/apollo/member/mutation';
+import { CREATE_PACKAGE } from '@/apollo/package/mutation';
 import { getJwtToken, logOut, setJwtToken, updateUserInfo } from '@/libs/auth';
 import { toAssetUrl } from '@/libs/api';
 import { sweetMixinErrorAlert, sweetTopSuccessAlert } from '@/libs/sweetAlert';
@@ -36,7 +38,21 @@ const POLICY_LIMIT = 5;
 const AGENT_CLAIM_LIMIT = 5;
 const FAVORITE_LIMIT = 6;
 
-type Category = 'myProfile' | 'myPolicies' | 'myClaims' | 'myFavorites' | 'agentClaims';
+type Category = 'myProfile' | 'addPackage' | 'myPolicies' | 'myClaims' | 'myFavorites' | 'agentClaims';
+type PackageType =
+  | 'TERM_LIFE'
+  | 'WHOLE_LIFE'
+  | 'PET'
+  | 'CRITICAL_ILLNESS'
+  | 'DISABILITY'
+  | 'TRAVEL'
+  | 'CYBER_LIABILITY'
+  | 'PROFESSIONAL_INDEMNITY'
+  | 'LEGAL_EXPENSE'
+  | 'ACCIDENT'
+  | 'HEALTH'
+  | 'AUTO'
+  | 'HOME';
 type PolicyStatus = 'ACTIVE' | 'INACTIVE' | 'CANCELLED' | 'EXPIRED' | 'PENDING';
 type ClaimStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'SETTLED';
 
@@ -101,8 +117,20 @@ interface ClaimForm {
   claimDocuments: string;
 }
 
+interface PackageForm {
+  packageType: PackageType | '';
+  packageName: string;
+  packageDesc: string;
+  packagePrice: string;
+  packageCoverageLimit: string;
+  packageMinAge: string;
+  packageMaxAge: string;
+  packageAssetTags: string;
+  packageImages: string[];
+}
+
 const isCategory = (value: unknown): value is Category =>
-  ['myProfile', 'myPolicies', 'myClaims', 'myFavorites', 'agentClaims'].includes(`${value}`);
+  ['myProfile', 'addPackage', 'myPolicies', 'myClaims', 'myFavorites', 'agentClaims'].includes(`${value}`);
 
 const formatCurrency = (value?: number | null) =>
   value == null
@@ -126,6 +154,34 @@ const initialClaimForm: ClaimForm = {
   claimDocuments: '',
 };
 
+const initialPackageForm: PackageForm = {
+  packageType: '',
+  packageName: '',
+  packageDesc: '',
+  packagePrice: '',
+  packageCoverageLimit: '',
+  packageMinAge: '',
+  packageMaxAge: '',
+  packageAssetTags: '',
+  packageImages: [],
+};
+
+const packageTypes: PackageType[] = [
+  'AUTO',
+  'HOME',
+  'HEALTH',
+  'TRAVEL',
+  'TERM_LIFE',
+  'WHOLE_LIFE',
+  'PET',
+  'CRITICAL_ILLNESS',
+  'DISABILITY',
+  'CYBER_LIABILITY',
+  'PROFESSIONAL_INDEMNITY',
+  'LEGAL_EXPENSE',
+  'ACCIDENT',
+];
+
 const MyPage: NextPage = () => {
   const router = useRouter();
   const { t } = useTranslation('common');
@@ -139,6 +195,7 @@ const MyPage: NextPage = () => {
   const [agentClaimText, setAgentClaimText] = useState('');
   const [claimPanelOpen, setClaimPanelOpen] = useState(false);
   const [claimForm, setClaimForm] = useState<ClaimForm>(initialClaimForm);
+  const [packageForm, setPackageForm] = useState<PackageForm>(initialPackageForm);
   const [profileForm, setProfileForm] = useState<ProfileForm>({
     memberNick: '',
     memberFullName: '',
@@ -180,7 +237,7 @@ const MyPage: NextPage = () => {
   }, [user]);
 
   useEffect(() => {
-    if (category === 'agentClaims' && authReady && user && !isAgent) {
+    if ((category === 'agentClaims' || category === 'addPackage') && authReady && user && !isAgent) {
       router.replace('/mypage?category=myProfile');
     }
   }, [authReady, category, isAgent, router, user]);
@@ -260,6 +317,8 @@ const MyPage: NextPage = () => {
 
   const [updateMember] = useMutation<{ updateMember: CustomJwtPayload & { accessToken?: string } }>(UPDATE_MEMBER);
   const [uploadImage] = useMutation<{ imageUploader: string }>(IMAGE_UPLOADER_MUTATION);
+  const [uploadImages] = useMutation<{ imagesUploader: string[] }>(IMAGES_UPLOADER_MUTATION);
+  const [createPackage] = useMutation<{ createPackage: { _id: string } }>(CREATE_PACKAGE);
   const [cancelPolicy] = useMutation<{ cancelPolicy: PolicyData }>(CANCEL_POLICY);
   const [submitClaim] = useMutation<{ submitClaim: ClaimData }>(SUBMIT_CLAIM);
   const [updateClaimStatus] = useMutation<{ updateClaimStatus: ClaimData }>(UPDATE_CLAIM_STATUS);
@@ -279,6 +338,7 @@ const MyPage: NextPage = () => {
 
   const navItems = [
     { key: 'myProfile' as Category, label: t('My Profile'), icon: AccountCircleOutlinedIcon },
+    ...(isAgent ? [{ key: 'addPackage' as Category, label: t('Add Package'), icon: AddBusinessOutlinedIcon }] : []),
     { key: 'myPolicies' as Category, label: t('My Policies'), icon: AssignmentOutlinedIcon },
     { key: 'myClaims' as Category, label: t('My Claims'), icon: GavelOutlinedIcon },
     { key: 'myFavorites' as Category, label: t('My Favorites'), icon: FavoriteBorderOutlinedIcon },
@@ -294,6 +354,12 @@ const MyPage: NextPage = () => {
       setProfileForm((prev) => ({ ...prev, [field]: event.target.value }));
     };
 
+  const handlePackageChange =
+    (field: keyof PackageForm) =>
+    (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+      setPackageForm((prev) => ({ ...prev, [field]: event.target.value }));
+    };
+
   const handleUploadProfileImage = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -305,6 +371,59 @@ const MyPage: NextPage = () => {
       }
     } catch (err: any) {
       await sweetMixinErrorAlert(err?.message ?? t('Could not upload image.'));
+    }
+  };
+
+  const handleUploadPackageImages = async (event: ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files ?? []);
+    if (!files.length) return;
+    if (files.length > 5) {
+      await sweetMixinErrorAlert(t('You can upload up to 5 images.'));
+      return;
+    }
+
+    try {
+      const result = await uploadImages({ variables: { files, target: 'package' } });
+      setPackageForm((prev) => ({ ...prev, packageImages: result.data?.imagesUploader ?? [] }));
+    } catch (err: any) {
+      await sweetMixinErrorAlert(err?.message ?? t('Could not upload images.'));
+    }
+  };
+
+  const handleCreatePackage = async () => {
+    if (!packageForm.packageType || !packageForm.packageName.trim() || !packageForm.packagePrice) {
+      await sweetMixinErrorAlert(t('Please complete the package form.'));
+      return;
+    }
+
+    const input = {
+      packageType: packageForm.packageType,
+      packageName: packageForm.packageName.trim(),
+      packageDesc: packageForm.packageDesc.trim(),
+      packagePrice: Number(packageForm.packagePrice),
+      ...(packageForm.packageCoverageLimit ? { packageCoverageLimit: Number(packageForm.packageCoverageLimit) } : {}),
+      ...(packageForm.packageMinAge ? { packageMinAge: Number(packageForm.packageMinAge) } : {}),
+      ...(packageForm.packageMaxAge ? { packageMaxAge: Number(packageForm.packageMaxAge) } : {}),
+      ...(packageForm.packageAssetTags.trim()
+        ? {
+            packageAssetTags: packageForm.packageAssetTags
+              .split(',')
+              .map((tag) => tag.trim())
+              .filter(Boolean),
+          }
+        : {}),
+      ...(packageForm.packageImages.length ? { packageImages: packageForm.packageImages } : {}),
+    };
+
+    try {
+      const result = await createPackage({ variables: { input } });
+      setPackageForm(initialPackageForm);
+      await sweetTopSuccessAlert(t('Package created successfully.'));
+      if (result.data?.createPackage._id) await router.push(`/packages/${result.data.createPackage._id}`);
+    } catch (err: any) {
+      await sweetMixinErrorAlert(
+        err?.graphQLErrors?.[0]?.message?.replace('Definer: ', '') ?? err?.message ?? t('Could not create package.'),
+      );
     }
   };
 
@@ -574,6 +693,139 @@ const MyPage: NextPage = () => {
                   <Stack>
                     <strong>{myClaims.length}</strong>
                     <span>{t('Claims')}</span>
+                  </Stack>
+                </Box>
+              </Stack>
+            </Box>
+          )}
+
+          {category === 'addPackage' && isAgent && (
+            <Box className='mypage-profile-grid'>
+              <Stack className='mypage-panel'>
+                <Stack className='mypage-panel-head'>
+                  <span>{t('Agent Listing')}</span>
+                  <h2>{t('Create insurance package')}</h2>
+                </Stack>
+                <Box component='form' className='mypage-form'>
+                  <Stack className='mypage-upload-row'>
+                    <Box
+                      component='img'
+                      src={toAssetUrl(packageForm.packageImages[0]) ?? '/img/placeholder-article.svg'}
+                      alt={packageForm.packageName || t('Package preview')}
+                    />
+                    <Stack>
+                      <label className='mypage-upload-btn' htmlFor='mypage-package-images'>
+                        <CloudUploadOutlinedIcon />
+                        {t('Upload Package Images')}
+                      </label>
+                      <input
+                        id='mypage-package-images'
+                        className='mypage-file-input'
+                        type='file'
+                        accept='image/png,image/jpeg,image/jpg,image/webp'
+                        multiple
+                        onChange={handleUploadPackageImages}
+                      />
+                      <small>{t('Upload up to 5 JPG, PNG, or WEBP images.')}</small>
+                    </Stack>
+                  </Stack>
+
+                  <Box className='mypage-form-grid'>
+                    <label>
+                      <span>{t('Package Name')}</span>
+                      <input value={packageForm.packageName} onChange={handlePackageChange('packageName')} />
+                    </label>
+                    <label>
+                      <span>{t('Package Type')}</span>
+                      <select value={packageForm.packageType} onChange={handlePackageChange('packageType')}>
+                        <option value=''>{t('Select package type')}</option>
+                        {packageTypes.map((type) => (
+                          <option key={type} value={type}>
+                            {t(type)}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label>
+                      <span>{t('Monthly Price')}</span>
+                      <input
+                        type='number'
+                        min='0'
+                        value={packageForm.packagePrice}
+                        onChange={handlePackageChange('packagePrice')}
+                      />
+                    </label>
+                    <label>
+                      <span>{t('Coverage Limit')}</span>
+                      <input
+                        type='number'
+                        min='0'
+                        value={packageForm.packageCoverageLimit}
+                        onChange={handlePackageChange('packageCoverageLimit')}
+                      />
+                    </label>
+                    <label>
+                      <span>{t('Minimum Age')}</span>
+                      <input
+                        type='number'
+                        min='0'
+                        value={packageForm.packageMinAge}
+                        onChange={handlePackageChange('packageMinAge')}
+                      />
+                    </label>
+                    <label>
+                      <span>{t('Maximum Age')}</span>
+                      <input
+                        type='number'
+                        min='0'
+                        value={packageForm.packageMaxAge}
+                        onChange={handlePackageChange('packageMaxAge')}
+                      />
+                    </label>
+                    <label className='wide'>
+                      <span>{t('Tags')}</span>
+                      <input
+                        value={packageForm.packageAssetTags}
+                        placeholder={t('Example: family, accident, premium')}
+                        onChange={handlePackageChange('packageAssetTags')}
+                      />
+                    </label>
+                    <label className='wide'>
+                      <span>{t('Description')}</span>
+                      <textarea value={packageForm.packageDesc} onChange={handlePackageChange('packageDesc')} />
+                    </label>
+                  </Box>
+
+                  <Stack className='mypage-actions'>
+                    <button type='button' onClick={handleCreatePackage}>
+                      <AddBusinessOutlinedIcon />
+                      {t('Create Package')}
+                    </button>
+                  </Stack>
+                </Box>
+              </Stack>
+
+              <Stack className='mypage-preview-card'>
+                <Box
+                  component='img'
+                  src={toAssetUrl(packageForm.packageImages[0]) ?? '/img/placeholder-article.svg'}
+                  alt={packageForm.packageName || t('Package preview')}
+                />
+                <span>{packageForm.packageType ? t(packageForm.packageType) : t('New Package')}</span>
+                <h2>{packageForm.packageName || t('Package preview')}</h2>
+                <p>{packageForm.packageDesc || t('Your package description will appear here.')}</p>
+                <Box className='mypage-preview-meta'>
+                  <Stack>
+                    <strong>{formatCurrency(Number(packageForm.packagePrice || 0))}</strong>
+                    <span>{t('Monthly Price')}</span>
+                  </Stack>
+                  <Stack>
+                    <strong>
+                      {packageForm.packageCoverageLimit
+                        ? formatCurrency(Number(packageForm.packageCoverageLimit))
+                        : '$0'}
+                    </strong>
+                    <span>{t('Coverage Limit')}</span>
                   </Stack>
                 </Box>
               </Stack>

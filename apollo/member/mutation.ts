@@ -58,6 +58,12 @@ export const IMAGE_UPLOADER_MUTATION = gql`
   }
 `;
 
+export const IMAGES_UPLOADER_MUTATION = gql`
+  mutation ImagesUploader($files: [Upload!]!, $target: String!) {
+    imagesUploader(files: $files, target: $target)
+  }
+`;
+
 export const UPDATE_MEMBER = gql`
   mutation UpdateMember($input: MemberUpdate!) {
     updateMember(input: $input) {
