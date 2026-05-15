@@ -1,7 +1,8 @@
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { ChangeEvent, MouseEvent, useEffect, useState } from 'react';
+import { ChangeEvent, MouseEvent, useEffect, useMemo, useState } from 'react';
 import { Stack, Box } from '@mui/material';
+import { useMutation, useQuery } from '@apollo/client/react';
 import ShieldOutlinedIcon from '@mui/icons-material/ShieldOutlined';
 import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
@@ -12,7 +13,6 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import SearchIcon from '@mui/icons-material/Search';
 import withLayoutMain from '@/layout/LayoutHome';
-import { initializeApollo } from '@/apollo/client';
 import { userVar } from '@/apollo/store';
 import { GET_PACKAGES } from '@/apollo/user/query';
 import { LIKE_TARGET_PACKAGE } from '@/apollo/package/mutation';
@@ -97,7 +97,6 @@ const PackagesPage: NextPage = () => {
 
   const [packages, setPackages] = useState<InsurancePackage[]>([]);
   const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [sort, setSort] = useState('createdAt');
 
@@ -108,42 +107,48 @@ const PackagesPage: NextPage = () => {
   const [appliedPriceMax, setAppliedPriceMax] = useState('');
   const [appliedCoverage, setAppliedCoverage] = useState('');
 
-  useEffect(() => {
-    const client = initializeApollo(null);
-    setLoading(true);
+  const search = useMemo(() => {
+    const nextSearch: Record<string, unknown> = {};
 
-    const search: Record<string, unknown> = {};
-    if (appliedType) search.packageType = appliedType;
-    if (appliedStatus) search.packageStatus = appliedStatus;
-    if (appliedText.trim()) search.text = appliedText.trim();
-    if (appliedPriceMin) search.priceMin = Number(appliedPriceMin);
-    if (appliedPriceMax) search.priceMax = Number(appliedPriceMax);
-    if (appliedCoverage) search.coverageMin = Number(appliedCoverage);
+    if (appliedType) nextSearch.packageType = appliedType;
+    if (appliedStatus) nextSearch.packageStatus = appliedStatus;
+    if (appliedText.trim()) nextSearch.text = appliedText.trim();
+    if (appliedPriceMin) nextSearch.priceMin = Number(appliedPriceMin);
+    if (appliedPriceMax) nextSearch.priceMax = Number(appliedPriceMax);
+    if (appliedCoverage) nextSearch.coverageMin = Number(appliedCoverage);
 
-    client
-      .query<GetPackagesResponse>({
-        query: GET_PACKAGES,
-        variables: {
-          input: { page, limit: LIMIT, sort, direction: 'DESC', search },
-        },
-        fetchPolicy: 'no-cache',
-      })
-      .then((res) => {
-        setPackages(res.data.getPackages.list || []);
-        setTotal(res.data.getPackages.metaCounter?.[0]?.total ?? 0);
-      })
-      .catch((err) => console.error('getPackages error', err))
-      .finally(() => setLoading(false));
+    return nextSearch;
   }, [
-    page,
-    sort,
-    appliedType,
+    appliedCoverage,
+    appliedPriceMax,
+    appliedPriceMin,
     appliedStatus,
     appliedText,
-    appliedPriceMin,
-    appliedPriceMax,
-    appliedCoverage,
+    appliedType,
   ]);
+
+  const { data, loading: queryLoading, error } = useQuery<GetPackagesResponse>(GET_PACKAGES, {
+    variables: {
+      input: { page, limit: LIMIT, sort, direction: 'DESC', search },
+    },
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const [likeTargetPackage] = useMutation<{ likeTargetPackage: InsurancePackage }>(
+    LIKE_TARGET_PACKAGE,
+  );
+
+  useEffect(() => {
+    if (!data?.getPackages) return;
+
+    setPackages(data.getPackages.list || []);
+    setTotal(data.getPackages.metaCounter?.[0]?.total ?? 0);
+  }, [data]);
+
+  useEffect(() => {
+    if (!error) return;
+    console.error('getPackages error', error);
+  }, [error]);
 
   const handleApplyFilters = () => {
     setPage(1);
@@ -165,13 +170,7 @@ const PackagesPage: NextPage = () => {
         return;
       }
 
-      const client = initializeApollo(null);
-      const result = await client.mutate<{
-        likeTargetPackage: InsurancePackage;
-      }>({
-        mutation: LIKE_TARGET_PACKAGE,
-        variables: { packageId: id },
-      });
+      const result = await likeTargetPackage({ variables: { packageId: id } });
       const updated = result.data?.likeTargetPackage;
       if (!updated) return;
 
@@ -217,6 +216,7 @@ const PackagesPage: NextPage = () => {
     };
 
   const totalPages = Math.max(1, Math.ceil(total / LIMIT));
+  const isLoading = queryLoading && packages.length === 0;
 
   return (
     <Stack className={'packages-page'}>
@@ -344,7 +344,7 @@ const PackagesPage: NextPage = () => {
             </Box>
           </Box>
 
-          {loading ? (
+          {isLoading ? (
             <Box className={'packages-grid'}>
               {[...Array(6)].map((_, index) => (
                 <Box key={index} className={'pkg-card skeleton'}>

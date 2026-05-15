@@ -15,7 +15,7 @@ import i18nextConfig from '../next-i18next.config';
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#ff5a1f',
+      main: '#4040f2',
     },
   },
   shape: {

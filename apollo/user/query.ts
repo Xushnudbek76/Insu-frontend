@@ -9,6 +9,7 @@ export const GET_PACKAGES = gql`
         packageStatus
         packageTitle: packageName
         packagePrice
+        packageImages
         packageViews
         packageLikes
         packageComments
