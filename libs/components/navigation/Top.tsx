@@ -10,6 +10,7 @@ import { useTranslation } from 'next-i18next/pages';
 import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
 import { userVar } from '@/apollo/store';
 import { logOut } from '@/libs/auth';
+import { toAssetUrl } from '@/libs/api';
 
 type NavLink = { href: string; label: string };
 
@@ -22,6 +23,9 @@ const baseLinks: NavLink[] = [
   { href: '/community', label: 'Community' },
   { href: '/cs', label: 'CS' },
 ];
+
+const getProfileAvatar = (image?: string | null) =>
+  toAssetUrl(image) ?? '/img/profile/defaultUser.svg';
 
 const Top = () => {
   const router = useRouter();
@@ -160,10 +164,10 @@ const Top = () => {
               <>
                 <IconButton onClick={handleOpenProfileMenu} size="small" aria-haspopup="true" aria-controls="profile-menu">
                   <Avatar
-                    src={user.memberImage ?? undefined}
-                  alt={user.memberNick ?? t('Profile')}
-                  className="profile-avatar"
-                />
+                    src={getProfileAvatar(user.memberImage)}
+                    alt={user.memberNick ?? t('Profile')}
+                    className="profile-avatar"
+                  />
                 </IconButton>
                 <Menu
                   id="profile-menu"

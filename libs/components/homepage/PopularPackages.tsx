@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Stack, Box, IconButton } from '@mui/material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import { useRouter } from 'next/router';
 import NextLink from 'next/link';
+import { useQuery, useMutation } from '@apollo/client/react';
 import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
 import { GET_PACKAGES } from '@/apollo/user/query';
 import { LIKE_TARGET_PACKAGE } from '@/apollo/package/mutation';
-import { initializeApollo } from '@/apollo/client';
 import { userVar } from '@/apollo/store';
 import { sweetMixinErrorAlert, sweetTopSuccessAlert } from '@/libs/sweetAlert';
+import { toAssetUrl } from '@/libs/api';
 
 interface PopularPackage {
 	_id: string;
@@ -20,6 +21,7 @@ interface PopularPackage {
 	packageLikes?: number | null;
 	packageRank?: number | null;
 	packageDesc?: string | null;
+	packageImages?: string[] | null;
 	meLiked?: { myFavorite: boolean }[] | null;
 }
 
@@ -32,40 +34,38 @@ interface GetPackagesResponse {
 const PopularPackages: React.FC = () => {
 	const device = useDeviceDetect();
 	const router = useRouter();
-	const [packages, setPackages] = useState<PopularPackage[]>([]);
-	const [loading, setLoading] = useState(false);
-	const [error, setError] = useState<string | null>(null);
 
-	useEffect(() => {
-		const client = initializeApollo(null);
-		setLoading(true);
-		setError(null);
+	const { data, loading, error } = useQuery<GetPackagesResponse>(GET_PACKAGES, {
+		variables: {
+			input: {
+				page: 1,
+				limit: device === 'mobile' ? 3 : 6,
+				sort: 'packageViews',
+				direction: 'DESC',
+				search: {},
+			},
+		},
+		fetchPolicy: 'cache-and-network',
+	});
 
-		client
-			.query<GetPackagesResponse>({
-				query: GET_PACKAGES,
-				variables: {
-					input: {
-						page: 1,
-						limit: device === 'mobile' ? 3 : 6,
-						sort: 'packageViews',
-						direction: 'DESC',
-						search: {},
-					},
+	const [likePackage] = useMutation<{ likeTargetPackage: PopularPackage }>(
+		LIKE_TARGET_PACKAGE,
+		{
+			refetchQueries: [{ query: GET_PACKAGES, variables: {
+				input: {
+					page: 1,
+					limit: device === 'mobile' ? 3 : 6,
+					sort: 'packageViews',
+					direction: 'DESC',
+					search: {},
 				},
-			})
-			.then((response) => {
-				setPackages(response.data.getPackages.list);
-			})
-			.catch((err: any) => {
-				// eslint-disable-next-line no-console
-				console.error('Error, getPackages', err);
-				setError('Couldn\'t load popular packages. Please try again later.');
-			})
-			.finally(() => {
-				setLoading(false);
-			});
-	}, [device]);
+			}}],
+		}
+	);
+
+	const packages = data?.getPackages?.list ?? [];
+	const getPackageImage = (images?: string[] | null) =>
+		toAssetUrl(images?.[0]) ?? '/img/placeholder-article.svg';
 
 	const handleCardClick = (id: string) => {
 		if (!id) return;
@@ -80,36 +80,14 @@ const PopularPackages: React.FC = () => {
 				return;
 			}
 
-			const client = initializeApollo(null);
-			const result = await client.mutate<{ likeTargetPackage: PopularPackage }>({
-				mutation: LIKE_TARGET_PACKAGE,
-				variables: { packageId: id },
-			});
-
-			const updated = result.data?.likeTargetPackage;
-			if (!updated) return;
-
-			setPackages((prev) =>
-				prev.map((pkg) =>
-					pkg._id === updated._id
-						? {
-							...pkg,
-							packageLikes: updated.packageLikes,
-							packageViews: updated.packageViews,
-							meLiked: updated.meLiked,
-						}
-						: pkg,
-					),
-				);
-
+			await likePackage({ variables: { packageId: id } });
 			await sweetTopSuccessAlert('Updated your favorites.');
-		} catch (error: any) {
-			// eslint-disable-next-line no-console
-			console.error('Error, likeTargetPackage', error);
+		} catch (err: any) {
+			console.error('Error, likeTargetPackage', err);
 			const message =
-					error?.graphQLErrors?.[0]?.message?.replace('Definer: ', '') ??
-					error?.message ??
-					'Could not update favorites.';
+				err?.graphQLErrors?.[0]?.message?.replace('Definer: ', '') ??
+				err?.message ??
+				'Could not update favorites.';
 			await sweetMixinErrorAlert(message);
 		}
 	};
@@ -131,7 +109,7 @@ const PopularPackages: React.FC = () => {
 						)}
 						{!loading && error && (
 							<Box component={'div'} className={'empty-list'}>
-								{error}
+								Couldn't load popular packages. Please try again later.
 							</Box>
 						)}
 						{!loading && !error && hasPackages && (
@@ -145,6 +123,14 @@ const PopularPackages: React.FC = () => {
 											className={'package-card'}
 											onClick={() => handleCardClick(pkg._id)}
 										>
+											<Box className={'package-image-wrap'}>
+												<Box
+													component='img'
+													src={getPackageImage(pkg.packageImages)}
+													alt={pkg.packageTitle}
+													className={'package-image'}
+												/>
+											</Box>
 											<span className={'package-type'}>{pkg.packageType}</span>
 											<strong className={'package-name'}>{pkg.packageTitle}</strong>
 											{pkg.packageDesc && (
@@ -212,7 +198,7 @@ const PopularPackages: React.FC = () => {
 					)}
 					{!loading && error && (
 						<Box component={'div'} className={'empty-list'}>
-							{error}
+							Couldn't load popular packages. Please try again later.
 						</Box>
 					)}
 					{!loading && !error && hasPackages && (
@@ -226,6 +212,14 @@ const PopularPackages: React.FC = () => {
 										className={'package-card'}
 										onClick={() => handleCardClick(pkg._id)}
 									>
+										<Box className={'package-image-wrap'}>
+											<Box
+												component='img'
+												src={getPackageImage(pkg.packageImages)}
+												alt={pkg.packageTitle}
+												className={'package-image'}
+											/>
+										</Box>
 										<span className={'package-type'}>{pkg.packageType}</span>
 										<strong className={'package-name'}>{pkg.packageTitle}</strong>
 										{pkg.packageDesc && (

@@ -180,6 +180,118 @@
     }
   }
 
+  .popular-packages {
+    padding: 36px 0 32px;
+    background: #f6f6f6;
+
+    .container {
+      padding: 0 16px;
+    }
+
+    .card-box {
+      margin-top: 20px;
+      width: 100%;
+    }
+
+    .popular-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .package-card {
+      padding: 14px;
+      border-radius: 16px;
+      background: $white;
+      box-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .package-image-wrap {
+      width: 100%;
+      height: 180px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #eef2ff;
+    }
+
+    .package-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .package-type {
+      font-family: $font;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: $primary;
+    }
+
+    .package-name {
+      font-family: $font;
+      font-size: 17px;
+      font-weight: 700;
+      color: $dark;
+    }
+
+    .package-desc {
+      margin: 0;
+      font-family: $font;
+      font-size: 13px;
+      line-height: 1.6;
+      color: $grey;
+    }
+
+    .package-price {
+      font-family: $font;
+      font-size: 14px;
+      font-weight: 600;
+      color: $dark;
+    }
+
+    .package-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .package-meta {
+      font-family: $font;
+      font-size: 12px;
+      color: $grey;
+    }
+
+    .like-btn {
+      padding: 4px;
+    }
+
+    .like-icon {
+      font-size: 20px;
+      color: $grey;
+
+      &.liked {
+        color: #e53935;
+      }
+    }
+
+    .empty-list {
+      min-height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: $font;
+      color: $grey;
+    }
+  }
+
   .home-comments {
     padding: 56px 0 56px;
     background: #f6f6f6;

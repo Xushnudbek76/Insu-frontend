@@ -9,6 +9,7 @@ import 'swiper/css/pagination';
 import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
 import { initializeApollo } from '@/apollo/client';
 import { GET_LATEST_COMMENTS } from '@/apollo/comment/query';
+import { toAssetUrl } from '@/libs/api';
 
 interface CommentMember {
   _id: string;
@@ -28,6 +29,9 @@ interface GetLatestCommentsResponse {
     list: HomeComment[];
   };
 }
+
+const getCommentAvatar = (image?: string | null) =>
+  toAssetUrl(image) ?? '/img/profile/defaultUser.svg';
 
 const HomeComments: React.FC = () => {
   const device = useDeviceDetect();
@@ -133,7 +137,7 @@ const HomeComments: React.FC = () => {
             >
               {displayComments.map((comment, index) => {
                 const member = comment.memberData;
-                const avatarSrc = member?.memberImage || undefined;
+                const avatarSrc = getCommentAvatar(member?.memberImage);
                 const nick = member?.memberNick || 'Member';
 
                 return (

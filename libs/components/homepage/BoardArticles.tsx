@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { Stack, Box, Typography, Skeleton } from "@mui/material";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import useDeviceDetect from "@/libs/hooks/useDeviceDetect";
-import { initializeApollo } from "@/apollo/client";
-import { GET_BOARD_ARTICLES } from "@/apollo/board-article/query";
-import { BoardArticleCategory } from "@/libs/enums/board-article.enum";
+import React from 'react';
+import { Stack, Box, Typography, Skeleton } from '@mui/material';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import { useQuery } from '@apollo/client/react';
+import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
+import { GET_BOARD_ARTICLES } from '@/apollo/board-article/query';
+import { BoardArticleCategory } from '@/libs/enums/board-article.enum';
 
 interface ArticleMember {
   _id: string;
@@ -33,51 +33,42 @@ interface GetBoardArticlesResponse {
 
 const BoardArticles: React.FC = () => {
   const device = useDeviceDetect();
-  const [noticeArticles, setNoticeArticles] = useState<BoardArticleData[]>([]);
-  const [freeArticles, setFreeArticles] = useState<BoardArticleData[]>([]);
-  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const client = initializeApollo(null);
-    setLoading(true);
+  const { data: noticeData, loading: noticeLoading } = useQuery<GetBoardArticlesResponse>(
+    GET_BOARD_ARTICLES,
+    {
+      variables: {
+        input: {
+          page: 1,
+          limit: 4,
+          sort: 'createdAt',
+          direction: 'DESC',
+          search: { articleCategory: BoardArticleCategory.NOTICE },
+        },
+      },
+      fetchPolicy: 'cache-and-network',
+    }
+  );
 
-    Promise.all([
-      client.query<GetBoardArticlesResponse>({
-        query: GET_BOARD_ARTICLES,
-        variables: {
-          input: {
-            page: 1,
-            limit: 4,
-            sort: "createdAt",
-            direction: "DESC",
-            search: { articleCategory: BoardArticleCategory.NOTICE },
-          },
+  const { data: freeData, loading: freeLoading } = useQuery<GetBoardArticlesResponse>(
+    GET_BOARD_ARTICLES,
+    {
+      variables: {
+        input: {
+          page: 1,
+          limit: 4,
+          sort: 'createdAt',
+          direction: 'DESC',
+          search: { articleCategory: BoardArticleCategory.FREE },
         },
-        fetchPolicy: "no-cache",
-      }),
-      client.query<GetBoardArticlesResponse>({
-        query: GET_BOARD_ARTICLES,
-        variables: {
-          input: {
-            page: 1,
-            limit: 4,
-            sort: "createdAt",
-            direction: "DESC",
-            search: { articleCategory: BoardArticleCategory.FREE },
-          },
-        },
-        fetchPolicy: "no-cache",
-      }),
-    ])
-      .then(([noticeRes, freeRes]) => {
-        setNoticeArticles(noticeRes.data.getBoardArticles.list || []);
-        setFreeArticles(freeRes.data.getBoardArticles.list || []);
-      })
-      .catch((err: any) => {
-        console.error("Error, getBoardArticles", err);
-      })
-      .finally(() => setLoading(false));
-  }, []);
+      },
+      fetchPolicy: 'cache-and-network',
+    }
+  );
+
+  const noticeArticles = noticeData?.getBoardArticles?.list ?? [];
+  const freeArticles = freeData?.getBoardArticles?.list ?? [];
+  const loading = noticeLoading || freeLoading;
 
   const getArticleImage = (image?: string | null) => {
     if (image) return `${process.env.REACT_APP_API_URL}/${image}`;

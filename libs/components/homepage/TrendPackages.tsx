@@ -1,9 +1,9 @@
 import React, { FormEvent, useState } from 'react';
 import { Stack, Box } from '@mui/material';
 import { useRouter } from 'next/router';
+import { useLazyQuery } from '@apollo/client/react';
 import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
 import { GET_INSURANCE_RECOMMENDATION } from '@/apollo/user/query';
-import { initializeApollo } from '@/apollo/client';
 
 type InsuranceTypeValue = 'AUTO' | 'HOME' | 'HEALTH' | 'TRAVEL';
 
@@ -48,16 +48,30 @@ const TrendPackages: React.FC = () => {
 	const [budget, setBudget] = useState('');
 	const [text, setText] = useState('');
 	const [formError, setFormError] = useState<string | null>(null);
-	const [result, setResult] = useState<InsuranceRecommendationData['getInsuranceRecommendation'] | null>(
-		null,
-	);
-	const [loading, setLoading] = useState(false);
 	const [apiError, setApiError] = useState<string | null>(null);
+
+	const [getRecommendation, { data, loading, error }] = useLazyQuery<
+		InsuranceRecommendationData,
+		InsuranceRecommendationVariables
+	>(GET_INSURANCE_RECOMMENDATION, {
+		fetchPolicy: 'network-only',
+	});
+
+	const result = data?.getInsuranceRecommendation ?? null;
+
+	const getErrorMessage = () => {
+		if (!error) return apiError;
+		const graphQLErrorMessage =
+			error?.graphQLErrors?.[0]?.message ?? error?.message ?? '';
+		if (graphQLErrorMessage === 'No data found!') {
+			return 'No matching insurance plans found for your criteria. Try increasing your budget or changing insurance type.';
+		}
+		return 'Something went wrong. Please try again.';
+	};
 
 	const handleToggleType = (value: InsuranceTypeValue) => {
 		setSelectedTypes((prev) => {
 			if (prev.includes(value)) {
-				// Do not allow removing the last remaining type
 				if (prev.length === 1) {
 					return prev;
 				}
@@ -90,8 +104,6 @@ const TrendPackages: React.FC = () => {
 
 		setFormError(null);
 		setApiError(null);
-		setLoading(true);
-		setResult(null);
 
 		const input: InsuranceRecommendationVariables['input'] = {
 			types: selectedTypes,
@@ -104,31 +116,7 @@ const TrendPackages: React.FC = () => {
 			input.text = textValue;
 		}
 
-		const client = initializeApollo(null);
-		client
-			.query<InsuranceRecommendationData, InsuranceRecommendationVariables>({
-				query: GET_INSURANCE_RECOMMENDATION,
-				variables: { input },
-			})
-			.then((response) => {
-				setResult(response.data.getInsuranceRecommendation);
-			})
-			.catch((error: any) => {
-				// eslint-disable-next-line no-console
-				console.error('Error, getInsuranceRecommendation', error);
-				const graphQLErrorMessage =
-					error?.graphQLErrors?.[0]?.message ?? error?.message ?? '';
-				if (graphQLErrorMessage === 'No data found!') {
-					setApiError(
-						'No matching insurance plans found for your criteria. Try increasing your budget or changing insurance type.',
-					);
-				} else {
-					setApiError('Something went wrong. Please try again.');
-				}
-			})
-			.finally(() => {
-				setLoading(false);
-			});
+		getRecommendation({ variables: { input } });
 	};
 
 	return (
@@ -206,15 +194,15 @@ const TrendPackages: React.FC = () => {
 							/>
 						</Box>
 						{formError && <p className={'form-error'}>{formError}</p>}
-						{apiError && !formError && (
-							<p className={'form-error'}>{apiError}</p>
+						{(error || apiError) && !formError && (
+							<p className={'form-error'}>{getErrorMessage()}</p>
 						)}
 						<button type="submit" className={'primary-btn'} disabled={loading}>
 							{loading ? 'Asking AI…' : 'Get recommendation'}
 						</button>
 					</Box>
 					<Box component={'div'} className={'ai-result'}>
-						{!result && !loading && !apiError && (
+						{!result && !loading && !error && !apiError && (
 							<Box component={'div'} className={'ai-result-empty'}>
 								<strong>AI suggestions will appear here.</strong>
 								<p>
