@@ -1,0 +1,138 @@
+import { ChangeEvent } from 'react';
+import { Box } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+
+export interface PackageFilterValues {
+  selectedType: string;
+  selectedStatus: string;
+  searchText: string;
+  priceMin: string;
+  priceMax: string;
+  coverageLimit: string;
+}
+
+interface FilterOption {
+  value: string;
+  label: string;
+}
+
+interface PackageFilterProps {
+  values: PackageFilterValues;
+  typeOptions: FilterOption[];
+  statusOptions: FilterOption[];
+  coverageOptions: FilterOption[];
+  onChange: (values: PackageFilterValues) => void;
+  onApply: () => void;
+}
+
+const PackageFilter = ({
+  values,
+  typeOptions,
+  statusOptions,
+  coverageOptions,
+  onChange,
+  onApply,
+}: PackageFilterProps) => {
+  const updateValue = (key: keyof PackageFilterValues, value: string) => {
+    onChange({ ...values, [key]: value });
+  };
+
+  const handlePriceChange =
+    (key: 'priceMin' | 'priceMax') => (event: ChangeEvent<HTMLInputElement>) => {
+      updateValue(key, event.target.value);
+    };
+
+  return (
+    <Box className={'filters-sidebar'}>
+      <p className={'filters-title'}>Filters</p>
+      <p className={'filters-sub'}>Narrow your search</p>
+
+      <Box className={'filter-section'}>
+        <p className={'filter-label'}>SEARCH</p>
+        <Box className={'price-row'}>
+          <input
+            type='text'
+            placeholder='Package name'
+            value={values.searchText}
+            onChange={(event) => updateValue('searchText', event.target.value)}
+            className={'price-input'}
+          />
+          <Box sx={{ display: 'flex', alignItems: 'center', px: 1 }}>
+            <SearchIcon />
+          </Box>
+        </Box>
+      </Box>
+
+      <Box className={'filter-section'}>
+        <p className={'filter-label'}>INSURANCE TYPE</p>
+        {typeOptions.map((option) => (
+          <label key={option.value} className={'checkbox-row'}>
+            <input
+              type='checkbox'
+              checked={values.selectedType === option.value}
+              onChange={() => updateValue('selectedType', option.value)}
+              className={'pkg-checkbox'}
+            />
+            <span className={'checkbox-text'}>{option.label}</span>
+          </label>
+        ))}
+      </Box>
+
+      <Box className={'filter-section'}>
+        <p className={'filter-label'}>STATUS</p>
+        <select
+          value={values.selectedStatus}
+          onChange={(event) => updateValue('selectedStatus', event.target.value)}
+          className={'coverage-select'}
+        >
+          {statusOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      </Box>
+
+      <Box className={'filter-section'}>
+        <p className={'filter-label'}>PRICE RANGE</p>
+        <Box className={'price-row'}>
+          <input
+            type='number'
+            placeholder='Min'
+            value={values.priceMin}
+            onChange={handlePriceChange('priceMin')}
+            className={'price-input'}
+          />
+          <input
+            type='number'
+            placeholder='Max'
+            value={values.priceMax}
+            onChange={handlePriceChange('priceMax')}
+            className={'price-input'}
+          />
+        </Box>
+      </Box>
+
+      <Box className={'filter-section'}>
+        <p className={'filter-label'}>COVERAGE LIMIT</p>
+        <select
+          value={values.coverageLimit}
+          onChange={(event) => updateValue('coverageLimit', event.target.value)}
+          className={'coverage-select'}
+        >
+          {coverageOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      </Box>
+
+      <button className={'apply-btn'} onClick={onApply}>
+        Apply Filters
+      </button>
+    </Box>
+  );
+};
+
+export default PackageFilter;

@@ -1,6 +1,6 @@
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { ChangeEvent, MouseEvent, useEffect, useMemo, useState } from 'react';
+import { MouseEvent, useEffect, useMemo, useState } from 'react';
 import { Stack, Box } from '@mui/material';
 import { useMutation, useQuery } from '@apollo/client/react';
 import ShieldOutlinedIcon from '@mui/icons-material/ShieldOutlined';
@@ -11,7 +11,6 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import ChatBubbleOutlinedIcon from '@mui/icons-material/ChatBubbleOutlined';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import SearchIcon from '@mui/icons-material/Search';
 import withLayoutMain from '@/layout/LayoutHome';
 import { userVar } from '@/apollo/store';
 import { GET_PACKAGES } from '@/apollo/user/query';
@@ -21,6 +20,7 @@ import { toAssetUrl } from '@/libs/api';
 import { formatCount } from '@/libs/utils/format';
 import { buildPageNumbers } from '@/libs/utils/pagination';
 import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
+import PackageFilter, { PackageFilterValues } from '@/libs/components/packages/PackageFilter';
 
 export const getStaticProps = async ({ locale = 'en' }: { locale?: string }) => ({
   props: {
@@ -88,44 +88,41 @@ interface GetPackagesResponse {
 const PackagesPage: NextPage = () => {
   const router = useRouter();
 
-  const [selectedType, setSelectedType] = useState('');
-  const [selectedStatus, setSelectedStatus] = useState('');
-  const [searchText, setSearchText] = useState('');
-  const [priceMin, setPriceMin] = useState('');
-  const [priceMax, setPriceMax] = useState('');
-  const [coverageLimit, setCoverageLimit] = useState('');
+  const [filterValues, setFilterValues] = useState<PackageFilterValues>({
+    selectedType: '',
+    selectedStatus: '',
+    searchText: '',
+    priceMin: '',
+    priceMax: '',
+    coverageLimit: '',
+  });
 
   const [packages, setPackages] = useState<InsurancePackage[]>([]);
-  const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [sort, setSort] = useState('createdAt');
-
-  const [appliedType, setAppliedType] = useState('');
-  const [appliedStatus, setAppliedStatus] = useState('');
-  const [appliedText, setAppliedText] = useState('');
-  const [appliedPriceMin, setAppliedPriceMin] = useState('');
-  const [appliedPriceMax, setAppliedPriceMax] = useState('');
-  const [appliedCoverage, setAppliedCoverage] = useState('');
+  const [appliedFilters, setAppliedFilters] = useState<PackageFilterValues>({
+    selectedType: '',
+    selectedStatus: '',
+    searchText: '',
+    priceMin: '',
+    priceMax: '',
+    coverageLimit: '',
+  });
 
   const search = useMemo(() => {
     const nextSearch: Record<string, unknown> = {};
 
-    if (appliedType) nextSearch.packageType = appliedType;
-    if (appliedStatus) nextSearch.packageStatus = appliedStatus;
-    if (appliedText.trim()) nextSearch.text = appliedText.trim();
-    if (appliedPriceMin) nextSearch.priceMin = Number(appliedPriceMin);
-    if (appliedPriceMax) nextSearch.priceMax = Number(appliedPriceMax);
-    if (appliedCoverage) nextSearch.coverageMin = Number(appliedCoverage);
+    if (appliedFilters.selectedType) nextSearch.packageType = appliedFilters.selectedType;
+    if (appliedFilters.selectedStatus) nextSearch.packageStatus = appliedFilters.selectedStatus;
+    if (appliedFilters.searchText.trim()) nextSearch.text = appliedFilters.searchText.trim();
+    if (appliedFilters.priceMin) nextSearch.priceMin = Number(appliedFilters.priceMin);
+    if (appliedFilters.priceMax) nextSearch.priceMax = Number(appliedFilters.priceMax);
+    if (appliedFilters.coverageLimit) {
+      nextSearch.coverageMin = Number(appliedFilters.coverageLimit);
+    }
 
     return nextSearch;
-  }, [
-    appliedCoverage,
-    appliedPriceMax,
-    appliedPriceMin,
-    appliedStatus,
-    appliedText,
-    appliedType,
-  ]);
+  }, [appliedFilters]);
 
   const { data, loading: queryLoading, error } = useQuery<GetPackagesResponse>(GET_PACKAGES, {
     variables: {
@@ -142,7 +139,6 @@ const PackagesPage: NextPage = () => {
     if (!data?.getPackages) return;
 
     setPackages(data.getPackages.list || []);
-    setTotal(data.getPackages.metaCounter?.[0]?.total ?? 0);
   }, [data]);
 
   useEffect(() => {
@@ -152,12 +148,7 @@ const PackagesPage: NextPage = () => {
 
   const handleApplyFilters = () => {
     setPage(1);
-    setAppliedType(selectedType);
-    setAppliedStatus(selectedStatus);
-    setAppliedText(searchText);
-    setAppliedPriceMin(priceMin);
-    setAppliedPriceMax(priceMax);
-    setAppliedCoverage(coverageLimit);
+    setAppliedFilters(filterValues);
   };
 
   const handleToggleLike = async (e: MouseEvent, id: string) => {
@@ -210,11 +201,7 @@ const PackagesPage: NextPage = () => {
   const typeLabel = (value: string) =>
     ({ AUTO: 'Auto', HOME: 'Home', HEALTH: 'Health', TRAVEL: 'Travel' })[value] ?? value;
 
-  const handlePriceChange =
-    (setter: (value: string) => void) => (event: ChangeEvent<HTMLInputElement>) => {
-      setter(event.target.value);
-    };
-
+  const total = data?.getPackages?.metaCounter?.[0]?.total ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / LIMIT));
   const isLoading = queryLoading && packages.length === 0;
 
@@ -230,95 +217,14 @@ const PackagesPage: NextPage = () => {
       </Box>
 
       <Box className={'packages-body'}>
-        <Box className={'filters-sidebar'}>
-          <p className={'filters-title'}>Filters</p>
-          <p className={'filters-sub'}>Narrow your search</p>
-
-          <Box className={'filter-section'}>
-            <p className={'filter-label'}>SEARCH</p>
-            <Box className={'price-row'}>
-              <input
-                type='text'
-                placeholder='Package name'
-                value={searchText}
-                onChange={(event) => setSearchText(event.target.value)}
-                className={'price-input'}
-              />
-              <Box sx={{ display: 'flex', alignItems: 'center', px: 1 }}>
-                <SearchIcon />
-              </Box>
-            </Box>
-          </Box>
-
-          <Box className={'filter-section'}>
-            <p className={'filter-label'}>INSURANCE TYPE</p>
-            {TYPE_OPTIONS.map((option) => (
-              <label key={option.value} className={'checkbox-row'}>
-                <input
-                  type='checkbox'
-                  checked={selectedType === option.value}
-                  onChange={() => setSelectedType(option.value)}
-                  className={'pkg-checkbox'}
-                />
-                <span className={'checkbox-text'}>{option.label}</span>
-              </label>
-            ))}
-          </Box>
-
-          <Box className={'filter-section'}>
-            <p className={'filter-label'}>STATUS</p>
-            <select
-              value={selectedStatus}
-              onChange={(event) => setSelectedStatus(event.target.value)}
-              className={'coverage-select'}
-            >
-              {STATUS_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </Box>
-
-          <Box className={'filter-section'}>
-            <p className={'filter-label'}>PRICE RANGE</p>
-            <Box className={'price-row'}>
-              <input
-                type='number'
-                placeholder='Min'
-                value={priceMin}
-                onChange={handlePriceChange(setPriceMin)}
-                className={'price-input'}
-              />
-              <input
-                type='number'
-                placeholder='Max'
-                value={priceMax}
-                onChange={handlePriceChange(setPriceMax)}
-                className={'price-input'}
-              />
-            </Box>
-          </Box>
-
-          <Box className={'filter-section'}>
-            <p className={'filter-label'}>COVERAGE LIMIT</p>
-            <select
-              value={coverageLimit}
-              onChange={(event) => setCoverageLimit(event.target.value)}
-              className={'coverage-select'}
-            >
-              {COVERAGE_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </Box>
-
-          <button className={'apply-btn'} onClick={handleApplyFilters}>
-            Apply Filters
-          </button>
-        </Box>
+        <PackageFilter
+          values={filterValues}
+          typeOptions={TYPE_OPTIONS}
+          statusOptions={STATUS_OPTIONS}
+          coverageOptions={COVERAGE_OPTIONS}
+          onChange={setFilterValues}
+          onApply={handleApplyFilters}
+        />
 
         <Box className={'packages-content'}>
           <Box className={'results-bar'}>

@@ -54,23 +54,32 @@ const HeaderFilter = () => {
 					</Box>
 					<Box component={'div'} className={'hero-images'}>
 						<Box component={'div'} className={'img-col left-col'}>
-							<img
-								className={'img-card top'}
-								src={'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=480&h=280&fit=crop'}
-								alt={'car insurance'}
-							/>
-							<img
-								className={'img-card bottom'}
-								src={'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=480&h=200&fit=crop'}
-								alt={'home insurance'}
-							/>
+							<Box component={'div'} className={'hero-card car-card'}>
+								<Box
+									component={'img'}
+									className={'hero-card-image'}
+									src={'/img/hero-img/car.webp'}
+									alt={'car insurance'}
+								/>
+							</Box>
+							<Box component={'div'} className={'hero-card home-card'}>
+								<Box
+									component={'img'}
+									className={'hero-card-image'}
+									src={'/img/hero-img/home.webp'}
+									alt={'home insurance'}
+								/>
+							</Box>
 						</Box>
 						<Box component={'div'} className={'img-col right-col'}>
-							<img
-								className={'img-card full'}
-								src={'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=380&h=500&fit=crop'}
-								alt={'personal insurance'}
-							/>
+							<Box component={'div'} className={'hero-card health-card'}>
+								<Box
+									component={'img'}
+									className={'hero-card-image'}
+									src={'/img/hero-img/health.webp'}
+									alt={'health insurance'}
+								/>
+							</Box>
 						</Box>
 					</Box>
 				</Stack>
