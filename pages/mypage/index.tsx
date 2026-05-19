@@ -143,7 +143,7 @@ const MyPage: NextPage = () => {
     GET_MY_POLICIES,
     {
       skip: !user?._id,
-      fetchPolicy: 'no-cache',
+      fetchPolicy: 'cache-and-network',
       variables: { input: policyInput },
     },
   );
