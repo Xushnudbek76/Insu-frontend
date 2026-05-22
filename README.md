@@ -98,15 +98,67 @@ Make sure the backend GraphQL API is running before using package, community, up
 | Command      | Description                          |
 | ------------ | ------------------------------------ |
 | `yarn dev`   | Start the Next.js development server |
+| `yarn dev:public` | Start the dev server on `0.0.0.0:3000` |
 | `yarn build` | Build the production frontend        |
 | `yarn start` | Start the production build           |
+| `yarn start:public` | Start the production build on `0.0.0.0:3000` |
 | `yarn lint`  | Run Next.js linting                  |
+
+## Interview Practice
+
+This repo also includes a separate [30-day full-stack interview practice kit](./interview-practice/README.md). It contains realistic exercise briefs, a progress tracker, submission templates, and a scoring rubric for practicing take-home and live full-stack interview tasks.
 
 ## API Integration
 
 The frontend communicates with the backend through GraphQL operations stored under `apollo/`. Package pages use package queries and mutations, while the community pages use board article, comment, like, view, and upload operations.
 
 File uploads are sent through `apollo-upload-client`, and the Apollo client includes the required preflight header for Apollo Server CSRF protection.
+
+## VPS Deployment
+
+For phone testing over a VPS public IP, run the frontend and backend as long-lived processes instead of using a temporary SSH session.
+
+### Frontend
+
+1. Clone the frontend to the VPS and install dependencies:
+
+```bash
+cd ~/apps/frontend
+yarn install
+```
+
+2. Create the production env file from the example and replace `YOUR_SERVER_IP` with your VPS public IP:
+
+```bash
+cp .env.production.example .env.production.local
+```
+
+3. Build and start the frontend with PM2:
+
+```bash
+yarn build
+pm2 start ecosystem.config.js
+pm2 save
+pm2 startup
+```
+
+The frontend will listen on `0.0.0.0:3000` and should be reachable at `http://<server-ip>:3000`.
+
+### Backend Requirements
+
+The backend repo lives separately, so apply these settings inside `~/apps/backend` on the VPS:
+
+- populate the backend env file with the real database credentials and secrets
+- bind the NestJS server to `0.0.0.0`
+- keep the backend API on port `3007`
+- allow CORS and socket access from `http://<server-ip>:3000`
+- run the backend with PM2 using the production start command defined in the backend `package.json`
+
+After the backend is up, verify `http://<server-ip>:3007/graphql` responds before testing the frontend.
+
+### Firewall / Phone Access
+
+Open inbound access for ports `3000` and `3007` in the VPS firewall or cloud security group. Once both processes are running, open `http://<server-ip>:3000` on your phone.
 
 ## Notes
 

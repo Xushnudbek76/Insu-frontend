@@ -33,6 +33,12 @@ interface InsuranceRecommendationVariables {
 	};
 }
 
+type QueryErrorLike = {
+	message?: string;
+	errors?: Array<{ message?: string }>;
+	graphQLErrors?: Array<{ message?: string }>;
+};
+
 const INSURANCE_TYPE_OPTIONS: { value: InsuranceTypeValue; label: string }[] = [
 	{ value: 'AUTO', label: 'Car' },
 	{ value: 'HOME', label: 'Home' },
@@ -61,8 +67,12 @@ const TrendPackages: React.FC = () => {
 
 	const getErrorMessage = () => {
 		if (!error) return apiError;
+		const queryError = error as QueryErrorLike;
 		const graphQLErrorMessage =
-			error?.graphQLErrors?.[0]?.message ?? error?.message ?? '';
+			queryError.errors?.[0]?.message ??
+			queryError.graphQLErrors?.[0]?.message ??
+			queryError.message ??
+			'';
 		if (graphQLErrorMessage === 'No data found!') {
 			return 'No matching insurance plans found for your criteria. Try increasing your budget or changing insurance type.';
 		}

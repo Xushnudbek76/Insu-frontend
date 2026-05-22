@@ -50,7 +50,7 @@ const HomeComments: React.FC = () => {
         variables: {
           input: {
             page: 1,
-            limit: 6,
+            limit: 8,
             sort: 'createdAt',
             direction: 'DESC',
           },
