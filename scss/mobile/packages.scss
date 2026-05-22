@@ -91,8 +91,94 @@
   .mobile-packages-filter-sheet {
     margin: 12px 16px 0;
 
-    .package-filter {
+    .filters-sidebar {
+      display: grid;
+      gap: 14px;
+      padding: 18px;
+      border: 1px solid #e1e2e4;
       border-radius: 22px;
+      background: #ffffff;
+      box-shadow: 0 18px 44px rgba(15, 23, 42, 0.06);
+    }
+
+    .filters-title {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.05;
+      font-weight: 800;
+      color: #191c1e;
+    }
+
+    .filters-sub {
+      margin: -6px 0 0;
+      color: #616269;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .filter-section {
+      display: grid;
+      gap: 8px;
+    }
+
+    .filter-label {
+      margin: 0;
+      color: #454556;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .price-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 10px;
+      align-items: center;
+    }
+
+    .price-input,
+    .coverage-select {
+      width: 100%;
+      min-height: 48px;
+      padding: 0 14px;
+      border: 1px solid #d9dadc;
+      border-radius: 16px;
+      box-sizing: border-box;
+      background: #ffffff;
+      color: #191c1e;
+      font: inherit;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 22px;
+      color: #191c1e;
+    }
+
+    .pkg-checkbox {
+      width: 18px;
+      height: 18px;
+      margin: 0;
+      accent-color: #2218dc;
+      flex: 0 0 auto;
+    }
+
+    .checkbox-text {
+      font-size: 15px;
+      line-height: 1.4;
+    }
+
+    .apply-btn {
+      min-height: 48px;
+      border: 0;
+      border-radius: 999px;
+      background: #2218dc;
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 800;
     }
   }
 
