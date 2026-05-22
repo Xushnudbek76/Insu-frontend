@@ -15,6 +15,8 @@ import {
 
 import withLayoutBasic from '@/layout/LayoutBasic';
 import { logIn, signUp } from '@/libs/auth';
+import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
+import MobileJoinPage from '@/libs/components/mobile/account/MobileJoinPage';
 import { sweetTopSuccessAlert } from '@/libs/sweetAlert';
 import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
 
@@ -25,6 +27,7 @@ export const getStaticProps = async ({ locale = 'en' }: { locale?: string }) => 
 });
 
 const JoinPage: NextPage = () => {
+  const device = useDeviceDetect();
   const [activeTab, setActiveTab] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -79,6 +82,31 @@ const JoinPage: NextPage = () => {
       setLoading(false);
     }
   };
+
+  if (device === 'mobile') {
+    return (
+      <MobileJoinPage
+        activeTab={activeTab}
+        loading={loading}
+        error={error}
+        loginNick={loginNick}
+        loginPassword={loginPassword}
+        signupNick={signupNick}
+        signupPassword={signupPassword}
+        signupPhone={signupPhone}
+        signupType={signupType}
+        onTabChange={handleTabChange}
+        onLoginNickChange={setLoginNick}
+        onLoginPasswordChange={setLoginPassword}
+        onSignupNickChange={setSignupNick}
+        onSignupPasswordChange={setSignupPassword}
+        onSignupPhoneChange={setSignupPhone}
+        onSignupTypeChange={setSignupType}
+        onLogin={handleLogin}
+        onSignup={handleSignup}
+      />
+    );
+  }
 
   return (
     <Container maxWidth="sm">

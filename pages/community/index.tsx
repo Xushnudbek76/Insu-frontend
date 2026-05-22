@@ -14,6 +14,8 @@ import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import withLayoutMain from '@/layout/LayoutHome';
 import { GET_BOARD_ARTICLES } from '@/apollo/board-article/query';
+import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
+import MobileCommunityPage from '@/libs/components/mobile/community/MobileCommunityPage';
 import { BoardArticleCategory } from '@/libs/enums/board-article.enum';
 import { toAssetUrl } from '@/libs/api';
 import { buildPageNumbers } from '@/libs/utils/pagination';
@@ -89,6 +91,7 @@ interface GetBoardArticlesResponse {
 
 const CommunityPage: NextPage = () => {
   const router = useRouter();
+  const device = useDeviceDetect();
   const [category, setCategory] = useState<BoardArticleCategory>(BoardArticleCategory.FREE);
   const [searchText, setSearchText] = useState('');
   const [appliedSearchText, setAppliedSearchText] = useState('');
@@ -143,6 +146,37 @@ const CommunityPage: NextPage = () => {
     setCategory(value);
     setPage(1);
   };
+
+  if (device === 'mobile') {
+    return (
+      <MobileCommunityPage
+        category={category}
+        searchText={searchText}
+        sort={sort}
+        page={page}
+        totalPages={totalPages}
+        activeCategory={activeCategory}
+        categories={CATEGORY_CONFIG}
+        articles={articles}
+        total={total}
+        loading={loading}
+        sortOptions={SORT_OPTIONS}
+        getArticleImage={getArticleImage}
+        formatDate={formatDate}
+        onSearchChange={(event) => setSearchText(event.target.value)}
+        onSearchKeyDown={handleSearchEnter}
+        onSearchSubmit={handleSearchSubmit}
+        onCategoryChange={handleChangeCategory}
+        onSortChange={(value) => {
+          setSort(value);
+          setPage(1);
+        }}
+        onPageChange={setPage}
+        onOpenWrite={() => router.push('/community/write')}
+        onOpenArticle={(articleId) => router.push(`/community/${articleId}`)}
+      />
+    );
+  }
 
   return (
     <Stack className='community-page'>

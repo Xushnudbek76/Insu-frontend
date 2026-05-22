@@ -9,6 +9,7 @@ import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import ChatBubbleOutlineOutlinedIcon from '@mui/icons-material/ChatBubbleOutlineOutlined';
 import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
 import withLayoutMain from '@/layout/LayoutHome';
+import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
 import { GET_BOARD_ARTICLE } from '@/apollo/board-article/query';
 import { LIKE_TARGET_BOARD_ARTICLE } from '@/apollo/board-article/mutation';
 import { GET_COMMENTS } from '@/apollo/comment/query';
@@ -17,6 +18,7 @@ import { userVar } from '@/apollo/store';
 import { sweetMixinErrorAlert, sweetTopSuccessAlert } from '@/libs/sweetAlert';
 import { BoardArticleCategory } from '@/libs/enums/board-article.enum';
 import { toAssetUrl } from '@/libs/api';
+import MobileCommunityDetailPage from '@/libs/components/mobile/community/MobileCommunityDetailPage';
 import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
 
 export const getServerSideProps = async ({ locale = 'en' }: { locale?: string }) => ({
@@ -63,6 +65,7 @@ const CATEGORY_LABEL: Record<BoardArticleCategory, string> = {
 
 const CommunityDetailPage: NextPage = () => {
   const router = useRouter();
+  const device = useDeviceDetect();
   const { id } = router.query;
   const [commentText, setCommentText] = useState('');
   const [postingComment, setPostingComment] = useState(false);
@@ -201,6 +204,26 @@ const CommunityDetailPage: NextPage = () => {
   }
 
   const liked = article.meLiked?.[0]?.myFavorite ?? false;
+
+  if (device === 'mobile') {
+    return (
+      <MobileCommunityDetailPage
+        article={article}
+        comments={comments}
+        commentText={commentText}
+        commentTotal={commentTotal}
+        postingComment={postingComment}
+        liked={liked}
+        categoryLabel={CATEGORY_LABEL[article.articleCategory]}
+        getArticleImage={getArticleImage}
+        formatDate={formatDate}
+        onCommentTextChange={setCommentText}
+        onBack={() => router.push('/community')}
+        onLike={handleToggleLike}
+        onPostComment={handlePostComment}
+      />
+    );
+  }
 
   return (
     <Stack className='community-detail-page'>

@@ -15,6 +15,8 @@ import withLayoutMain from '@/layout/LayoutHome';
 import { userVar } from '@/apollo/store';
 import { GET_PACKAGES } from '@/apollo/user/query';
 import { LIKE_TARGET_PACKAGE } from '@/apollo/package/mutation';
+import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
+import MobilePackagesPage from '@/libs/components/mobile/packages/MobilePackagesPage';
 import { sweetMixinErrorAlert, sweetTopSuccessAlert } from '@/libs/sweetAlert';
 import { toAssetUrl } from '@/libs/api';
 import { formatCount } from '@/libs/utils/format';
@@ -87,6 +89,7 @@ interface GetPackagesResponse {
 
 const PackagesPage: NextPage = () => {
   const router = useRouter();
+  const device = useDeviceDetect();
 
   const [filterValues, setFilterValues] = useState<PackageFilterValues>({
     selectedType: '',
@@ -204,6 +207,36 @@ const PackagesPage: NextPage = () => {
   const total = data?.getPackages?.metaCounter?.[0]?.total ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / LIMIT));
   const isLoading = queryLoading && packages.length === 0;
+
+  if (device === 'mobile') {
+    return (
+      <MobilePackagesPage
+        filterValues={filterValues}
+        setFilterValues={setFilterValues}
+        typeOptions={TYPE_OPTIONS}
+        statusOptions={STATUS_OPTIONS}
+        coverageOptions={COVERAGE_OPTIONS}
+        sortOptions={SORT_OPTIONS}
+        packages={packages}
+        total={total}
+        page={page}
+        totalPages={totalPages}
+        sort={sort}
+        isLoading={isLoading}
+        getImage={getImage}
+        typeLabel={typeLabel}
+        formatCoverage={formatCoverage}
+        onApplyFilters={handleApplyFilters}
+        onSortChange={(value) => {
+          setSort(value);
+          setPage(1);
+        }}
+        onPageChange={setPage}
+        onOpenPackage={(packageId) => router.push(`/packages/${packageId}`)}
+        onToggleLike={handleToggleLike}
+      />
+    );
+  }
 
   return (
     <Stack className={'packages-page'}>

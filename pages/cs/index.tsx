@@ -12,6 +12,8 @@ import ArrowForwardOutlinedIcon from '@mui/icons-material/ArrowForwardOutlined';
 import { useTranslation } from 'next-i18next/pages';
 import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
 import withLayoutMain from '@/layout/LayoutHome';
+import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
+import MobileCsPage from '@/libs/components/mobile/cs/MobileCsPage';
 
 const SUPPORT_CARDS = [
   {
@@ -61,6 +63,11 @@ const FAQ_ITEMS = [
 
 const CsPage: NextPage = () => {
   const { t } = useTranslation('common');
+  const device = useDeviceDetect();
+
+  if (device === 'mobile') {
+    return <MobileCsPage t={t} supportCards={SUPPORT_CARDS} faqItems={FAQ_ITEMS} />;
+  }
 
   return (
     <Stack className='cs-page'>

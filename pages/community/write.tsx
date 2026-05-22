@@ -7,8 +7,10 @@ import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
 import withLayoutMain from '@/layout/LayoutHome';
 import { BoardArticleCategory } from '@/libs/enums/board-article.enum';
 import { userVar } from '@/apollo/store';
+import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
 import { CREATE_BOARD_ARTICLE } from '@/apollo/board-article/mutation';
 import { IMAGE_UPLOADER_MUTATION } from '@/apollo/member/mutation';
+import MobileCommunityWritePage from '@/libs/components/mobile/community/MobileCommunityWritePage';
 import { sweetMixinErrorAlert, sweetTopSuccessAlert } from '@/libs/sweetAlert';
 import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
 
@@ -27,6 +29,7 @@ const CATEGORY_OPTIONS = [
 
 const CommunityWritePage: NextPage = () => {
   const router = useRouter();
+  const device = useDeviceDetect();
   const user = userVar();
   const [category, setCategory] = useState<BoardArticleCategory>(BoardArticleCategory.FREE);
   const [title, setTitle] = useState('');
@@ -107,6 +110,26 @@ const CommunityWritePage: NextPage = () => {
       setSubmitting(false);
     }
   };
+
+  if (device === 'mobile') {
+    return (
+      <MobileCommunityWritePage
+        category={category}
+        title={title}
+        content={content}
+        previewUrl={previewUrl}
+        fileName={file?.name ?? ''}
+        submitting={submitting}
+        categoryOptions={CATEGORY_OPTIONS}
+        onCategoryChange={setCategory}
+        onTitleChange={setTitle}
+        onContentChange={setContent}
+        onFileChange={handleFileChange}
+        onCancel={() => router.push('/community')}
+        onSubmit={handleSubmit}
+      />
+    );
+  }
 
   return (
     <Stack className='community-write-page'>

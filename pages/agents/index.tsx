@@ -17,6 +17,8 @@ import withLayoutMain from '@/layout/LayoutHome';
 import { userVar } from '@/apollo/store';
 import { LIKE_TARGET_MEMBER } from '@/apollo/member/mutation';
 import { GET_AGENTS } from '@/apollo/user/query';
+import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
+import MobileAgentsPage from '@/libs/components/mobile/agents/MobileAgentsPage';
 import { sweetMixinErrorAlert, sweetTopSuccessAlert } from '@/libs/sweetAlert';
 import { toAssetUrl } from '@/libs/api';
 import { formatCount } from '@/libs/utils/format';
@@ -63,6 +65,7 @@ const readableStatus = (status?: string | null) =>
 const AgentsPage: NextPage = () => {
   const router = useRouter();
   const { t } = useTranslation('common');
+  const device = useDeviceDetect();
   const [searchText, setSearchText] = useState('');
   const [appliedSearchText, setAppliedSearchText] = useState('');
   const [sort, setSort] = useState('createdAt');
@@ -155,6 +158,35 @@ const AgentsPage: NextPage = () => {
       );
     }
   };
+
+  if (device === 'mobile') {
+    return (
+      <MobileAgentsPage
+        searchText={searchText}
+        sort={sort}
+        page={page}
+        totalPages={totalPages}
+        loading={loading}
+        agents={agents}
+        likedByAgent={likedByAgent}
+        likesByAgent={likesByAgent}
+        sortOptions={SORT_OPTIONS}
+        displayName={displayName}
+        readableStatus={readableStatus}
+        agentImage={agentImage}
+        onSearchChange={handleSearchChange}
+        onSearchEnter={handleSearchEnter}
+        onSearchSubmit={handleSearchSubmit}
+        onSortChange={(value) => {
+          setSort(value);
+          setPage(1);
+        }}
+        onPageChange={setPage}
+        onToggleLike={handleToggleLike}
+        onOpenAgent={(memberId) => router.push(`/agents/${memberId}`)}
+      />
+    );
+  }
 
   return (
     <Stack className='agents-page'>

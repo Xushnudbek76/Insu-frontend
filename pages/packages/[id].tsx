@@ -10,6 +10,7 @@ import ChatBubbleOutlinedIcon from '@mui/icons-material/ChatBubbleOutlined';
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import withLayoutMain from '@/layout/LayoutHome';
 import { userVar } from '@/apollo/store';
+import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
 import { GET_PACKAGE, GET_PACKAGES } from '@/apollo/user/query';
 import { GET_COMMENTS } from '@/apollo/comment/query';
 import { LIKE_TARGET_PACKAGE } from '@/apollo/package/mutation';
@@ -27,6 +28,7 @@ import {
   getPackageImage,
   typeLabel,
 } from '@/libs/components/packages';
+import MobilePackageDetailPage from '@/libs/components/mobile/packages/MobilePackageDetailPage';
 import type {
   PackageDetail,
   Comment,
@@ -45,6 +47,7 @@ export const getServerSideProps = async ({
 
 const PackageDetailPage: NextPage = () => {
   const router = useRouter();
+  const device = useDeviceDetect();
   const packageId = typeof router.query.id === 'string' ? router.query.id : '';
 
   const [comments, setComments] = useState<Comment[]>([]);
@@ -159,6 +162,23 @@ const PackageDetailPage: NextPage = () => {
   }
 
   if (!pkg) return null;
+
+  if (device === 'mobile') {
+    return (
+      <MobilePackageDetailPage
+        packageId={packageId}
+        pkg={pkg}
+        comments={comments}
+        commentTotal={commentTotal}
+        related={related}
+        liked={liked}
+        likeCount={likeCount}
+        onBack={() => router.push('/packages')}
+        onLike={handleLike}
+        onCommentAdded={handleCommentAdded}
+      />
+    );
+  }
 
   return (
     <Box className={'pd-page'}>

@@ -5,13 +5,14 @@ import { ClaimForm } from './types';
 
 interface SubmitClaimPanelProps {
   claimForm: ClaimForm;
+  claimError: string | null;
   t: (key: string) => string;
   onClaimChange: (field: keyof ClaimForm) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   onClose: () => void;
   onSubmitClaim: () => void;
 }
 
-const SubmitClaimPanel = ({ claimForm, t, onClaimChange, onClose, onSubmitClaim }: SubmitClaimPanelProps) => (
+const SubmitClaimPanel = ({ claimForm, claimError, t, onClaimChange, onClose, onSubmitClaim }: SubmitClaimPanelProps) => (
   <Box className='mypage-claim-overlay'>
     <Stack className='mypage-claim-modal'>
       <Stack className='mypage-panel-head'>
@@ -39,6 +40,7 @@ const SubmitClaimPanel = ({ claimForm, t, onClaimChange, onClose, onSubmitClaim 
             onChange={onClaimChange('claimDocuments')}
           />
         </label>
+        {claimError && <p className='mypage-form-error'>{claimError}</p>}
         <Stack className='mypage-actions split'>
           <button type='button' className='ghost' onClick={onClose}>
             {t('Close')}

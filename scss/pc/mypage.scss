@@ -840,6 +840,18 @@
         box-shadow: 0 28px 90px rgba(0, 0, 0, 0.24);
     }
 
+    .mypage-form-error {
+        margin: 4px 0 0;
+        padding: 12px 14px;
+        border: 1px solid #ffdad6;
+        border-radius: 14px;
+        background: #fff7f6;
+        color: #ba1a1a;
+        font-size: 13px;
+        font-weight: 700;
+        line-height: 1.45;
+    }
+
     @keyframes mypage-shimmer {
         0% {
             background-position: 100% 0;

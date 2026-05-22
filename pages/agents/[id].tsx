@@ -20,6 +20,7 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import BadgeOutlinedIcon from '@mui/icons-material/BadgeOutlined';
 import withLayoutMain from '@/layout/LayoutHome';
 import { userVar } from '@/apollo/store';
+import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
 import {
   GET_AGENT_PUBLIC_PACKAGES,
   GET_MEMBER,
@@ -34,6 +35,7 @@ import { sweetMixinErrorAlert, sweetTopSuccessAlert } from '@/libs/sweetAlert';
 import { toAssetUrl } from '@/libs/api';
 import { formatCount } from '@/libs/utils/format';
 import { buildPageNumbers } from '@/libs/utils/pagination';
+import MobileAgentDetailPage from '@/libs/components/mobile/agents/MobileAgentDetailPage';
 
 const LISTING_LIMIT = 6;
 const REVIEW_LIMIT = 5;
@@ -130,6 +132,7 @@ const formatDate = (date: string, locale?: string) =>
 const AgentDetailPage: NextPage = () => {
   const router = useRouter();
   const { t } = useTranslation('common');
+  const device = useDeviceDetect();
   const { id } = router.query;
   const agentId = typeof id === 'string' ? id : '';
 
@@ -468,6 +471,54 @@ const AgentDetailPage: NextPage = () => {
           <button onClick={() => router.push('/agents')}>{t('Back to Agents')}</button>
         </Stack>
       </Stack>
+    );
+  }
+
+  if (device === 'mobile') {
+    return (
+      <MobileAgentDetailPage
+        agent={agent}
+        isFollowing={isFollowing}
+        followerCount={followerCount}
+        networkTab={networkTab}
+        networkItems={networkItems}
+        networkTotal={networkTotal}
+        networkPage={networkPage}
+        networkTotalPages={networkTotalPages}
+        networkLoading={networkLoading}
+        listings={listings}
+        listingPage={listingPage}
+        listingTotal={listingTotal}
+        listingTotalPages={listingTotalPages}
+        listingsLoading={listingsLoading}
+        reviews={reviews}
+        reviewText={reviewText}
+        reviewPage={reviewPage}
+        reviewTotal={reviewTotal}
+        reviewTotalPages={reviewTotalPages}
+        reviewsLoading={reviewsLoading}
+        packageLiked={packageLiked}
+        packageLikes={packageLikes}
+        getAsset={getAsset}
+        getPackageImage={getPackageImage}
+        displayName={displayName}
+        readableStatus={readableStatus}
+        typeLabelKey={typeLabelKey}
+        formatDate={formatDate}
+        routerLocale={router.locale}
+        getNetworkMember={getNetworkMember}
+        onBack={() => router.push('/agents')}
+        onFollowAgent={handleFollowAgent}
+        onChangeNetworkTab={changeNetworkTab}
+        onSetNetworkPage={setNetworkPage}
+        onSetListingPage={setListingPage}
+        onSetReviewPage={setReviewPage}
+        onLikePackage={handleLikePackage}
+        onOpenPackage={(packageId) => router.push(`/packages/${packageId}`)}
+        onToggleFollowTarget={(targetId, alreadyFollowing) => handleFollowTarget(targetId, alreadyFollowing)}
+        onReviewTextChange={(event) => setReviewText(event.target.value)}
+        onPostReview={handlePostReview}
+      />
     );
   }
 

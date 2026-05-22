@@ -1,0 +1,46 @@
+#mobile-wrap {
+  .mobile-join-page {
+    padding: 20px 16px 40px;
+    gap: 18px;
+  }
+
+  .mobile-join-hero {
+    gap: 10px;
+
+    span {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #4040f2;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 34px;
+      line-height: 1.02;
+      font-weight: 900;
+    }
+
+    p {
+      margin: 0;
+      color: #616269;
+      font-size: 14px;
+      line-height: 1.65;
+    }
+  }
+
+  .mobile-join-card {
+    display: grid;
+    gap: 16px;
+    padding: 18px;
+    border: 1px solid #e1e2e4;
+    border-radius: 24px;
+    background: #ffffff;
+    box-shadow: 0 18px 44px rgba(15, 23, 42, 0.06);
+  }
+
+  .mobile-join-note {
+    text-align: center;
+  }
+}

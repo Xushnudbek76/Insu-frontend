@@ -1,0 +1,132 @@
+#mobile-wrap {
+  .mobile-cs-page {
+    padding: 20px 16px 40px;
+    gap: 18px;
+    background: #f8f9fb;
+  }
+
+  .mobile-cs-hero,
+  .mobile-cs-section,
+  .mobile-cs-contact {
+    padding: 20px;
+    border: 1px solid #e1e2e4;
+    border-radius: 24px;
+    background: #ffffff;
+    box-shadow: 0 18px 44px rgba(15, 23, 42, 0.06);
+  }
+
+  .mobile-cs-hero {
+    background: linear-gradient(140deg, #101723 0%, #1f2632 100%);
+    color: #ffffff;
+
+    span {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #d5d4ff;
+    }
+
+    h1 {
+      margin: 10px 0 6px;
+      font-size: 34px;
+      line-height: 1.04;
+    }
+
+    p {
+      margin: 0;
+      line-height: 1.65;
+      color: rgba(255, 255, 255, 0.78);
+    }
+  }
+
+  .mobile-cs-card-grid,
+  .mobile-cs-faq {
+    gap: 12px;
+  }
+
+  .mobile-cs-card {
+    gap: 10px;
+    padding: 14px;
+    border-radius: 18px;
+    background: #f8f9fb;
+  }
+
+  .mobile-cs-icon {
+    width: 44px;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+    background: #e1e0ff;
+    color: #2218dc;
+  }
+
+  .mobile-cs-faq-item {
+    display: grid;
+    grid-template-columns: 32px 1fr;
+    gap: 12px;
+    padding: 14px;
+    border-radius: 18px;
+    background: #f8f9fb;
+
+    span {
+      width: 32px;
+      height: 32px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      background: #191c1e;
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    p {
+      margin: 0;
+      color: #616269;
+      line-height: 1.6;
+    }
+  }
+
+  .mobile-cs-contact {
+    gap: 8px;
+
+    span {
+      color: #4040f2;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 26px;
+      line-height: 1.08;
+    }
+
+    a,
+    strong,
+    small {
+      color: #191c1e;
+    }
+  }
+
+  .mobile-cs-link {
+    margin-top: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #2218dc;
+    font-weight: 800;
+    text-decoration: none;
+  }
+}

@@ -14,6 +14,7 @@ import { useTranslation } from 'next-i18next/pages';
 import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
 import withLayoutBasic from '@/layout/LayoutBasic';
 import { userVar } from '@/apollo/store';
+import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
 import { GET_MY_POLICIES } from '@/apollo/policy/query';
 import { CANCEL_POLICY } from '@/apollo/policy/mutation';
 import { GET_CLAIMS_BY_AGENT, GET_MY_CLAIMS } from '@/apollo/claim/query';
@@ -32,6 +33,7 @@ import MyPageSidebar, { MyPageNavItem } from '@/libs/components/mypage/MyPageSid
 import MyPolicies from '@/libs/components/mypage/MyPolicies';
 import MyProfile from '@/libs/components/mypage/MyProfile';
 import SubmitClaimPanel from '@/libs/components/mypage/SubmitClaimPanel';
+import MobileMyPage from '@/libs/components/mobile/mypage/MobileMyPage';
 import {
   AGENT_CLAIM_LIMIT,
   Category,
@@ -52,6 +54,7 @@ import {
 const MyPage: NextPage = () => {
   const router = useRouter();
   const { t } = useTranslation('common');
+  const device = useDeviceDetect();
   const [authReady, setAuthReady] = useState(false);
   const [user, setUser] = useState<CustomJwtPayload | null>(() => userVar());
   const [policyPage, setPolicyPage] = useState(1);
@@ -62,6 +65,7 @@ const MyPage: NextPage = () => {
   const [agentClaimText, setAgentClaimText] = useState('');
   const [claimPanelOpen, setClaimPanelOpen] = useState(false);
   const [claimForm, setClaimForm] = useState<ClaimForm>(initialClaimForm);
+  const [claimError, setClaimError] = useState<string | null>(null);
   const [packageForm, setPackageForm] = useState<PackageForm>(initialPackageForm);
   const [profileForm, setProfileForm] = useState<ProfileForm>({
     memberNick: '',
@@ -338,17 +342,19 @@ const MyPage: NextPage = () => {
 
   const openClaimPanel = (policyId: string) => {
     setClaimForm({ ...initialClaimForm, policyId });
+    setClaimError(null);
     setClaimPanelOpen(true);
   };
 
   const handleClaimChange =
     (field: keyof ClaimForm) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      setClaimError(null);
       setClaimForm((prev) => ({ ...prev, [field]: event.target.value }));
     };
 
   const handleSubmitClaim = async () => {
     if (!claimForm.policyId || !claimForm.claimTitle.trim() || !claimForm.claimDesc.trim() || !claimForm.claimAmount) {
-      await sweetMixinErrorAlert(t('Please complete the claim form.'));
+      setClaimError(t('Please complete the claim form.'));
       return;
     }
 
@@ -358,6 +364,7 @@ const MyPage: NextPage = () => {
       .filter(Boolean);
 
     try {
+      setClaimError(null);
       await submitClaim({
         variables: {
           input: {
@@ -371,10 +378,11 @@ const MyPage: NextPage = () => {
       });
       setClaimPanelOpen(false);
       setClaimForm(initialClaimForm);
+      setClaimError(null);
       await refetchMyClaims();
       await sweetTopSuccessAlert(t('Claim submitted successfully.'));
     } catch (err: any) {
-      await sweetMixinErrorAlert(
+      setClaimError(
         err?.graphQLErrors?.[0]?.message?.replace('Definer: ', '') ?? err?.message ?? t('Could not submit claim.'),
       );
     }
@@ -403,6 +411,64 @@ const MyPage: NextPage = () => {
           <Box className='mypage-loading-card'>{t('Loading your dashboard...')}</Box>
         </Stack>
       </Stack>
+    );
+  }
+
+  if (device === 'mobile') {
+    return (
+      <MobileMyPage
+        user={user}
+        category={category}
+        navItems={navItems}
+        t={t}
+        profileForm={profileForm}
+        policies={policies}
+        myClaims={myClaims}
+        favorites={favorites}
+        favoritePage={favoritePage}
+        favoriteTotalPages={favoriteTotalPages}
+        favoriteLoading={favoritesLoading}
+        policiesLoading={policiesLoading}
+        claimsLoading={claimsLoading}
+        policyStatus={policyStatus}
+        policyPage={policyPage}
+        policyTotalPages={policyTotalPages}
+        activePolicies={activePolicies}
+        pendingClaims={pendingClaims}
+        isAgent={isAgent}
+        claimPanelOpen={claimPanelOpen}
+        claimForm={claimForm}
+        claimError={claimError}
+        packageForm={packageForm}
+        agentClaims={agentClaims}
+        agentClaimsLoading={agentClaimsLoading}
+        agentClaimStatus={agentClaimStatus}
+        agentClaimText={agentClaimText}
+        agentClaimPage={agentClaimPage}
+        agentClaimTotalPages={agentClaimTotalPages}
+        onCategoryChange={changeCategory}
+        onLogout={logOut}
+        onProfileChange={handleProfileChange}
+        onUploadProfileImage={handleUploadProfileImage}
+        onUpdateProfile={handleUpdateProfile}
+        onPolicyStatusChange={setPolicyStatus}
+        onOpenClaimPanel={openClaimPanel}
+        onCancelPolicy={handleCancelPolicy}
+        onPolicyPageChange={setPolicyPage}
+        onPackageChange={handlePackageChange}
+        onUploadPackageImages={handleUploadPackageImages}
+        onCreatePackage={handleCreatePackage}
+        onFavoriteOpen={(packageId) => router.push(`/packages/${packageId}`)}
+        onFavoriteRefresh={handleRemoveFavorite}
+        onFavoritePageChange={setFavoritePage}
+        onAgentClaimTextChange={setAgentClaimText}
+        onAgentClaimStatusChange={setAgentClaimStatus}
+        onUpdateClaimStatus={handleUpdateClaimStatus}
+        onAgentClaimPageChange={setAgentClaimPage}
+        onClaimChange={handleClaimChange}
+        onCloseClaimPanel={() => setClaimPanelOpen(false)}
+        onSubmitClaim={handleSubmitClaim}
+      />
     );
   }
 
@@ -519,6 +585,7 @@ const MyPage: NextPage = () => {
       {claimPanelOpen && (
         <SubmitClaimPanel
           claimForm={claimForm}
+          claimError={claimError}
           t={t}
           onClaimChange={handleClaimChange}
           onClose={() => setClaimPanelOpen(false)}
