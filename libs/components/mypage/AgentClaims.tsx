@@ -6,6 +6,7 @@ import MyPagePagination from './MyPagePagination';
 interface AgentClaimsProps {
   claims: ClaimData[];
   loading: boolean;
+  error?: string | null;
   claimStatus: string;
   claimText: string;
   page: number;
@@ -20,6 +21,7 @@ interface AgentClaimsProps {
 const AgentClaims = ({
   claims,
   loading,
+  error,
   claimStatus,
   claimText,
   page,
@@ -50,6 +52,8 @@ const AgentClaims = ({
 
     {loading ? (
       <Stack className='mypage-list'>{Array.from({ length: 3 }).map((_, index) => <Box key={index} className='mypage-skeleton-row' />)}</Stack>
+    ) : error ? (
+      <MyPageEmpty title={t('Could not load agent claims.')} text={error} />
     ) : claims.length === 0 ? (
       <MyPageEmpty title={t('No assigned claims')} text={t('Claims for your packages will appear here.')} />
     ) : (

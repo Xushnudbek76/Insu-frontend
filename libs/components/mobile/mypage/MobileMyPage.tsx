@@ -1,6 +1,4 @@
-import type { ChangeEvent } from 'react';
 import { Box, Stack } from '@mui/material';
-import type { CustomJwtPayload } from '@/libs/types/customJwtPayload';
 import AddPackage from '@/libs/components/mypage/AddPackage';
 import AgentClaims from '@/libs/components/mypage/AgentClaims';
 import MyClaims from '@/libs/components/mypage/MyClaims';
@@ -8,234 +6,149 @@ import MyFavorites from '@/libs/components/mypage/MyFavorites';
 import MyPolicies from '@/libs/components/mypage/MyPolicies';
 import MyProfile from '@/libs/components/mypage/MyProfile';
 import SubmitClaimPanel from '@/libs/components/mypage/SubmitClaimPanel';
-import type {
-  Category,
-  ClaimData,
-  ClaimForm,
-  ClaimStatus,
-  FavoritePackage,
-  PackageForm,
-  PolicyData,
-  ProfileForm,
-} from '@/libs/components/mypage/types';
-import type { MyPageNavItem } from '@/libs/components/mypage/MyPageSidebar';
+import type { MyPageControllerResult } from '@/libs/components/mypage/useMyPageController';
 import { avatarUrl } from '@/libs/components/mypage/types';
 
 interface MobileMyPageProps {
-  user: CustomJwtPayload;
-  category: Category;
-  navItems: MyPageNavItem[];
-  t: (key: string, options?: Record<string, unknown>) => string;
-  profileForm: ProfileForm;
-  policies: PolicyData[];
-  myClaims: ClaimData[];
-  favorites: FavoritePackage[];
-  favoritePage: number;
-  favoriteTotalPages: number;
-  favoriteLoading: boolean;
-  policiesLoading: boolean;
-  claimsLoading: boolean;
-  policyStatus: string;
-  policyPage: number;
-  policyTotalPages: number;
-  activePolicies: number;
-  pendingClaims: number;
-  isAgent: boolean;
-  claimPanelOpen: boolean;
-  claimForm: ClaimForm;
-  claimError: string | null;
-  packageForm: PackageForm;
-  agentClaims: ClaimData[];
-  agentClaimsLoading: boolean;
-  agentClaimStatus: string;
-  agentClaimText: string;
-  agentClaimPage: number;
-  agentClaimTotalPages: number;
-  onCategoryChange: (category: Category) => void;
-  onLogout: () => void;
-  onProfileChange: (field: keyof ProfileForm) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-  onUploadProfileImage: (event: ChangeEvent<HTMLInputElement>) => void;
-  onUpdateProfile: () => void;
-  onPolicyStatusChange: (status: string) => void;
-  onOpenClaimPanel: (policyId: string) => void;
-  onCancelPolicy: (policyId: string) => void;
-  onPolicyPageChange: (page: number) => void;
-  onPackageChange: (
-    field: keyof PackageForm,
-  ) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
-  onUploadPackageImages: (event: ChangeEvent<HTMLInputElement>) => void;
-  onCreatePackage: () => void;
-  onFavoriteOpen: (packageId: string) => void;
-  onFavoriteRefresh: () => void;
-  onFavoritePageChange: (page: number) => void;
-  onAgentClaimTextChange: (text: string) => void;
-  onAgentClaimStatusChange: (status: string) => void;
-  onUpdateClaimStatus: (claimId: string, newStatus: ClaimStatus) => void;
-  onAgentClaimPageChange: (page: number) => void;
-  onClaimChange: (field: keyof ClaimForm) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-  onCloseClaimPanel: () => void;
-  onSubmitClaim: () => void;
+  t: MyPageControllerResult['t'];
+  access: MyPageControllerResult['access'];
+  profile: MyPageControllerResult['profile'];
+  policies: MyPageControllerResult['policies'];
+  claims: MyPageControllerResult['claims'];
+  agentClaims: MyPageControllerResult['agentClaims'];
+  favorites: MyPageControllerResult['favorites'];
+  packageCreation: MyPageControllerResult['packageCreation'];
+  claimPanel: MyPageControllerResult['claimPanel'];
+  summary: MyPageControllerResult['summary'];
+  navigation: MyPageControllerResult['navigation'];
 }
 
 const MobileMyPage = ({
-  user,
-  category,
-  navItems,
   t,
-  profileForm,
+  access,
+  profile,
   policies,
-  myClaims,
-  favorites,
-  favoritePage,
-  favoriteTotalPages,
-  favoriteLoading,
-  policiesLoading,
-  claimsLoading,
-  policyStatus,
-  policyPage,
-  policyTotalPages,
-  activePolicies,
-  pendingClaims,
-  isAgent,
-  claimPanelOpen,
-  claimForm,
-  claimError,
-  packageForm,
+  claims,
   agentClaims,
-  agentClaimsLoading,
-  agentClaimStatus,
-  agentClaimText,
-  agentClaimPage,
-  agentClaimTotalPages,
-  onCategoryChange,
-  onLogout,
-  onProfileChange,
-  onUploadProfileImage,
-  onUpdateProfile,
-  onPolicyStatusChange,
-  onOpenClaimPanel,
-  onCancelPolicy,
-  onPolicyPageChange,
-  onPackageChange,
-  onUploadPackageImages,
-  onCreatePackage,
-  onFavoriteOpen,
-  onFavoriteRefresh,
-  onFavoritePageChange,
-  onAgentClaimTextChange,
-  onAgentClaimStatusChange,
-  onUpdateClaimStatus,
-  onAgentClaimPageChange,
-  onClaimChange,
-  onCloseClaimPanel,
-  onSubmitClaim,
+  favorites,
+  packageCreation,
+  claimPanel,
+  summary,
+  navigation,
 }: MobileMyPageProps) => (
   <Stack className='mobile-mypage-page'>
     <Stack className='mobile-mypage-summary'>
-      <Box component='img' src={avatarUrl(profileForm.memberImage)} alt={user.memberNick} className='mobile-mypage-avatar' />
-      <span>{user.memberType}</span>
-      <h1>{user.memberNick}</h1>
-      <p>{user.memberPhone || t('No phone registered')}</p>
+      <Box component='img' src={avatarUrl(profile.form.memberImage)} alt={access.user?.memberNick} className='mobile-mypage-avatar' />
+      <span>{access.user?.memberType}</span>
+      <h1>{access.user?.memberNick}</h1>
+      <p>{access.user?.memberPhone || t('No phone registered')}</p>
       <Stack className='mobile-mypage-counts'>
         <div>
-          <strong>{activePolicies}</strong>
+          <strong>{summary.activePolicies}</strong>
           <span>{t('Active Policies')}</span>
         </div>
         <div>
-          <strong>{pendingClaims}</strong>
+          <strong>{summary.pendingClaims}</strong>
           <span>{t('Pending Claims')}</span>
         </div>
       </Stack>
-      <button className='mobile-logout-btn' onClick={onLogout}>
+      <button className='mobile-logout-btn' onClick={navigation.onLogout}>
         {t('Logout')}
       </button>
     </Stack>
 
     <Box className='mobile-category-scroll'>
-      {navItems.map((item) => (
-        <button key={item.key} className={category === item.key ? 'active' : ''} onClick={() => onCategoryChange(item.key)}>
+      {summary.navItems.map((item) => (
+        <button
+          key={item.key}
+          className={access.category === item.key ? 'active' : ''}
+          onClick={() => navigation.onCategoryChange(item.key)}
+        >
           {item.label}
         </button>
       ))}
     </Box>
 
-    {category === 'myProfile' && (
+    {access.category === 'myProfile' && access.user && (
       <MyProfile
-        user={user}
-        profileForm={profileForm}
-        policies={policies}
-        myClaims={myClaims}
+        user={access.user}
+        profileForm={profile.form}
+        policies={policies.items}
+        myClaims={claims.items}
         t={t}
-        onProfileChange={onProfileChange}
-        onUploadProfileImage={onUploadProfileImage}
-        onUpdateProfile={onUpdateProfile}
+        onProfileChange={profile.onChange}
+        onUploadProfileImage={profile.onUploadImage}
+        onUpdateProfile={profile.onSubmit}
       />
     )}
 
-    {category === 'addPackage' && isAgent && (
+    {access.category === 'addPackage' && access.isAgent && (
       <AddPackage
-        packageForm={packageForm}
+        packageForm={packageCreation.form}
         t={t}
-        onPackageChange={onPackageChange}
-        onUploadPackageImages={onUploadPackageImages}
-        onCreatePackage={onCreatePackage}
+        onPackageChange={packageCreation.onChange}
+        onUploadPackageImages={packageCreation.onUploadImages}
+        onCreatePackage={packageCreation.onSubmit}
       />
     )}
 
-    {category === 'myPolicies' && (
+    {access.category === 'myPolicies' && (
       <MyPolicies
-        policies={policies}
-        loading={policiesLoading}
-        policyStatus={policyStatus}
-        policyPage={policyPage}
-        policyTotalPages={policyTotalPages}
+        policies={policies.items}
+        loading={policies.loading}
+        error={policies.error}
+        policyStatus={policies.status}
+        policyPage={policies.page}
+        policyTotalPages={policies.totalPages}
         t={t}
-        onPolicyStatusChange={onPolicyStatusChange}
-        onOpenClaimPanel={onOpenClaimPanel}
-        onCancelPolicy={onCancelPolicy}
-        onPageChange={onPolicyPageChange}
+        onPolicyStatusChange={policies.onStatusChange}
+        onOpenClaimPanel={policies.onOpenClaimPanel}
+        onCancelPolicy={policies.onCancel}
+        onPageChange={policies.onPageChange}
       />
     )}
 
-    {category === 'myClaims' && <MyClaims claims={myClaims} loading={claimsLoading} t={t} />}
+    {access.category === 'myClaims' && <MyClaims claims={claims.items} loading={claims.loading} error={claims.error} t={t} />}
 
-    {category === 'myFavorites' && (
+    {access.category === 'myFavorites' && (
       <MyFavorites
-        favorites={favorites}
-        loading={favoriteLoading}
-        page={favoritePage}
-        totalPages={favoriteTotalPages}
+        favorites={favorites.items}
+        loading={favorites.loading}
+        error={favorites.error}
+        page={favorites.page}
+        totalPages={favorites.totalPages}
         t={t}
-        onOpenPackage={onFavoriteOpen}
-        onRemoveFavorite={onFavoriteRefresh}
-        onPageChange={onFavoritePageChange}
+        onOpenPackage={favorites.onOpenPackage}
+        onRemoveFavorite={favorites.onRefresh}
+        onPageChange={favorites.onPageChange}
       />
     )}
 
-    {category === 'agentClaims' && isAgent && (
+    {access.category === 'agentClaims' && access.isAgent && (
       <AgentClaims
-        claims={agentClaims}
-        loading={agentClaimsLoading}
-        claimStatus={agentClaimStatus}
-        claimText={agentClaimText}
-        page={agentClaimPage}
-        totalPages={agentClaimTotalPages}
+        claims={agentClaims.items}
+        loading={agentClaims.loading}
+        error={agentClaims.error}
+        claimStatus={agentClaims.status}
+        claimText={agentClaims.text}
+        page={agentClaims.page}
+        totalPages={agentClaims.totalPages}
         t={t}
-        onTextChange={onAgentClaimTextChange}
-        onStatusChange={onAgentClaimStatusChange}
-        onUpdateClaimStatus={onUpdateClaimStatus}
-        onPageChange={onAgentClaimPageChange}
+        onTextChange={agentClaims.onTextChange}
+        onStatusChange={agentClaims.onStatusChange}
+        onUpdateClaimStatus={agentClaims.onUpdateStatus}
+        onPageChange={agentClaims.onPageChange}
       />
     )}
 
-    {claimPanelOpen && (
+    {claimPanel.open && (
       <SubmitClaimPanel
-        claimForm={claimForm}
-        claimError={claimError}
+        claimForm={claimPanel.form}
+        claimError={claimPanel.error}
         t={t}
-        onClaimChange={onClaimChange}
-        onClose={onCloseClaimPanel}
-        onSubmitClaim={onSubmitClaim}
+        onClaimChange={claimPanel.onChange}
+        onClose={claimPanel.onClose}
+        onSubmitClaim={claimPanel.onSubmit}
       />
     )}
   </Stack>

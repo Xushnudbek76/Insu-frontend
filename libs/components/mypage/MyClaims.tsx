@@ -5,10 +5,11 @@ import MyPageEmpty from './MyPageEmpty';
 interface MyClaimsProps {
   claims: ClaimData[];
   loading: boolean;
-  t: (key: string) => string;
+  error?: string | null;
+  t: (key: string, options?: Record<string, unknown>) => string;
 }
 
-const MyClaims = ({ claims, loading, t }: MyClaimsProps) => (
+const MyClaims = ({ claims, loading, error, t }: MyClaimsProps) => (
   <Stack className='mypage-panel'>
     <Stack className='mypage-panel-head'>
       <span>{t('My Claims')}</span>
@@ -16,6 +17,8 @@ const MyClaims = ({ claims, loading, t }: MyClaimsProps) => (
     </Stack>
     {loading ? (
       <Stack className='mypage-list'>{Array.from({ length: 3 }).map((_, index) => <Box key={index} className='mypage-skeleton-row' />)}</Stack>
+    ) : error ? (
+      <MyPageEmpty title={t('Could not load claims.')} text={error} />
     ) : claims.length === 0 ? (
       <MyPageEmpty title={t('No claims yet')} text={t('Submit a claim from an active policy when you need support.')} />
     ) : (

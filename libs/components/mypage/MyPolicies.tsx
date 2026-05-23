@@ -8,6 +8,7 @@ import MyPagePagination from './MyPagePagination';
 interface MyPoliciesProps {
   policies: PolicyData[];
   loading: boolean;
+  error?: string | null;
   policyStatus: string;
   policyPage: number;
   policyTotalPages: number;
@@ -21,6 +22,7 @@ interface MyPoliciesProps {
 const MyPolicies = ({
   policies,
   loading,
+  error,
   policyStatus,
   policyPage,
   policyTotalPages,
@@ -47,6 +49,8 @@ const MyPolicies = ({
 
     {loading ? (
       <Stack className='mypage-list'>{Array.from({ length: 3 }).map((_, index) => <Box key={index} className='mypage-skeleton-row' />)}</Stack>
+    ) : error ? (
+      <MyPageEmpty title={t('Could not load policies.')} text={error} />
     ) : policies.length === 0 ? (
       <MyPageEmpty title={t('No policies yet')} text={t('Apply for an insurance package and your policies will appear here.')} />
     ) : (

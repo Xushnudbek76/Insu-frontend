@@ -7,6 +7,7 @@ import MyPagePagination from './MyPagePagination';
 interface MyFavoritesProps {
   favorites: FavoritePackage[];
   loading: boolean;
+  error?: string | null;
   page: number;
   totalPages: number;
   t: (key: string, options?: Record<string, unknown>) => string;
@@ -18,6 +19,7 @@ interface MyFavoritesProps {
 const MyFavorites = ({
   favorites,
   loading,
+  error,
   page,
   totalPages,
   t,
@@ -32,6 +34,8 @@ const MyFavorites = ({
     </Stack>
     {loading ? (
       <Box className='mypage-favorites-grid'>{Array.from({ length: 3 }).map((_, index) => <Box key={index} className='mypage-skeleton-card' />)}</Box>
+    ) : error ? (
+      <MyPageEmpty title={t('Could not load favorites.')} text={error} />
     ) : favorites.length === 0 ? (
       <MyPageEmpty title={t('No favorites yet')} text={t('Like packages to save them here for later comparison.')} />
     ) : (
