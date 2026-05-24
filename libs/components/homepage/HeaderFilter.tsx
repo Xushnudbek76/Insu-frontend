@@ -12,7 +12,7 @@ const HeaderFilter = () => {
 				<Stack className={'hero-inner'}>
 					<Box component={'div'} className={'hero-text'}>
 						<strong className={'hero-title'}>
-							Health insurance made for real life
+							AI insurance made for real life
 						</strong>
 						<p className={'hero-desc'}>
 							We make insurance affordable, easy to understand, and tailored to your needs.
@@ -22,9 +22,7 @@ const HeaderFilter = () => {
 							<NextLink href={'/packages'} className={'hero-btn primary'}>
 								Browse Insurance
 							</NextLink>
-							<NextLink href={'/account/join'} className={'hero-btn secondary'}>
-								Find a Plan
-							</NextLink>
+							
 						</Box>
 					</Box>
 				</Stack>

@@ -271,17 +271,31 @@
   }
 
   .mobile-package-stats {
+    margin-top: 6px;
+    padding-top: 14px;
+    border-top: 1px solid #dbe3ee;
+
     span,
     button {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      justify-content: center;
+      gap: 8px;
+      min-width: 58px;
       padding: 0;
       border: 0;
       background: transparent;
-      color: #616269;
-      font-size: 13px;
+      color: #61748f;
+      font-size: 20px;
       font-weight: 700;
+    }
+
+    svg {
+      font-size: 25px !important;
+    }
+
+    button.liked {
+      color: #e74c61;
     }
   }
 
@@ -347,6 +361,10 @@
       color: #454556;
       font-size: 13px;
       font-weight: 700;
+    }
+
+    button.liked {
+      color: #e74c61;
     }
   }
 

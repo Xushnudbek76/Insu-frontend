@@ -169,7 +169,7 @@ const MobilePackagesPage = ({
                       <VisibilityOutlinedIcon />
                       {formatCount(pkg.packageViews)}
                     </span>
-                    <button onClick={(event) => onToggleLike(event, pkg._id)}>
+                    <button className={liked ? 'liked' : ''} onClick={(event) => onToggleLike(event, pkg._id)}>
                       {liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
                       {formatCount(pkg.packageLikes)}
                     </button>

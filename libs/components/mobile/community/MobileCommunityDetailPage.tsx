@@ -96,7 +96,7 @@ const MobileCommunityDetailPage = ({
           <VisibilityOutlinedIcon />
           {article.articleViews}
         </span>
-        <button onClick={onLike}>
+        <button className={liked ? 'liked' : ''} onClick={onLike}>
           {liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
           {article.articleLikes}
         </button>

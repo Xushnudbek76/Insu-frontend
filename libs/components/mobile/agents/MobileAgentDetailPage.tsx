@@ -298,7 +298,7 @@ const MobileAgentDetailPage = ({
                     </Stack>
                     <Stack className='mobile-package-stats'>
                       <span><VisibilityOutlinedIcon />{formatCount(pkg.packageViews)}</span>
-                      <button onClick={(event) => onLikePackage(event, pkg._id)}>
+                      <button className={liked ? 'liked' : ''} onClick={(event) => onLikePackage(event, pkg._id)}>
                         {liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
                         {formatCount(likes)}
                       </button>

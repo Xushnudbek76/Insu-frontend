@@ -49,7 +49,7 @@ const INSURANCE_TYPE_OPTIONS: { value: InsuranceTypeValue; label: string }[] = [
 const TrendPackages: React.FC = () => {
 	const device = useDeviceDetect();
 	const router = useRouter();
-	const [selectedTypes, setSelectedTypes] = useState<InsuranceTypeValue[]>(['AUTO']);
+	const [selectedType, setSelectedType] = useState<InsuranceTypeValue>('AUTO');
 	const [age, setAge] = useState('');
 	const [budget, setBudget] = useState('');
 	const [text, setText] = useState('');
@@ -79,24 +79,12 @@ const TrendPackages: React.FC = () => {
 		return 'Something went wrong. Please try again.';
 	};
 
-	const handleToggleType = (value: InsuranceTypeValue) => {
-		setSelectedTypes((prev) => {
-			if (prev.includes(value)) {
-				if (prev.length === 1) {
-					return prev;
-				}
-				return prev.filter((type) => type !== value);
-			}
-			return [...prev, value];
-		});
+	const handleSelectType = (value: InsuranceTypeValue) => {
+		setSelectedType(value);
 	};
 
 	const handleSubmit = (event: FormEvent) => {
 		event.preventDefault();
-		if (!selectedTypes.length) {
-			setFormError('Please select at least one insurance type.');
-			return;
-		}
 
 		const trimmedAge = age.trim();
 		const ageValue = Number(trimmedAge);
@@ -116,7 +104,7 @@ const TrendPackages: React.FC = () => {
 		setApiError(null);
 
 		const input: InsuranceRecommendationVariables['input'] = {
-			types: selectedTypes,
+			types: [selectedType],
 			age: ageValue,
 			budget: budgetValue,
 		};
@@ -153,9 +141,9 @@ const TrendPackages: React.FC = () => {
 										type="button"
 										className={
 											'type-chip' +
-											(selectedTypes.includes(option.value) ? ' active' : '')
+											(selectedType === option.value ? ' active' : '')
 										}
-										onClick={() => handleToggleType(option.value)}
+										onClick={() => handleSelectType(option.value)}
 									>
 										{option.label}
 									</button>

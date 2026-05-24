@@ -61,7 +61,7 @@ const MobilePackageDetailPage = ({
         <VisibilityOutlinedIcon />
         {formatCount(pkg.packageViews)} views
       </span>
-      <button onClick={onLike}>
+      <button className={liked ? 'liked' : ''} onClick={onLike}>
         {liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
         {formatCount(likeCount)} likes
       </button>

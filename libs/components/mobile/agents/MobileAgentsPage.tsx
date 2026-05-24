@@ -128,7 +128,7 @@ const MobileAgentsPage = ({
                       <VisibilityOutlinedIcon />
                       {formatCount(agent.memberViews)}
                     </span>
-                    <button onClick={(event) => onToggleLike(event, agent._id)}>
+                    <button className={liked ? 'liked' : ''} onClick={(event) => onToggleLike(event, agent._id)}>
                       {liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
                       {formatCount(likes)}
                     </button>
