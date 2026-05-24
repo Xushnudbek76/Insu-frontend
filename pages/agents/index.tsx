@@ -1,36 +1,42 @@
-import { ChangeEvent, KeyboardEvent, MouseEvent, useEffect, useState } from 'react';
-import { NextPage } from 'next';
-import { useRouter } from 'next/router';
-import { useMutation, useQuery } from '@apollo/client/react';
-import { Box, Stack } from '@mui/material';
-import { useTranslation } from 'next-i18next/pages';
-import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
-import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
-import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import ChatBubbleIcon from '@mui/icons-material/ChatBubble';
-import BadgeOutlinedIcon from '@mui/icons-material/BadgeOutlined';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import withLayoutMain from '@/layout/LayoutHome';
-import { userVar } from '@/apollo/store';
-import { LIKE_TARGET_MEMBER } from '@/apollo/member/mutation';
-import { GET_AGENTS } from '@/apollo/user/query';
-import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
-import MobileAgentsPage from '@/libs/components/mobile/agents/MobileAgentsPage';
-import { sweetMixinErrorAlert, sweetTopSuccessAlert } from '@/libs/sweetAlert';
-import { toAssetUrl } from '@/libs/api';
-import { formatCount } from '@/libs/utils/format';
-import { buildPageNumbers } from '@/libs/utils/pagination';
+import {
+  ChangeEvent,
+  KeyboardEvent,
+  MouseEvent,
+  useEffect,
+  useState,
+} from "react";
+import { NextPage } from "next";
+import { useRouter } from "next/router";
+import { useMutation, useQuery } from "@apollo/client/react";
+import { Box, Stack } from "@mui/material";
+import { useTranslation } from "next-i18next/pages";
+import { serverSideTranslations } from "next-i18next/pages/serverSideTranslations";
+import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import ChatBubbleIcon from "@mui/icons-material/ChatBubble";
+import BadgeOutlinedIcon from "@mui/icons-material/BadgeOutlined";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import withLayoutMain from "@/layout/LayoutHome";
+import { userVar } from "@/apollo/store";
+import { LIKE_TARGET_MEMBER } from "@/apollo/member/mutation";
+import { GET_AGENTS } from "@/apollo/user/query";
+import useDeviceDetect from "@/libs/hooks/useDeviceDetect";
+import MobileAgentsPage from "@/libs/components/mobile/agents/MobileAgentsPage";
+import { sweetMixinErrorAlert, sweetTopSuccessAlert } from "@/libs/sweetAlert";
+import { toAssetUrl } from "@/libs/api";
+import { formatCount } from "@/libs/utils/format";
+import { buildPageNumbers } from "@/libs/utils/pagination";
 
 const LIMIT = 10;
 
 const SORT_OPTIONS = [
-  { value: 'createdAt', labelKey: 'Recent' },
-  { value: 'memberViews', labelKey: 'Most Views' },
-  { value: 'memberLikes', labelKey: 'Most Likes' },
-  { value: 'memberComments', labelKey: 'Most Comments' },
+  { value: "createdAt", labelKey: "Recent" },
+  { value: "memberViews", labelKey: "Most Views" },
+  { value: "memberLikes", labelKey: "Most Likes" },
+  { value: "memberComments", labelKey: "Most Comments" },
 ];
 
 interface AgentData {
@@ -43,7 +49,13 @@ interface AgentData {
   memberLikes?: number | null;
   memberViews?: number | null;
   memberComments?: number | null;
-  meLiked?: { memberId?: string | null; likeRefId?: string | null; myFavorite: boolean }[] | null;
+  meLiked?:
+    | {
+        memberId?: string | null;
+        likeRefId?: string | null;
+        myFavorite: boolean;
+      }[]
+    | null;
 }
 
 interface GetAgentsResponse {
@@ -57,35 +69,41 @@ const displayName = (agent: AgentData, fallback: string) =>
   agent.memberNick || agent.memberFullName || fallback;
 
 const agentImage = (image?: string | null) =>
-  toAssetUrl(image) ?? '/img/placeholder-article.svg';
+  toAssetUrl(image) ?? "/img/placeholder-article.svg";
 
 const readableStatus = (status?: string | null) =>
-  status ? status.toLowerCase().replace(/^\w/, (letter) => letter.toUpperCase()) : 'Active';
+  status
+    ? status.toLowerCase().replace(/^\w/, (letter) => letter.toUpperCase())
+    : "Active";
 
 const AgentsPage: NextPage = () => {
   const router = useRouter();
-  const { t } = useTranslation('common');
+  const { t } = useTranslation("common");
   const device = useDeviceDetect();
-  const [searchText, setSearchText] = useState('');
-  const [appliedSearchText, setAppliedSearchText] = useState('');
-  const [sort, setSort] = useState('createdAt');
+  const [searchText, setSearchText] = useState("");
+  const [appliedSearchText, setAppliedSearchText] = useState("");
+  const [sort, setSort] = useState("createdAt");
   const [page, setPage] = useState(1);
   const [likedByAgent, setLikedByAgent] = useState<Record<string, boolean>>({});
   const [likesByAgent, setLikesByAgent] = useState<Record<string, number>>({});
 
   const { loading, data, refetch } = useQuery<GetAgentsResponse>(GET_AGENTS, {
-    fetchPolicy: 'no-cache',
+    fetchPolicy: "cache-first",
     variables: {
       input: {
         page,
         limit: LIMIT,
         sort,
-        direction: 'DESC',
-        search: appliedSearchText.trim() ? { text: appliedSearchText.trim() } : {},
+        direction: "DESC",
+        search: appliedSearchText.trim()
+          ? { text: appliedSearchText.trim() }
+          : {},
       },
     },
   });
-  const [likeTargetMember] = useMutation<{ likeTargetMember: AgentData }>(LIKE_TARGET_MEMBER);
+  const [likeTargetMember] = useMutation<{ likeTargetMember: AgentData }>(
+    LIKE_TARGET_MEMBER,
+  );
 
   const agents = data?.getAgents.list ?? [];
   const total = data?.getAgents.metaCounter?.[0]?.total ?? 0;
@@ -98,7 +116,9 @@ const AgentsPage: NextPage = () => {
       const next = { ...prev };
       agents.forEach((agent) => {
         const apiLiked = agent.meLiked?.[0]?.myFavorite;
-        if (typeof apiLiked === 'boolean') next[agent._id] = apiLiked;
+        if (typeof apiLiked === "boolean" && !(agent._id in next)) {
+          next[agent._id] = apiLiked;
+        }
       });
       return next;
     });
@@ -110,7 +130,7 @@ const AgentsPage: NextPage = () => {
   };
 
   const handleSearchEnter = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') handleSearchSubmit();
+    if (event.key === "Enter") handleSearchSubmit();
   };
 
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -122,12 +142,13 @@ const AgentsPage: NextPage = () => {
 
     const user = userVar();
     if (!user?._id) {
-      await sweetMixinErrorAlert(t('Please login to like agents.'));
+      await sweetMixinErrorAlert(t("Please login to like agents."));
       return;
     }
 
     const agent = agents.find((item) => item._id === memberId);
-    const currentLiked = likedByAgent[memberId] ?? agent?.meLiked?.[0]?.myFavorite ?? false;
+    const currentLiked =
+      likedByAgent[memberId] ?? agent?.meLiked?.[0]?.myFavorite ?? false;
     const currentLikes = likesByAgent[memberId] ?? agent?.memberLikes ?? 0;
     const nextLiked = !currentLiked;
     const nextLikes = Math.max(0, currentLikes + (nextLiked ? 1 : -1));
@@ -146,20 +167,20 @@ const AgentsPage: NextPage = () => {
           [memberId]: updated.memberLikes ?? nextLikes,
         }));
       }
-      await refetch();
-      await sweetTopSuccessAlert(t('Updated your favorites.'));
+
+      await sweetTopSuccessAlert(t("Updated your favorites."));
     } catch (err: any) {
       setLikedByAgent((prev) => ({ ...prev, [memberId]: currentLiked }));
       setLikesByAgent((prev) => ({ ...prev, [memberId]: currentLikes }));
       await sweetMixinErrorAlert(
-          err?.graphQLErrors?.[0]?.message?.replace('Definer: ', '') ??
+        err?.graphQLErrors?.[0]?.message?.replace("Definer: ", "") ??
           err?.message ??
-          t('Could not update likes.'),
+          t("Could not update likes."),
       );
     }
   };
 
-  if (device === 'mobile') {
+  if (device === "mobile") {
     return (
       <MobileAgentsPage
         searchText={searchText}
@@ -189,32 +210,32 @@ const AgentsPage: NextPage = () => {
   }
 
   return (
-    <Stack className='agents-page'>
-      <Stack className='agents-hero'>
-        <Box className='agents-hero-shade' />
-        <Stack className='agents-shell agents-hero-content'>
-          <span className='agents-eyebrow'>{t('Trusted Network')}</span>
-          <h1>{t('Agents')}</h1>
-          <p>{t('Home / Agents')}</p>
+    <Stack className="agents-page">
+      <Stack className="agents-hero">
+        <Box className="agents-hero-shade" />
+        <Stack className="agents-shell agents-hero-content">
+          <span className="agents-eyebrow">{t("Trusted Network")}</span>
+          <h1>{t("Agents")}</h1>
+          <p>{t("Home / Agents")}</p>
         </Stack>
       </Stack>
 
-      <Stack className='agents-shell agents-main'>
-        <Stack className='agents-toolbar'>
-          <Stack className='agents-search-box'>
+      <Stack className="agents-shell agents-main">
+        <Stack className="agents-toolbar">
+          <Stack className="agents-search-box">
             <SearchOutlinedIcon />
             <input
-              type='text'
+              type="text"
               value={searchText}
-              placeholder={t('Search for an agent')}
+              placeholder={t("Search for an agent")}
               onChange={handleSearchChange}
               onKeyDown={handleSearchEnter}
             />
-            <button onClick={handleSearchSubmit}>{t('Search')}</button>
+            <button onClick={handleSearchSubmit}>{t("Search")}</button>
           </Stack>
 
-          <Stack className='agents-sort-box'>
-            <span>{t('Sort by')}</span>
+          <Stack className="agents-sort-box">
+            <span>{t("Sort by")}</span>
             <select
               value={sort}
               onChange={(event) => {
@@ -232,68 +253,73 @@ const AgentsPage: NextPage = () => {
         </Stack>
 
         {loading ? (
-          <Box className='agents-grid'>
+          <Box className="agents-grid">
             {Array.from({ length: LIMIT }).map((_, index) => (
-              <Stack key={index} className='agent-card skeleton'>
-                <Box className='agent-image-wrap skeleton-block' />
-                <Stack className='agent-card-body'>
-                  <Box className='skeleton-line wide' />
-                  <Box className='skeleton-line short' />
-                  <Box className='skeleton-line medium' />
+              <Stack key={index} className="agent-card skeleton">
+                <Box className="agent-image-wrap skeleton-block" />
+                <Stack className="agent-card-body">
+                  <Box className="skeleton-line wide" />
+                  <Box className="skeleton-line short" />
+                  <Box className="skeleton-line medium" />
                 </Stack>
               </Stack>
             ))}
           </Box>
         ) : agents.length === 0 ? (
-          <Stack className='agents-empty'>
+          <Stack className="agents-empty">
             <BadgeOutlinedIcon />
-            <h2>{t('No agents found')}</h2>
-            <p>{t('Try changing your search terms or sorting option.')}</p>
+            <h2>{t("No agents found")}</h2>
+            <p>{t("Try changing your search terms or sorting option.")}</p>
           </Stack>
         ) : (
-          <Box className='agents-grid'>
+          <Box className="agents-grid">
             {agents.map((agent) => {
-              const liked = likedByAgent[agent._id] ?? agent.meLiked?.[0]?.myFavorite ?? false;
+              const liked =
+                likedByAgent[agent._id] ??
+                agent.meLiked?.[0]?.myFavorite ??
+                false;
               const likes = likesByAgent[agent._id] ?? agent.memberLikes;
 
               return (
                 <Stack
                   key={agent._id}
-                  className='agent-card'
+                  className="agent-card"
                   onClick={() => router.push(`/agents/${agent._id}`)}
                 >
-                  <Box className='agent-image-wrap'>
+                  <Box className="agent-image-wrap">
                     <Box
-                      component='img'
+                      component="img"
                       src={agentImage(agent.memberImage)}
-                      alt={displayName(agent, t('Insurance Agent'))}
-                      className='agent-image'
+                      alt={displayName(agent, t("Insurance Agent"))}
+                      className="agent-image"
                     />
-                    <span className='agent-status-badge'>{t(readableStatus(agent.memberStatus))}</span>
+                    <span className="agent-status-badge">
+                      {t(readableStatus(agent.memberStatus))}
+                    </span>
                   </Box>
 
-                  <Stack className='agent-card-body'>
-                    <Stack className='agent-title-row'>
+                  <Stack className="agent-card-body">
+                    <Stack className="agent-title-row">
                       <Box>
-                        <h3>{displayName(agent, t('Insurance Agent'))}</h3>
-                        <p>{agent.memberType || t('Insurance Agent')}</p>
+                        <h3>{displayName(agent, t("Insurance Agent"))}</h3>
+                        <p>{agent.memberType || t("Insurance Agent")}</p>
                       </Box>
                     </Stack>
 
-                    <Stack className='agent-card-stats'>
-                      <Stack className='agent-stat'>
+                    <Stack className="agent-card-stats">
+                      <Stack className="agent-stat">
                         <VisibilityOutlinedIcon />
                         <span>{formatCount(agent.memberViews)}</span>
                       </Stack>
                       <button
-                        type='button'
-                        className={`agent-stat like${liked ? ' liked' : ''}`}
+                        type="button"
+                        className={`agent-stat like${liked ? " liked" : ""}`}
                         onClick={(event) => handleToggleLike(event, agent._id)}
                       >
                         {liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
                         <span>{formatCount(likes)}</span>
                       </button>
-                      <Stack className='agent-stat comments'>
+                      <Stack className="agent-stat comments">
                         <ChatBubbleIcon />
                         <span>{formatCount(agent.memberComments)}</span>
                       </Stack>
@@ -305,24 +331,30 @@ const AgentsPage: NextPage = () => {
           </Box>
         )}
 
-        <Stack className='agents-footer-row'>
+        <Stack className="agents-footer-row">
           <p>
-            {t('Total agents available', { count: total, plural: total !== 1 ? 's' : '' })}
+            {t("Total agents available", {
+              count: total,
+              plural: total !== 1 ? "s" : "",
+            })}
           </p>
 
           {totalPages > 1 && (
-            <Stack className='agents-pagination'>
-              <button disabled={page === 1} onClick={() => setPage((prev) => prev - 1)}>
+            <Stack className="agents-pagination">
+              <button
+                disabled={page === 1}
+                onClick={() => setPage((prev) => prev - 1)}
+              >
                 <ChevronLeftIcon />
               </button>
 
               {buildPageNumbers(page, totalPages).map((item, index) =>
-                item === '...' ? (
+                item === "..." ? (
                   <span key={`dots-${index}`}>...</span>
                 ) : (
                   <button
                     key={item}
-                    className={page === item ? 'active' : ''}
+                    className={page === item ? "active" : ""}
                     onClick={() => setPage(item)}
                   >
                     {item}
@@ -330,7 +362,10 @@ const AgentsPage: NextPage = () => {
                 ),
               )}
 
-              <button disabled={page === totalPages} onClick={() => setPage((prev) => prev + 1)}>
+              <button
+                disabled={page === totalPages}
+                onClick={() => setPage((prev) => prev + 1)}
+              >
                 <ChevronRightIcon />
               </button>
             </Stack>
@@ -343,8 +378,12 @@ const AgentsPage: NextPage = () => {
 
 export default withLayoutMain(AgentsPage);
 
-export const getStaticProps = async ({ locale = 'en' }: { locale?: string }) => ({
+export const getStaticProps = async ({
+  locale = "en",
+}: {
+  locale?: string;
+}) => ({
   props: {
-    ...(await serverSideTranslations(locale, ['common'])),
+    ...(await serverSideTranslations(locale, ["common"])),
   },
 });

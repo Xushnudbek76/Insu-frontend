@@ -235,6 +235,7 @@
   .mobile-package-topline,
   .mobile-package-stats {
     display: flex;
+    flex-direction: row;
     align-items: center;
     justify-content: space-between;
     gap: 10px;
@@ -325,6 +326,8 @@
     margin-top: 12px;
     padding: 14px 16px;
     display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
     justify-content: space-between;
     gap: 10px;
     background: #ffffff;
@@ -334,7 +337,10 @@
     button {
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 6px;
+      flex: 1 1 calc(33.333% - 7px);
+      min-width: 90px;
       padding: 0;
       border: 0;
       background: transparent;
@@ -348,6 +354,453 @@
     margin-top: 16px;
     display: grid;
     gap: 16px;
+  }
+
+  .mobile-package-detail-stack {
+    .pd-pricing-card,
+    .pd-agent-card,
+    .pd-comment-form,
+    .spec-card,
+    .pd-related-card {
+      border-radius: 22px;
+    }
+
+    .pd-pricing-card {
+      padding: 22px 18px;
+      background: linear-gradient(180deg, #1d2733 0%, #0b1c30 100%);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: 0 18px 44px rgba(15, 23, 42, 0.12);
+    }
+
+    .pd-pricing-top {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .pd-pricing-label {
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.64);
+    }
+
+    .pd-pricing-amount {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+
+    .pd-price {
+      font-size: 38px;
+      line-height: 0.95;
+      font-weight: 900;
+      color: #ffffff;
+    }
+
+    .pd-price-unit {
+      font-size: 15px;
+      color: rgba(255, 255, 255, 0.62);
+    }
+
+    .pd-features {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 10px;
+    }
+
+    .pd-features li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: rgba(255, 255, 255, 0.88);
+      font-size: 15px;
+      line-height: 1.45;
+    }
+
+    .pd-features li svg {
+      flex: 0 0 auto;
+      color: #63d388;
+    }
+
+    .pd-apply-btn {
+      min-height: 50px;
+      width: 100%;
+      border: 0;
+      border-radius: 999px;
+      background: #2218dc;
+      color: #ffffff;
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .pd-apply-btn:disabled {
+      opacity: 0.55;
+    }
+
+    .pd-agent-card,
+    .pd-comment-form,
+    .spec-card {
+      padding: 18px;
+      background: #ffffff;
+      border: 1px solid #e1e2e4;
+      box-shadow: 0 18px 44px rgba(15, 23, 42, 0.06);
+    }
+
+    .pd-agent-card {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .pd-agent-label,
+    .spec-label {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #616269;
+    }
+
+    .pd-agent-label {
+      padding-bottom: 10px;
+      border-bottom: 1px solid #eceef1;
+    }
+
+    .pd-agent-info,
+    .pd-agent-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .pd-agent-text,
+    .pd-agent-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .pd-agent-name,
+    .spec-value {
+      font-size: 20px;
+      line-height: 1.15;
+      font-weight: 800;
+      color: #191c1e;
+    }
+
+    .pd-agent-role {
+      font-size: 13px;
+      color: #4040f2;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .pd-agent-badge {
+      font-size: 14px;
+      color: #454556;
+      line-height: 1.4;
+    }
+
+    .pd-agent-badge svg {
+      color: #4040f2;
+    }
+
+    .pd-contact-btn {
+      min-height: 48px;
+      width: 100%;
+      border: 1px solid #2218dc;
+      border-radius: 999px;
+      background: #ffffff;
+      color: #2218dc;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .pd-specs {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 12px;
+    }
+
+    .spec-card {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .spec-icon {
+      color: #4040f2;
+      font-size: 22px !important;
+    }
+
+    .spec-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .spec-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: #f2f4f6;
+      color: #454556;
+      font-size: 12px;
+      line-height: 1.3;
+      word-break: break-word;
+    }
+
+    .pd-comments {
+      display: grid;
+      gap: 14px;
+    }
+
+    .pd-comments-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .pd-section-title {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 900;
+      color: #191c1e;
+    }
+
+    .pd-comment-count {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 28px;
+      height: 28px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: #eef1ff;
+      color: #4040f2;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .pd-comment-input {
+      width: 100%;
+      min-height: 120px;
+      padding: 14px;
+      border: 1px solid #d9dadc;
+      border-radius: 16px;
+      box-sizing: border-box;
+      resize: vertical;
+      font: inherit;
+      color: #191c1e;
+      background: #ffffff;
+    }
+
+    .pd-comment-form-footer {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .pd-post-btn {
+      min-height: 44px;
+      padding: 0 18px;
+      border: 0;
+      border-radius: 999px;
+      background: #2218dc;
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .pd-post-btn:disabled {
+      opacity: 0.55;
+    }
+
+    .pd-comments-list {
+      display: grid;
+      gap: 14px;
+    }
+
+    .pd-comment-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 16px 0;
+      border-top: 1px solid #eceef1;
+    }
+
+    .pd-comment-item:first-child {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .pd-comment-body {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .pd-comment-meta {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .pd-comment-nick {
+      font-size: 15px;
+      font-weight: 800;
+      color: #191c1e;
+    }
+
+    .pd-comment-time {
+      font-size: 12px;
+      color: #7a7d85;
+    }
+
+    .pd-comment-text,
+    .pd-no-comments {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #454556;
+    }
+
+    .pd-comment-actions {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .pd-action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: #616269;
+      font-size: 12px;
+      font-weight: 700;
+    }
+  }
+
+  .pd-related {
+    margin: 28px 16px 0;
+    display: grid;
+    gap: 16px;
+  }
+
+  .pd-related-header {
+    display: grid;
+    gap: 10px;
+  }
+
+  .pd-related-title {
+    margin: 0 0 4px;
+    font-size: 24px;
+    line-height: 1.05;
+    font-weight: 900;
+    color: #191c1e;
+  }
+
+  .pd-related-sub {
+    margin: 0;
+    color: #616269;
+    line-height: 1.5;
+  }
+
+  .pd-view-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    width: fit-content;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #2218dc;
+    font-size: 14px;
+    font-weight: 800;
+  }
+
+  .pd-related-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .pd-related-card {
+    overflow: hidden;
+    border: 1px solid #e1e2e4;
+    background: #ffffff;
+    box-shadow: 0 18px 44px rgba(15, 23, 42, 0.06);
+  }
+
+  .pd-rc-img-wrap {
+    position: relative;
+    height: 180px;
+    overflow: hidden;
+    background: #e5eeff;
+  }
+
+  .pd-rc-img {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+  }
+
+  .pd-rc-type {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(12, 19, 31, 0.82);
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .pd-rc-body {
+    padding: 16px;
+    display: grid;
+    gap: 10px;
+  }
+
+  .pd-rc-title {
+    margin: 0;
+    font-size: 18px;
+    line-height: 1.2;
+    font-weight: 800;
+    color: #191c1e;
+  }
+
+  .pd-rc-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .pd-rc-price {
+    font-size: 13px;
+    font-weight: 700;
+    color: #616269;
+  }
+
+  .pd-rc-arrow {
+    color: #4040f2;
   }
 
   .mobile-back-btn {
