@@ -17,5 +17,6 @@ export const getApiBaseUrl = (): string => {
 export const toAssetUrl = (assetPath?: string | null): string | undefined => {
   if (!assetPath) return undefined;
   if (/^https?:\/\//i.test(assetPath)) return assetPath;
+  if (/^\/?img\//i.test(assetPath)) return `/${assetPath.replace(/^\/+/, '')}`;
   return `${getApiBaseUrl()}/${assetPath.replace(/^\/+/, '')}`;
 };

@@ -879,141 +879,189 @@
             background: $white;
 
             .hero-inner {
-                max-width: 1440px;
+                max-width: 1320px;
                 margin: 0 auto;
-                padding: 80px 48px;
+                padding: 72px 48px;
 
-                /* ── Two-column layout ─────────────── */
-                .community-main {
-                    display: flex;
-                    flex-direction: row;
-                    gap: 48px;
-
-                    .community-left,
-                    .community-right {
-                        flex: 1;
-                        display: flex;
-                        flex-direction: column;
-                        min-width: 0;
-                    }
-                }
-
-                /* ── Section header ─────────────────── */
-                .section-header {
-                    display: flex;
-                    flex-direction: row;
-                    align-items: flex-end;
-                    justify-content: space-between;
-                    margin-bottom: 28px;
-                    padding-bottom: 14px;
-                    border-bottom: 2px solid $border;
-
-                    .section-title {
-                        font-family: $font;
-                        font-size: 26px;
-                        font-weight: 800;
-                        color: $dark;
-                        text-transform: uppercase;
-                        letter-spacing: -0.3px;
-                        line-height: 1;
-                    }
-
-                    .view-all {
-                        display: flex;
-                        align-items: center;
-                        gap: 2px;
-                        cursor: pointer;
-
-                        &:hover .view-all-text {
-                            color: $brand;
-                        }
-                        &:hover .view-all-icon {
-                            color: $brand;
-                        }
-
-                        .view-all-text {
-                            font-family: $font;
-                            font-size: 14px;
-                            font-weight: 500;
-                            color: $grey;
-                            transition: color 0.2s;
-                        }
-
-                        .view-all-icon {
-                            font-size: 16px !important;
-                            color: $grey;
-                            transition: color 0.2s;
-                        }
-                    }
-                }
-
-                /* ── 2x2 card grid per section ──────── */
-                .articles-grid {
+                .article-magazine {
                     display: grid;
-                    grid-template-columns: repeat(2, 1fr);
+                    grid-template-columns: 210px minmax(0, 1fr) 280px;
                     gap: 24px;
+                    align-items: stretch;
+                }
 
-                    .vertical-card {
-                        cursor: pointer;
-                        width: 270px;
-                        &:hover .article-image {
-                            transform: scale(1.05);
-                        }
+                .side-column {
+                    gap: 34px;
+                    padding-right: 22px;
+                    border-right: 1px solid $border;
+                }
 
-                        .article-image-wrapper {
-                            position: relative;
-                            width: 100%;
-                            height: 210px;
-                            overflow: hidden;
-                            margin-bottom: 14px;
+                .latest-column {
+                    gap: 0;
+                    padding-left: 22px;
+                    border-left: 1px solid $border;
 
-                            .article-image {
-                                width: 100%;
-                                height: 100%;
-                                background-size: cover;
-                                background-position: center;
-                                background-repeat: no-repeat;
-                                transition: transform 0.4s ease;
-                            }
-
-                            .number-badge {
-                                position: absolute;
-                                top: 0;
-                                left: 0;
-                                width: 38px;
-                                height: 38px;
-                                background: #eb6753;
-                                color: $white;
-                                display: flex;
-                                align-items: center;
-                                justify-content: center;
-                                font-family: $font;
-                                font-size: 18px;
-                                font-weight: 700;
-                            }
-                        }
-
-                        .article-title {
-                            font-family: $font;
-                            font-size: 17px;
-                            font-weight: 700;
-                            line-height: 1.35;
-                            color: $dark;
-                            letter-spacing: -0.2px;
-                            margin-bottom: 7px;
-                            display: -webkit-box;
-                            -webkit-line-clamp: 2;
-                            -webkit-box-orient: vertical;
-                            overflow: hidden;
-                        }
-
-                        .article-label {
-                            font-family: $font;
-                            font-size: 13px;
-                            font-weight: 400;
-                            color: $grey;
-                        }
+                    h3 {
+                        margin: 0 0 18px;
+                        font-family: $font;
+                        font-size: 13px;
+                        font-weight: 800;
+                        letter-spacing: 0.08em;
+                        text-transform: uppercase;
+                        color: $dark;
                     }
+                }
+
+                .magazine-card {
+                    min-width: 0;
+                    cursor: pointer;
+
+                    &:hover .article-title,
+                    &:hover .latest-copy p {
+                        color: $brand;
+                    }
+
+                    &:hover .article-image,
+                    &:hover .latest-thumb {
+                        transform: scale(1.04);
+                    }
+                }
+
+                .magazine-image {
+                    overflow: hidden;
+                    background: #eef1ff;
+
+                    .article-image {
+                        width: 100%;
+                        height: 100%;
+                        background-size: cover;
+                        background-position: center;
+                        background-repeat: no-repeat;
+                        transition: transform 0.35s ease;
+                    }
+                }
+
+                .magazine-copy {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: flex-start;
+                }
+
+                .article-category {
+                    margin-top: 12px;
+                    color: $brand;
+                    font-family: $font;
+                    font-size: 11px;
+                    font-weight: 800;
+                    letter-spacing: 0.04em;
+                    text-transform: uppercase;
+                }
+
+                .article-title {
+                    margin: 7px 0 0;
+                    font-family: $font;
+                    font-size: 18px;
+                    line-height: 1.16;
+                    font-weight: 800;
+                    color: $dark;
+                    transition: color 0.2s;
+                }
+
+                small {
+                    margin-top: 9px;
+                    color: $grey;
+                    font-family: $font;
+                    font-size: 12px;
+                    line-height: 1.35;
+                }
+
+                .side .magazine-image {
+                    width: 100%;
+                    aspect-ratio: 1.3 / 1;
+                }
+
+                .feature {
+                    text-align: center;
+
+                    .magazine-image {
+                        width: 100%;
+                        aspect-ratio: 1.68 / 1;
+                    }
+
+                    .magazine-copy {
+                        align-items: center;
+                        max-width: 680px;
+                        margin: 0 auto;
+                    }
+
+                    .article-title {
+                        max-width: 720px;
+                        font-size: 34px;
+                        line-height: 1.1;
+                    }
+
+                    .article-excerpt {
+                        max-width: 620px;
+                        margin: 12px 0 0;
+                        color: $grey;
+                        font-family: $font;
+                        font-size: 14px;
+                        line-height: 1.55;
+                        display: -webkit-box;
+                        -webkit-line-clamp: 2;
+                        -webkit-box-orient: vertical;
+                        overflow: hidden;
+                    }
+                }
+
+                .latest-item {
+                    display: grid;
+                    grid-template-columns: minmax(0, 1fr) 76px;
+                    gap: 14px;
+                    padding: 0 0 16px;
+                    margin-bottom: 16px;
+                    border-bottom: 1px solid $border;
+                    cursor: pointer;
+                }
+
+                .latest-copy {
+                    min-width: 0;
+
+                    p {
+                        margin: 0;
+                        color: $dark;
+                        font-family: $font;
+                        font-size: 14px;
+                        font-weight: 800;
+                        line-height: 1.18;
+                        transition: color 0.2s;
+                        display: -webkit-box;
+                        -webkit-line-clamp: 3;
+                        -webkit-box-orient: vertical;
+                        overflow: hidden;
+                    }
+
+                    small {
+                        display: block;
+                        margin-top: 8px;
+                    }
+                }
+
+                .latest-thumb {
+                    width: 76px;
+                    height: 62px;
+                    background-size: cover;
+                    background-position: center;
+                    background-repeat: no-repeat;
+                    transition: transform 0.35s ease;
+                }
+
+                .articles-empty {
+                    padding: 40px 0;
+                    color: $grey;
+                    font-family: $font;
+                    font-size: 15px;
+                    text-align: center;
                 }
             }
         }

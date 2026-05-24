@@ -41,7 +41,7 @@ const MyPageSidebar = ({
   <Stack className='mypage-sidebar'>
     <Box className='mypage-profile-aura' />
     <Stack className='mypage-user-card'>
-      <Box component='img' src={avatarUrl(profileForm.memberImage)} alt={user.memberNick} className='mypage-avatar' />
+      <Box component='img' src={avatarUrl(profileForm.memberImage) ?? '/img/profile/defaultUser.svg'} alt={user.memberNick} className='mypage-avatar' />
       <span className='mypage-role-chip'>{user.memberType}</span>
       {isAdmin && (
         <button className='mypage-admin-entry' onClick={onAdminClick}>
