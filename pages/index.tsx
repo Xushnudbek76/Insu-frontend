@@ -2,12 +2,12 @@ import { NextPage } from 'next';
 import { Stack } from '@mui/material';
 import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
 import withLayoutMain from '@/layout/LayoutHome';
-import TrendPackages from '@/libs/components/homepage/TrendPackages';
+import InsuranceAdviser from '@/libs/components/homepage/InsuranceAdviser';
 import PopularPackages from '@/libs/components/homepage/PopularPackages';
 import Advertisement from '@/libs/components/homepage/Advertisement';
 import HomeComments from '@/libs/components/homepage/HomeComments';
 import BoardArticles from '@/libs/components/homepage/BoardArticles';
-import HeaderFilter from '@/libs/components/homepage/HeaderFilter';
+import Header from '@/libs/components/homepage/Header';
 import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
 
 export const getStaticProps = async ({ locale = 'en' }: { locale?: string }) => ({
@@ -22,8 +22,8 @@ const HomePage: NextPage = () => {
 	if (device === 'mobile') {
 		return (
 			<Stack className={'home-page'}>
-				<HeaderFilter />
-				<TrendPackages />
+				<Header />
+				<InsuranceAdviser />
 				<PopularPackages />
 				<Advertisement />
 				<HomeComments />
@@ -33,8 +33,8 @@ const HomePage: NextPage = () => {
 	} else {
 		return (
 			<Stack className={'home-page'}>
-				<HeaderFilter />
-				<TrendPackages />
+				<Header />
+				<InsuranceAdviser />
 				<PopularPackages />
 				<Advertisement />
 				<HomeComments />

@@ -46,7 +46,7 @@ const INSURANCE_TYPE_OPTIONS: { value: InsuranceTypeValue; label: string }[] = [
 	{ value: 'TRAVEL', label: 'Travel' },
 ];
 
-const TrendPackages: React.FC = () => {
+const InsuranceAdviser: React.FC = () => {
 	const device = useDeviceDetect();
 	const router = useRouter();
 	const [selectedType, setSelectedType] = useState<InsuranceTypeValue>('AUTO');
@@ -280,4 +280,4 @@ function formatInsuranceType(type: string): string {
 	}
 }
 
-export default TrendPackages;
+export default InsuranceAdviser;

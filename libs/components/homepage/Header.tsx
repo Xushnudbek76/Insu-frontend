@@ -3,7 +3,7 @@ import { Stack, Box } from '@mui/material';
 import NextLink from 'next/link';
 import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
 
-const HeaderFilter = () => {
+const Header = () => {
 	const device = useDeviceDetect();
 
 	if (device === 'mobile') {
@@ -86,4 +86,4 @@ const HeaderFilter = () => {
 	}
 };
 
-export default HeaderFilter;
+export default Header;
