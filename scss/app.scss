@@ -45,11 +45,11 @@ hr {
 @import "pc/general.scss";
 @import "pc/homepage/homepage.scss";
 @import "pc/packages/packages.scss";
-@import "pc/package-detail.scss";
-@import "pc/community.scss";
-@import "pc/cs.scss";
-@import "pc/mypage.scss";
-@import "pc/admin.scss";
+@import "pc/packages/package-detail.scss";
+@import "pc/community/community.scss";
+@import "pc/cs/cs.scss";
+@import "pc/myPage/mypage.scss";
+@import "pc/admin/admin.scss";
 @import "pc/agents/agents.scss";
 @import "pc/agents/detail.scss";
 /** VERSION: MOBILE **/

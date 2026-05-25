@@ -11,6 +11,7 @@ import { getJwtToken, updateUserInfo } from '@/libs/auth';
 import { appWithTranslation } from 'next-i18next/pages';
 import type { UserConfig } from 'next-i18next/pages';
 import i18nextConfig from '../next-i18next.config';
+import SeoHead from '@/libs/components/SeoHead';
 
 const theme = createTheme({
   palette: {
@@ -37,6 +38,7 @@ function App({ Component, pageProps }: AppProps) {
     <ApolloProvider client={client}>
       <ThemeProvider theme={theme}>
         <SnackbarProvider maxSnack={3} autoHideDuration={2500}>
+          <SeoHead />
           <CssBaseline />
           <Component {...pageProps} />
         </SnackbarProvider>
