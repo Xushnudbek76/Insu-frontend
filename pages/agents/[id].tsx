@@ -541,7 +541,7 @@ const AgentDetailPage: NextPage = () => {
             <Stack className='agent-detail-chips'>
               <span>{t(readableStatus(agent.memberStatus))}</span>
               <span>{agent.memberType || t('Agent')}</span>
-              {agent.memberRank != null && <span>{t('Rank')} #{agent.memberRank}</span>}
+              {agent.memberRank != null && <span>{t('Score')} {agent.memberRank}</span>}
             </Stack>
             {agent.memberDesc && <p>{agent.memberDesc}</p>}
             <Stack className='agent-detail-follow-row'>
@@ -722,9 +722,10 @@ const AgentDetailPage: NextPage = () => {
             <Stack className='agent-detail-panel-empty'>{t('No active listings found.')}</Stack>
           ) : (
             <Box className='agent-listing-grid'>
-              {listings.map((pkg) => {
+              {listings.map((pkg, index) => {
                 const liked = packageLiked[pkg._id] ?? pkg.meLiked?.[0]?.myFavorite ?? false;
                 const likes = packageLikes[pkg._id] ?? pkg.packageLikes;
+                const isTopRanked = index < 3 && (pkg.packageRank ?? 0) > 0;
 
                 return (
                   <Stack
@@ -739,7 +740,7 @@ const AgentDetailPage: NextPage = () => {
                         alt={pkg.packageTitle}
                         className='agent-listing-image'
                       />
-                      {pkg.packageRank != null && pkg.packageRank <= 3 && (
+                      {isTopRanked && (
                         <span className='agent-listing-top'>{t('TOP')}</span>
                       )}
                       <span className='agent-listing-price'>

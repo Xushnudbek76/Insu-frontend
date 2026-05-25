@@ -43,7 +43,7 @@ const TYPE_OPTIONS = [
 const STATUS_OPTIONS = [
   { value: '', label: 'Any Status' },
   { value: 'ACTIVE', label: 'Active' },
-  { value: 'PAUSE', label: 'Paused' },
+  { value: 'INACTIVE', label: 'Inactive' },
 ];
 
 const COVERAGE_OPTIONS = [
@@ -310,8 +310,9 @@ const PackagesPage: NextPage = () => {
             </Box>
           ) : (
             <Box className={'packages-grid'}>
-              {packages.map((pkg) => {
+              {packages.map((pkg, index) => {
                 const liked = pkg.meLiked?.[0]?.myFavorite;
+                const isTopRanked = sort === 'packageRank' && index < 3 && (pkg.packageRank ?? 0) > 0;
 
                 return (
                   <Box
@@ -329,7 +330,7 @@ const PackagesPage: NextPage = () => {
                       <span className={`type-badge type-${pkg.packageType.toLowerCase()}`}>
                         {typeLabel(pkg.packageType)}
                       </span>
-                      {pkg.packageRank != null && pkg.packageRank <= 3 && (
+                      {isTopRanked && (
                         <span className={'top-badge'}>TOP</span>
                       )}
                     </Box>
