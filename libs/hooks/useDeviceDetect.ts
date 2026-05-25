@@ -1,24 +1,40 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 
-const MOBILE_QUERY = "(max-width: 768px)";
+const MOBILE_QUERY = '(max-width: 768px)';
 
-const useDeviceDetect = (): "mobile" | "desktop" => {
-  const [device, setDevice] = useState<"mobile" | "desktop">("desktop");
+type Device = 'mobile' | 'desktop';
+
+let cachedDevice: Device | null = null;
+
+const getDevice = (mediaQuery: MediaQueryList): Device =>
+  mediaQuery.matches ? 'mobile' : 'desktop';
+
+const useDeviceDetect = (): Device | null => {
+  const [device, setDevice] = useState<Device | null>(cachedDevice);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-
     const mediaQuery = window.matchMedia(MOBILE_QUERY);
 
     const updateDevice = () => {
-      setDevice(mediaQuery.matches ? "mobile" : "desktop");
+      const nextDevice = getDevice(mediaQuery);
+      cachedDevice = nextDevice;
+      setDevice(nextDevice);
     };
 
     updateDevice();
-    mediaQuery.addEventListener("change", updateDevice);
+
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener('change', updateDevice);
+    } else {
+      mediaQuery.addListener(updateDevice);
+    }
 
     return () => {
-      mediaQuery.removeEventListener("change", updateDevice);
+      if (mediaQuery.removeEventListener) {
+        mediaQuery.removeEventListener('change', updateDevice);
+      } else {
+        mediaQuery.removeListener(updateDevice);
+      }
     };
   }, []);
 

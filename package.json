@@ -10,7 +10,7 @@
     "dev:public": "next dev -H 0.0.0.0 -p ${PORT:-3000}",
     "build": "next build",
     "start": "next start",
-    "start:public": "next start -H 0.0.0.0 -p ${PORT:-3000}",
+    "start:public": "next start -H 0.0.0.0 -p ${PORT:-3000}"
   },
   "dependencies": {
     "@apollo/client": "^4.1.9",

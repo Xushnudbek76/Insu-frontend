@@ -35,6 +35,8 @@ const LayoutAdminInner = ({ page }: { page: ReactElement }) => {
     if (user?.memberType !== 'ADMIN') router.replace('/');
   }, [authReady, router, user?.memberType]);
 
+  if (!device) return null;
+
   if (!authReady || user?.memberType !== 'ADMIN') {
     return (
       <Box id={wrapId}>

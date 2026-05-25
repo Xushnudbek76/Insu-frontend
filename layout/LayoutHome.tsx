@@ -1,4 +1,4 @@
-import type { ComponentType, ReactElement, ReactNode } from 'react';
+import type { ComponentType, ReactElement } from 'react';
 import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
 import Top from '@/libs/components/navigation/Top';
 import Footer from '@/libs/components/footer/Footer';
@@ -6,6 +6,9 @@ import Chat from '@/libs/components/Chat';
 
 const LayoutHomeInner = ({ page }: { page: ReactElement }) => {
   const device = useDeviceDetect();
+
+  if (!device) return null;
+
   const wrapId = device === 'mobile' ? 'mobile-wrap' : 'pc-wrap';
 
   return (
