@@ -3,6 +3,7 @@ import {
   KeyboardEvent,
   MouseEvent,
   useEffect,
+  useRef,
   useState,
 } from "react";
 import { NextPage } from "next";
@@ -25,7 +26,7 @@ import { LIKE_TARGET_MEMBER } from "@/apollo/member/mutation";
 import { GET_AGENTS } from "@/apollo/user/query";
 import useDeviceDetect from "@/libs/hooks/useDeviceDetect";
 import MobileAgentsPage from "@/libs/components/mobile/agents/MobileAgentsPage";
-import { sweetMixinErrorAlert, sweetTopSuccessAlert } from "@/libs/sweetAlert";
+import { sweetMixinErrorAlert } from "@/libs/sweetAlert";
 import { toAssetUrl } from "@/libs/api";
 import { formatCount } from "@/libs/utils/format";
 import { buildPageNumbers } from "@/libs/utils/pagination";
@@ -86,8 +87,9 @@ const AgentsPage: NextPage = () => {
   const [page, setPage] = useState(1);
   const [likedByAgent, setLikedByAgent] = useState<Record<string, boolean>>({});
   const [likesByAgent, setLikesByAgent] = useState<Record<string, number>>({});
+  const pendingLikeIdsRef = useRef<Set<string>>(new Set());
 
-  const { loading, data, refetch } = useQuery<GetAgentsResponse>(GET_AGENTS, {
+  const { loading, data } = useQuery<GetAgentsResponse>(GET_AGENTS, {
     fetchPolicy: "cache-first",
     variables: {
       input: {
@@ -140,6 +142,8 @@ const AgentsPage: NextPage = () => {
   const handleToggleLike = async (event: MouseEvent, memberId: string) => {
     event.stopPropagation();
 
+    if (pendingLikeIdsRef.current.has(memberId)) return;
+
     const user = userVar();
     if (!user?._id) {
       await sweetMixinErrorAlert(t("Please login to like agents."));
@@ -155,6 +159,7 @@ const AgentsPage: NextPage = () => {
 
     setLikedByAgent((prev) => ({ ...prev, [memberId]: nextLiked }));
     setLikesByAgent((prev) => ({ ...prev, [memberId]: nextLikes }));
+    pendingLikeIdsRef.current.add(memberId);
 
     try {
       const result = await likeTargetMember({
@@ -167,8 +172,6 @@ const AgentsPage: NextPage = () => {
           [memberId]: updated.memberLikes ?? nextLikes,
         }));
       }
-
-      await sweetTopSuccessAlert(t("Updated your favorites."));
     } catch (err: any) {
       setLikedByAgent((prev) => ({ ...prev, [memberId]: currentLiked }));
       setLikesByAgent((prev) => ({ ...prev, [memberId]: currentLikes }));
@@ -177,6 +180,8 @@ const AgentsPage: NextPage = () => {
           err?.message ??
           t("Could not update likes."),
       );
+    } finally {
+      pendingLikeIdsRef.current.delete(memberId);
     }
   };
 

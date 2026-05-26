@@ -1,6 +1,6 @@
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useMutation, useQuery } from '@apollo/client/react';
 import { Avatar, Box, Stack } from '@mui/material';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
@@ -69,6 +69,9 @@ const CommunityDetailPage: NextPage = () => {
   const { id } = router.query;
   const [commentText, setCommentText] = useState('');
   const [postingComment, setPostingComment] = useState(false);
+  const [liked, setLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
+  const pendingLikeRef = useRef(false);
 
   const articleId = typeof id === 'string' ? id : undefined;
 
@@ -127,8 +130,14 @@ const CommunityDetailPage: NextPage = () => {
       minute: '2-digit',
     });
 
-  const handleToggleLike = async () => {
+  useEffect(() => {
     if (!article) return;
+    setLiked(article.meLiked?.[0]?.myFavorite ?? false);
+    setLikeCount(article.articleLikes ?? 0);
+  }, [article]);
+
+  const handleToggleLike = async () => {
+    if (!article || pendingLikeRef.current) return;
 
     const user = userVar();
     if (!user?._id) {
@@ -136,15 +145,30 @@ const CommunityDetailPage: NextPage = () => {
       return;
     }
 
+    const previousLiked = liked;
+    const previousLikeCount = likeCount;
+    const nextLiked = !previousLiked;
+
+    pendingLikeRef.current = true;
+    setLiked(nextLiked);
+    setLikeCount((prev) => Math.max(0, prev + (nextLiked ? 1 : -1)));
+
     try {
-      await likeTargetBoardArticle({
+      const result = await likeTargetBoardArticle({
         variables: { articleId: article._id },
       });
-      await refetchArticle();
+      const updated = result.data?.likeTargetBoardArticle;
+      if (updated) {
+        setLikeCount(updated.articleLikes ?? likeCount);
+      }
     } catch (err: any) {
+      setLiked(previousLiked);
+      setLikeCount(previousLikeCount);
       await sweetMixinErrorAlert(
         err?.graphQLErrors?.[0]?.message ?? 'Could not update likes.',
       );
+    } finally {
+      pendingLikeRef.current = false;
     }
   };
 
@@ -202,9 +226,6 @@ const CommunityDetailPage: NextPage = () => {
       </Stack>
     );
   }
-
-  const liked = article.meLiked?.[0]?.myFavorite ?? false;
-
   if (device === 'mobile') {
     return (
       <MobileCommunityDetailPage
@@ -214,6 +235,7 @@ const CommunityDetailPage: NextPage = () => {
         commentTotal={commentTotal}
         postingComment={postingComment}
         liked={liked}
+        likeCount={likeCount}
         categoryLabel={CATEGORY_LABEL[article.articleCategory]}
         getArticleImage={getArticleImage}
         formatDate={formatDate}
@@ -266,7 +288,7 @@ const CommunityDetailPage: NextPage = () => {
               </span>
               <button className={liked ? 'liked' : ''} onClick={handleToggleLike}>
                 {liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
-                {article.articleLikes} likes
+                {likeCount} likes
               </button>
               <span>
                 <ChatBubbleOutlineOutlinedIcon />

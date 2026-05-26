@@ -39,6 +39,7 @@ interface MobileCommunityDetailPageProps {
   commentTotal: number;
   postingComment: boolean;
   liked: boolean;
+  likeCount: number;
   categoryLabel: string;
   getArticleImage: (image?: string | null) => string;
   formatDate: (date: string) => string;
@@ -55,6 +56,7 @@ const MobileCommunityDetailPage = ({
   commentTotal,
   postingComment,
   liked,
+  likeCount,
   categoryLabel,
   getArticleImage,
   formatDate,
@@ -98,7 +100,7 @@ const MobileCommunityDetailPage = ({
         </span>
         <button className={liked ? 'liked' : ''} onClick={onLike}>
           {liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
-          {article.articleLikes}
+          {likeCount}
         </button>
         <span>
           <ChatBubbleOutlineOutlinedIcon />

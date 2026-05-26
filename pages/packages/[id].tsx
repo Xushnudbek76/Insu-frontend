@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { Box } from '@mui/material';
@@ -49,6 +49,7 @@ const PackageDetailPage: NextPage = () => {
   const router = useRouter();
   const device = useDeviceDetect();
   const packageId = typeof router.query.id === 'string' ? router.query.id : '';
+  const pendingLikeRef = useRef(false);
 
   const [comments, setComments] = useState<Comment[]>([]);
   const [commentTotal, setCommentTotal] = useState(0);
@@ -133,11 +134,22 @@ const PackageDetailPage: NextPage = () => {
   }, [pkg]);
 
   const handleLike = async () => {
+    if (pendingLikeRef.current) return;
+
     const user = userVar();
     if (!user?._id) {
       await sweetMixinErrorAlert('Please login to like packages.');
       return;
     }
+
+    const previousLiked = liked;
+    const previousLikeCount = likeCount;
+    const nextLiked = !previousLiked;
+
+    pendingLikeRef.current = true;
+    setLiked(nextLiked);
+    setLikeCount((prev) => Math.max(0, prev + (nextLiked ? 1 : -1)));
+
     try {
       const res = await likePackage({ variables: { packageId } });
       const updated = res.data?.likeTargetPackage;
@@ -146,9 +158,13 @@ const PackageDetailPage: NextPage = () => {
         setLikeCount(updated.packageLikes ?? 0);
       }
     } catch (err: any) {
+      setLiked(previousLiked);
+      setLikeCount(previousLikeCount);
       await sweetMixinErrorAlert(
         err?.graphQLErrors?.[0]?.message ?? 'Error updating like.'
       );
+    } finally {
+      pendingLikeRef.current = false;
     }
   };
 

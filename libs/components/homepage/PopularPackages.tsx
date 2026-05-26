@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Stack, Box, IconButton } from '@mui/material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import { useRouter } from 'next/router';
@@ -8,7 +8,7 @@ import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
 import { GET_PACKAGES } from '@/apollo/user/query';
 import { LIKE_TARGET_PACKAGE } from '@/apollo/package/mutation';
 import { userVar } from '@/apollo/store';
-import { sweetMixinErrorAlert, sweetTopSuccessAlert } from '@/libs/sweetAlert';
+import { sweetMixinErrorAlert } from '@/libs/sweetAlert';
 import { toAssetUrl } from '@/libs/api';
 
 interface PopularPackage {
@@ -34,6 +34,8 @@ interface GetPackagesResponse {
 const PopularPackages: React.FC = () => {
 	const device = useDeviceDetect();
 	const router = useRouter();
+	const pendingLikeIdsRef = useRef<Set<string>>(new Set());
+	const [likedByPackage, setLikedByPackage] = useState<Record<string, boolean>>({});
 
 	const { data, loading, error } = useQuery<GetPackagesResponse>(GET_PACKAGES, {
 		variables: {
@@ -50,22 +52,25 @@ const PopularPackages: React.FC = () => {
 
 	const [likePackage] = useMutation<{ likeTargetPackage: PopularPackage }>(
 		LIKE_TARGET_PACKAGE,
-		{
-			refetchQueries: [{ query: GET_PACKAGES, variables: {
-				input: {
-					page: 1,
-					limit: device === 'mobile' ? 3 : 6,
-					sort: 'packageViews',
-					direction: 'DESC',
-					search: {},
-				},
-			}}],
-		}
 	);
 
 	const packages = data?.getPackages?.list ?? [];
 	const getPackageImage = (images?: string[] | null) =>
 		toAssetUrl(images?.[0]) ?? '/img/placeholder-article.svg';
+
+	useEffect(() => {
+		if (!packages.length) return;
+
+		setLikedByPackage((prev) => {
+			const next = { ...prev };
+			packages.forEach((pkg) => {
+				if (!(pkg._id in next)) {
+					next[pkg._id] = pkg.meLiked?.[0]?.myFavorite ?? false;
+				}
+			});
+			return next;
+		});
+	}, [packages]);
 
 	const handleCardClick = (id: string) => {
 		if (!id) return;
@@ -73,6 +78,12 @@ const PopularPackages: React.FC = () => {
 	};
 
 	const handleToggleLike = async (id: string) => {
+		if (pendingLikeIdsRef.current.has(id)) return;
+
+		const pkg = packages.find((item) => item._id === id);
+		const previousLiked = likedByPackage[id] ?? pkg?.meLiked?.[0]?.myFavorite ?? false;
+		const nextLiked = !previousLiked;
+
 		try {
 			const currentUser = userVar();
 			if (!currentUser?._id) {
@@ -80,15 +91,27 @@ const PopularPackages: React.FC = () => {
 				return;
 			}
 
-			await likePackage({ variables: { packageId: id } });
-			await sweetTopSuccessAlert('Updated your favorites.');
+			pendingLikeIdsRef.current.add(id);
+			setLikedByPackage((prev) => ({ ...prev, [id]: nextLiked }));
+
+			const result = await likePackage({ variables: { packageId: id } });
+			const updated = result.data?.likeTargetPackage;
+			if (updated) {
+				setLikedByPackage((prev) => ({
+					...prev,
+					[id]: updated.meLiked?.[0]?.myFavorite ?? nextLiked,
+				}));
+			}
 		} catch (err: any) {
+			setLikedByPackage((prev) => ({ ...prev, [id]: previousLiked }));
 			console.error('Error, likeTargetPackage', err);
 			const message =
 				err?.graphQLErrors?.[0]?.message?.replace('Definer: ', '') ??
 				err?.message ??
 				'Could not update favorites.';
 			await sweetMixinErrorAlert(message);
+		} finally {
+			pendingLikeIdsRef.current.delete(id);
 		}
 	};
 
@@ -115,7 +138,7 @@ const PopularPackages: React.FC = () => {
 						{!loading && !error && hasPackages && (
 							<Stack className={'popular-grid'}>
 								{packages.map((pkg) => {
-									const liked = pkg.meLiked && pkg.meLiked[0]?.myFavorite;
+									const liked = likedByPackage[pkg._id] ?? pkg.meLiked?.[0]?.myFavorite ?? false;
 									return (
 										<Box
 											key={pkg._id}
@@ -204,7 +227,7 @@ const PopularPackages: React.FC = () => {
 					{!loading && !error && hasPackages && (
 						<Stack className={'popular-grid'}>
 							{packages.map((pkg) => {
-								const liked = pkg.meLiked && pkg.meLiked[0]?.myFavorite;
+								const liked = likedByPackage[pkg._id] ?? pkg.meLiked?.[0]?.myFavorite ?? false;
 								return (
 									<Box
 										key={pkg._id}

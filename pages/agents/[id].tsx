@@ -1,4 +1,4 @@
-import { ChangeEvent, MouseEvent, useEffect, useState } from 'react';
+import { ChangeEvent, MouseEvent, useEffect, useRef, useState } from 'react';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useMutation, useQuery } from '@apollo/client/react';
@@ -145,6 +145,7 @@ const AgentDetailPage: NextPage = () => {
   const [followerCount, setFollowerCount] = useState(0);
   const [networkTab, setNetworkTab] = useState<NetworkTab>('followers');
   const [networkPage, setNetworkPage] = useState(1);
+  const pendingPackageLikeIdsRef = useRef<Set<string>>(new Set());
 
   const {
     loading: agentLoading,
@@ -160,7 +161,6 @@ const AgentDetailPage: NextPage = () => {
   const {
     loading: listingsLoading,
     data: listingsData,
-    refetch: refetchListings,
   } = useQuery<{
     getPackages: { list: AgentPackage[]; metaCounter: { total: number }[] };
   }>(GET_AGENT_PUBLIC_PACKAGES, {
@@ -361,6 +361,8 @@ const AgentDetailPage: NextPage = () => {
   const handleLikePackage = async (event: MouseEvent, packageId: string) => {
     event.stopPropagation();
 
+    if (pendingPackageLikeIdsRef.current.has(packageId)) return;
+
     const user = userVar();
     if (!user?._id) {
       await sweetMixinErrorAlert(t('Please login to like packages.'));
@@ -376,6 +378,7 @@ const AgentDetailPage: NextPage = () => {
       ...prev,
       [packageId]: Math.max(0, currentLikes + (!currentLiked ? 1 : -1)),
     }));
+    pendingPackageLikeIdsRef.current.add(packageId);
 
     try {
       const result = await likeTargetPackage({ variables: { packageId } });
@@ -390,7 +393,6 @@ const AgentDetailPage: NextPage = () => {
           [packageId]: updated.packageLikes ?? currentLikes,
         }));
       }
-      await refetchListings();
     } catch (err: any) {
       setPackageLiked((prev) => ({ ...prev, [packageId]: currentLiked }));
       setPackageLikes((prev) => ({ ...prev, [packageId]: currentLikes }));
@@ -399,6 +401,8 @@ const AgentDetailPage: NextPage = () => {
           err?.message ??
           t('Could not update package like.'),
       );
+    } finally {
+      pendingPackageLikeIdsRef.current.delete(packageId);
     }
   };
 

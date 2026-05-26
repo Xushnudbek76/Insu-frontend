@@ -1,6 +1,6 @@
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { MouseEvent, useEffect, useMemo, useState } from 'react';
+import { MouseEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { Stack, Box } from '@mui/material';
 import { useMutation, useQuery } from '@apollo/client/react';
 import ShieldOutlinedIcon from '@mui/icons-material/ShieldOutlined';
@@ -17,7 +17,7 @@ import { GET_PACKAGES } from '@/apollo/user/query';
 import { LIKE_TARGET_PACKAGE } from '@/apollo/package/mutation';
 import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
 import MobilePackagesPage from '@/libs/components/mobile/packages/MobilePackagesPage';
-import { sweetMixinErrorAlert, sweetTopSuccessAlert } from '@/libs/sweetAlert';
+import { sweetMixinErrorAlert } from '@/libs/sweetAlert';
 import { toAssetUrl } from '@/libs/api';
 import { formatCount } from '@/libs/utils/format';
 import { buildPageNumbers } from '@/libs/utils/pagination';
@@ -87,6 +87,7 @@ interface GetPackagesResponse {
 const PackagesPage: NextPage = () => {
   const router = useRouter();
   const device = useDeviceDetect();
+  const pendingLikeIdsRef = useRef<Set<string>>(new Set());
 
   const [filterValues, setFilterValues] = useState<PackageFilterValues>({
     selectedType: '',
@@ -159,12 +160,39 @@ const PackagesPage: NextPage = () => {
   const handleToggleLike = async (e: MouseEvent, id: string) => {
     e.stopPropagation();
 
+    if (pendingLikeIdsRef.current.has(id)) return;
+
+    let previousPackage: InsurancePackage | undefined;
+
     try {
       const user = userVar();
       if (!user?._id) {
         await sweetMixinErrorAlert('Please login to like packages.');
         return;
       }
+
+      previousPackage = packages.find((pkg) => pkg._id === id);
+      if (!previousPackage) return;
+
+      const wasLiked = previousPackage.meLiked?.[0]?.myFavorite ?? false;
+      const nextLiked = !wasLiked;
+      const nextLikeCount = Math.max(
+        0,
+        (previousPackage.packageLikes ?? 0) + (nextLiked ? 1 : -1),
+      );
+
+      pendingLikeIdsRef.current.add(id);
+      setPackages((prev) =>
+        prev.map((pkg) =>
+          pkg._id === id
+            ? {
+                ...pkg,
+                packageLikes: nextLikeCount,
+                meLiked: [{ ...(pkg.meLiked?.[0] ?? {}), myFavorite: nextLiked }],
+              }
+            : pkg,
+        ),
+      );
 
       const result = await likeTargetPackage({ variables: { packageId: id } });
       const updated = result.data?.likeTargetPackage;
@@ -181,13 +209,17 @@ const PackagesPage: NextPage = () => {
             : pkg,
         ),
       );
-      await sweetTopSuccessAlert('Updated your favorites.');
     } catch (err: any) {
+      setPackages((prev) =>
+        prev.map((pkg) => (pkg._id === id && previousPackage ? previousPackage : pkg)),
+      );
       await sweetMixinErrorAlert(
         err?.graphQLErrors?.[0]?.message?.replace('Definer: ', '') ??
           err?.message ??
           'Could not update favorites.',
       );
+    } finally {
+      pendingLikeIdsRef.current.delete(id);
     }
   };
 
