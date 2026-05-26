@@ -127,6 +127,7 @@ const PackageDetailPage: NextPage = () => {
   const [likeCount, setLikeCount] = useState(0);
 
   useEffect(() => {
+    if (pendingLikeRef.current) return;
     if (pkg) {
       setLiked(pkg.meLiked?.[0]?.myFavorite ?? false);
       setLikeCount(pkg.packageLikes ?? 0);

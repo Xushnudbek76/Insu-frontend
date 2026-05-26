@@ -131,6 +131,7 @@ const CommunityDetailPage: NextPage = () => {
     });
 
   useEffect(() => {
+    if (pendingLikeRef.current) return;
     if (!article) return;
     setLiked(article.meLiked?.[0]?.myFavorite ?? false);
     setLikeCount(article.articleLikes ?? 0);

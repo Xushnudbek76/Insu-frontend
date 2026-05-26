@@ -274,6 +274,7 @@ const AgentDetailPage: NextPage = () => {
     setPackageLiked((prev) => {
       const next = { ...prev };
       listings.forEach((pkg) => {
+        if (pendingPackageLikeIdsRef.current.has(pkg._id)) return;
         next[pkg._id] = pkg.meLiked?.[0]?.myFavorite ?? false;
       });
       return next;

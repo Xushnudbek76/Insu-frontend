@@ -144,7 +144,17 @@ const PackagesPage: NextPage = () => {
   useEffect(() => {
     if (!data?.getPackages) return;
 
-    setPackages(data.getPackages.list || []);
+    setPackages((prev) => {
+      const optimisticPackages = new Map(
+        prev
+          .filter((pkg) => pendingLikeIdsRef.current.has(pkg._id))
+          .map((pkg) => [pkg._id, pkg]),
+      );
+
+      return (data.getPackages.list || []).map(
+        (pkg) => optimisticPackages.get(pkg._id) ?? pkg,
+      );
+    });
   }, [data]);
 
   useEffect(() => {
