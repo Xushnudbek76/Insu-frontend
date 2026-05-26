@@ -10,7 +10,8 @@
     "dev:public": "next dev -H 0.0.0.0 -p ${PORT:-3000}",
     "build": "next build",
     "start": "next start",
-    "start:public": "next start -H 0.0.0.0 -p ${PORT:-3000}"
+    "start:public": "next start -H 0.0.0.0 -p ${PORT:-3000}",
+    "test": "jest"
   },
   "dependencies": {
     "@apollo/client": "^4.1.9",
@@ -45,10 +46,13 @@
     "@graphql-codegen/typescript-operations": "^6.0.2",
     "@graphql-codegen/typescript-react-apollo": "^4.4.2",
     "@types/apollo-upload-client": "^19.0.0",
+    "@types/jest": "^30.0.0",
     "@types/js-cookie": "^3.0.6",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "jest": "^30.0.0",
+    "ts-jest": "^29.4.1",
     "typescript": "^5"
   }
 }

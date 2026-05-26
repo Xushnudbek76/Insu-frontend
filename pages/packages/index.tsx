@@ -21,6 +21,7 @@ import { sweetMixinErrorAlert, sweetTopSuccessAlert } from '@/libs/sweetAlert';
 import { toAssetUrl } from '@/libs/api';
 import { formatCount } from '@/libs/utils/format';
 import { buildPageNumbers } from '@/libs/utils/pagination';
+import { isTopRankedPackage, PACKAGE_STATUS_OPTIONS } from '@/libs/utils/ranking';
 import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
 import PackageFilter, { PackageFilterValues } from '@/libs/components/packages/PackageFilter';
 
@@ -40,11 +41,7 @@ const TYPE_OPTIONS = [
   { value: 'TRAVEL', label: 'Travel' },
 ];
 
-const STATUS_OPTIONS = [
-  { value: '', label: 'Any Status' },
-  { value: 'ACTIVE', label: 'Active' },
-  { value: 'INACTIVE', label: 'Inactive' },
-];
+const STATUS_OPTIONS = [...PACKAGE_STATUS_OPTIONS];
 
 const COVERAGE_OPTIONS = [
   { value: '', label: 'Any' },
@@ -127,11 +124,16 @@ const PackagesPage: NextPage = () => {
     return nextSearch;
   }, [appliedFilters]);
 
-  const { data, loading: queryLoading, error } = useQuery<GetPackagesResponse>(GET_PACKAGES, {
-    variables: {
+  const packageQueryVariables = useMemo(
+    () => ({
       input: { page, limit: LIMIT, sort, direction: 'DESC', search },
-    },
-    notifyOnNetworkStatusChange: true,
+    }),
+    [page, sort, search],
+  );
+
+  const { data, loading: queryLoading, error } = useQuery<GetPackagesResponse>(GET_PACKAGES, {
+    variables: packageQueryVariables,
+    nextFetchPolicy: 'cache-first',
   });
 
   const [likeTargetPackage] = useMutation<{ likeTargetPackage: InsurancePackage }>(
@@ -312,7 +314,7 @@ const PackagesPage: NextPage = () => {
             <Box className={'packages-grid'}>
               {packages.map((pkg, index) => {
                 const liked = pkg.meLiked?.[0]?.myFavorite;
-                const isTopRanked = sort === 'packageRank' && index < 3 && (pkg.packageRank ?? 0) > 0;
+                const isTopRanked = isTopRankedPackage(sort, index, pkg.packageRank);
 
                 return (
                   <Box

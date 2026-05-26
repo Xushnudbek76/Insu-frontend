@@ -53,6 +53,26 @@ const PackageDetailPage: NextPage = () => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [commentTotal, setCommentTotal] = useState(0);
 
+  const commentsQueryVariables = useMemo(
+    () => ({
+      input: { page: 1, limit: 10, search: { commentRefId: packageId } },
+    }),
+    [packageId],
+  );
+
+  const relatedPackagesQueryVariables = useMemo(
+    () => ({
+      input: {
+        page: 1,
+        limit: 4,
+        sort: 'packageViews',
+        direction: 'DESC',
+        search: {},
+      },
+    }),
+    [],
+  );
+
   const {
     data: packageData,
     loading: packageLoading,
@@ -60,7 +80,8 @@ const PackageDetailPage: NextPage = () => {
   } = useQuery<{ getPackage: PackageDetail }>(GET_PACKAGE, {
     variables: { packageId },
     skip: !packageId,
-    fetchPolicy: 'network-only',
+    fetchPolicy: 'cache-and-network',
+    nextFetchPolicy: 'cache-first',
   });
 
   const pkg = packageData?.getPackage ?? null;
@@ -68,11 +89,10 @@ const PackageDetailPage: NextPage = () => {
   const { data: commentsData } = useQuery<{
     getComments: { list: Comment[]; metaCounter: { total: number }[] };
   }>(GET_COMMENTS, {
-    variables: {
-      input: { page: 1, limit: 10, search: { commentRefId: packageId } },
-    },
+    variables: commentsQueryVariables,
     skip: !packageId,
-    fetchPolicy: 'network-only',
+    fetchPolicy: 'cache-and-network',
+    nextFetchPolicy: 'cache-first',
   });
 
   useEffect(() => {
@@ -85,17 +105,10 @@ const PackageDetailPage: NextPage = () => {
   const { data: relatedData } = useQuery<{
     getPackages: { list: RelatedPackage[] };
   }>(GET_PACKAGES, {
-    variables: {
-      input: {
-        page: 1,
-        limit: 4,
-        sort: 'packageViews',
-        direction: 'DESC',
-        search: {},
-      },
-    },
+    variables: relatedPackagesQueryVariables,
     skip: !pkg,
-    fetchPolicy: 'network-only',
+    fetchPolicy: 'cache-and-network',
+    nextFetchPolicy: 'cache-first',
   });
 
   const related = useMemo(() => {
