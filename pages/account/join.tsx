@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { NextPage } from 'next';
+import { useState } from "react";
+import { NextPage } from "next";
 import {
   Alert,
   Box,
@@ -11,18 +11,22 @@ import {
   Tabs,
   TextField,
   Typography,
-} from '@mui/material';
+} from "@mui/material";
 
-import withLayoutBasic from '@/layout/LayoutBasic';
-import { logIn, signUp } from '@/libs/auth';
-import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
-import MobileJoinPage from '@/libs/components/mobile/account/MobileJoinPage';
-import { sweetTopSuccessAlert } from '@/libs/sweetAlert';
-import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
+import withLayoutBasic from "@/layout/LayoutBasic";
+import { logIn, signUp } from "@/libs/auth";
+import useDeviceDetect from "@/libs/hooks/useDeviceDetect";
+import MobileJoinPage from "@/libs/components/mobile/account/MobileJoinPage";
+import { sweetTopSuccessAlert } from "@/libs/sweetAlert";
+import { serverSideTranslations } from "next-i18next/pages/serverSideTranslations";
 
-export const getStaticProps = async ({ locale = 'en' }: { locale?: string }) => ({
+export const getStaticProps = async ({
+  locale = "en",
+}: {
+  locale?: string;
+}) => ({
   props: {
-    ...(await serverSideTranslations(locale, ['common'])),
+    ...(await serverSideTranslations(locale, ["common"])),
   },
 });
 
@@ -30,34 +34,34 @@ const JoinPage: NextPage = () => {
   const device = useDeviceDetect();
   const [activeTab, setActiveTab] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
-  const [loginNick, setLoginNick] = useState('');
-  const [loginPassword, setLoginPassword] = useState('');
+  const [loginNick, setLoginNick] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
 
-  const [signupNick, setSignupNick] = useState('');
-  const [signupPassword, setSignupPassword] = useState('');
-  const [signupPhone, setSignupPhone] = useState('');
-  const [signupType, setSignupType] = useState<'USER' | 'AGENT'>('USER');
+  const [signupNick, setSignupNick] = useState("");
+  const [signupPassword, setSignupPassword] = useState("");
+  const [signupPhone, setSignupPhone] = useState("");
+  const [signupType, setSignupType] = useState<"USER" | "AGENT">("USER");
 
   const handleTabChange = (_: React.SyntheticEvent, value: number) => {
-    setError('');
+    setError("");
     setActiveTab(value);
   };
 
   const handleLogin = async () => {
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
       await logIn({
         memberNick: loginNick,
         memberPassword: loginPassword,
       });
-      await sweetTopSuccessAlert('Welcome back!');
-      window.location.href = '/';
+      await sweetTopSuccessAlert("Welcome back!");
+      window.location.href = "/";
     } catch (err: any) {
-      setError(err?.message ?? 'Login failed');
+      setError(err?.message ?? "Login failed");
     } finally {
       setLoading(false);
     }
@@ -65,7 +69,7 @@ const JoinPage: NextPage = () => {
 
   const handleSignup = async () => {
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
       await signUp({
@@ -74,16 +78,16 @@ const JoinPage: NextPage = () => {
         memberPhone: signupPhone,
         memberType: signupType,
       });
-      await sweetTopSuccessAlert('Account created successfully!');
-      window.location.href = '/';
+      await sweetTopSuccessAlert("Account created successfully!");
+      window.location.href = "/";
     } catch (err: any) {
-      setError(err?.message ?? 'Signup failed');
+      setError(err?.message ?? "Signup failed");
     } finally {
       setLoading(false);
     }
   };
 
-  if (device === 'mobile') {
+  if (device === "mobile") {
     return (
       <MobileJoinPage
         activeTab={activeTab}
@@ -111,7 +115,7 @@ const JoinPage: NextPage = () => {
   return (
     <Container maxWidth="sm">
       <Stack spacing={3} sx={{ py: 6 }}>
-        <Typography variant="h4" sx={{ fontWeight: 700, textAlign: 'center' }}>
+        <Typography variant="h4" sx={{ fontWeight: 700, textAlign: "center" }}>
           Login / Register
         </Typography>
 
@@ -143,7 +147,7 @@ const JoinPage: NextPage = () => {
               disabled={loading || !loginNick || !loginPassword}
               onClick={handleLogin}
             >
-              {loading ? 'Logging in...' : 'Login'}
+              {loading ? "Logging in..." : "Login"}
             </Button>
           </Stack>
         ) : (
@@ -171,7 +175,9 @@ const JoinPage: NextPage = () => {
               select
               label="Member Type"
               value={signupType}
-              onChange={(event) => setSignupType(event.target.value as 'USER' | 'AGENT')}
+              onChange={(event) =>
+                setSignupType(event.target.value as "USER" | "AGENT")
+              }
               fullWidth
             >
               <MenuItem value="USER">USER</MenuItem>
@@ -180,17 +186,19 @@ const JoinPage: NextPage = () => {
             <Button
               variant="contained"
               size="large"
-              disabled={loading || !signupNick || !signupPassword || !signupPhone}
+              disabled={
+                loading || !signupNick || !signupPassword || !signupPhone
+              }
               onClick={handleSignup}
             >
-              {loading ? 'Registering...' : 'Create Account'}
+              {loading ? "Registering..." : "Create Account"}
             </Button>
           </Stack>
         )}
 
-        <Box sx={{ textAlign: 'center' }}>
+        <Box sx={{ textAlign: "center" }}>
           <Typography variant="body2" color="text.secondary">
-            Day 2 scope: auth shell is wired. Profile and role pages come next.
+            Welcome
           </Typography>
         </Box>
       </Stack>
