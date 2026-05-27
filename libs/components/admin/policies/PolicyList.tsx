@@ -1,7 +1,8 @@
 import AdminTablePanel, { AdminInlineMenu, AdminTableColumn, AdminTableRow } from '@/libs/components/admin/AdminTablePanel';
+import type { Policy } from '@/libs/types/policy/policy';
 
 type PolicyListProps = {
-  policies: any[];
+  policies: Policy[];
   loading: boolean;
   total: number;
   page: number;

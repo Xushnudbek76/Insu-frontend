@@ -6,19 +6,29 @@ import { CANCEL_POLICY_BY_ADMIN } from '@/apollo/admin/mutation';
 import PolicyList from '@/libs/components/admin/policies/PolicyList';
 import withLayoutAdmin from '@/layout/LayoutAdmin';
 import { getTotal } from '@/libs/utils/format';
+import type { PagedResult } from '@/libs/types/common';
+import type { Policy } from '@/libs/types/policy/policy';
 
 const DEFAULT_LIMIT = 8;
 
+interface AdminGetAllPoliciesResponse {
+  adminGetAllPolicies: PagedResult<Policy>;
+}
+
+interface CancelPolicyByAdminResponse {
+  cancelPolicy: Policy;
+}
+
 const AdminPolicies: NextPage = () => {
   const [anchorEl, setAnchorEl] = useState<Record<string, HTMLElement | null>>({});
-  const [policies, setPolicies] = useState<any[]>([]);
+  const [policies, setPolicies] = useState<Policy[]>([]);
   const [policiesTotal, setPoliciesTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(DEFAULT_LIMIT);
   const [status, setStatus] = useState('ALL');
   const [searchText, setSearchText] = useState('');
   const [submittedText, setSubmittedText] = useState('');
-  const [cancelPolicy] = useMutation(CANCEL_POLICY_BY_ADMIN);
+  const [cancelPolicy] = useMutation<CancelPolicyByAdminResponse>(CANCEL_POLICY_BY_ADMIN);
 
   const inquiry = useMemo(() => ({
     page,
@@ -31,16 +41,15 @@ const AdminPolicies: NextPage = () => {
     },
   }), [limit, page, status, submittedText]);
 
-  const { data, loading, refetch } = useQuery(ADMIN_GET_ALL_POLICIES, {
+  const { data, loading, refetch } = useQuery<AdminGetAllPoliciesResponse>(ADMIN_GET_ALL_POLICIES, {
     fetchPolicy: 'network-only',
     notifyOnNetworkStatusChange: true,
     variables: { input: inquiry },
   });
 
   useEffect(() => {
-    const result = data as any;
-    setPolicies(result?.adminGetAllPolicies?.list ?? []);
-    setPoliciesTotal(getTotal(result?.adminGetAllPolicies?.metaCounter));
+    setPolicies(data?.adminGetAllPolicies?.list ?? []);
+    setPoliciesTotal(getTotal(data?.adminGetAllPolicies?.metaCounter));
   }, [data]);
 
   const openMenu = (key: string, event: React.MouseEvent<HTMLButtonElement>) => {
@@ -59,7 +68,7 @@ const AdminPolicies: NextPage = () => {
     setPolicies((prev) => prev.map((policy) => (policy._id === _id ? { ...policy, policyStatus: 'CANCELLED' } : policy)));
     try {
       const result = await cancelPolicy({ variables: { policyId: _id } });
-      const updated = (result.data as any)?.cancelPolicy;
+      const updated = result.data?.cancelPolicy;
       if (updated) setPolicies((prev) => prev.map((policy) => (policy._id === _id ? { ...policy, ...updated } : policy)));
       syncPolicies();
     } catch (error) {

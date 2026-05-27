@@ -2,9 +2,10 @@ import { Box, Stack } from '@mui/material';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import AdminTablePanel, { AdminTableColumn, AdminTableRow } from '@/libs/components/admin/AdminTablePanel';
 import { adminUserImage } from '@/libs/admin/image';
+import type { Comment } from '@/libs/types/comment/comment';
 
 type CommentListProps = {
-  comments: any[];
+  comments: Comment[];
   loading: boolean;
   total: number;
   page: number;

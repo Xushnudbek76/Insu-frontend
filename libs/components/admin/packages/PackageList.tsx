@@ -1,10 +1,11 @@
 import Link from 'next/link';
 import { Box, Stack } from '@mui/material';
 import AdminTablePanel, { AdminInlineMenu, AdminTableColumn, AdminTableRow } from '@/libs/components/admin/AdminTablePanel';
-import { toAssetUrl } from '@/libs/api';
+import { formatCoverage, getPackageImage } from '@/libs/components/packages/helpers';
+import type { InsurancePackage } from '@/libs/types/package/package';
 
 type PackageListProps = {
-  packages: any[];
+  packages: InsurancePackage[];
   loading: boolean;
   total: number;
   page: number;
@@ -51,7 +52,7 @@ const PackageList = ({
 }: PackageListProps) => {
   const rows: AdminTableRow[] = packages.map((pkg) => {
     const title = pkg.packageTitle || 'Untitled package';
-    const image = toAssetUrl(pkg.packageImages?.[0]) ?? '/img/placeholder-article.svg';
+    const image = getPackageImage(pkg.packageImages);
 
     return {
       id: pkg._id,
@@ -65,7 +66,7 @@ const PackageList = ({
           </Stack>
         ),
         price: money(pkg.packagePrice),
-        coverage: money(pkg.packageCoverageLimit),
+        coverage: formatCoverage(pkg.packageCoverageLimit),
         type: pkg.packageType,
         status: (
           <AdminInlineMenu

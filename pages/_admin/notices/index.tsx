@@ -9,6 +9,8 @@ import { CREATE_NOTICE_BY_ADMIN, REMOVE_NOTICE_BY_ADMIN, UPDATE_NOTICE_BY_ADMIN 
 import { GET_ALL_NOTICES_BY_ADMIN } from '@/apollo/notice/query';
 import withLayoutAdmin from '@/layout/LayoutAdmin';
 import { getTotal } from '@/libs/utils/format';
+import type { PagedResult } from '@/libs/types/common';
+import type { Notice } from '@/libs/types/notice/notice';
 
 const DEFAULT_LIMIT = 8;
 const noticeCategories = ['EVENT', 'UPDATE', 'PROMOTION', 'SYSTEM'];
@@ -22,6 +24,10 @@ const emptyForm = {
   noticeContent: '',
 };
 
+interface GetAllNoticesByAdminResponse {
+  getAllNoticesByAdmin: PagedResult<Notice>;
+}
+
 const columns: AdminTableColumn[] = [
   { key: 'title', label: 'Title' },
   { key: 'category', label: 'Category', align: 'center' },
@@ -34,7 +40,7 @@ const formatDate = (value?: string) => (value ? new Date(value).toLocaleDateStri
 
 const AdminNotices: NextPage = () => {
   const [anchorEl, setAnchorEl] = useState<Record<string, HTMLElement | null>>({});
-  const [notices, setNotices] = useState<any[]>([]);
+  const [notices, setNotices] = useState<Notice[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(DEFAULT_LIMIT);
@@ -60,16 +66,15 @@ const AdminNotices: NextPage = () => {
     },
   }), [category, limit, page, status, submittedText]);
 
-  const { data, loading, refetch } = useQuery(GET_ALL_NOTICES_BY_ADMIN, {
+  const { data, loading, refetch } = useQuery<GetAllNoticesByAdminResponse>(GET_ALL_NOTICES_BY_ADMIN, {
     fetchPolicy: 'network-only',
     notifyOnNetworkStatusChange: true,
     variables: { input: inquiry },
   });
 
   useEffect(() => {
-    const result = data as any;
-    setNotices(result?.getAllNoticesByAdmin?.list ?? []);
-    setTotal(getTotal(result?.getAllNoticesByAdmin?.metaCounter));
+    setNotices(data?.getAllNoticesByAdmin?.list ?? []);
+    setTotal(getTotal(data?.getAllNoticesByAdmin?.metaCounter));
   }, [data]);
 
   const syncNotices = () => {

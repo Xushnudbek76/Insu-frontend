@@ -27,6 +27,8 @@ import { getMeLiked, useLikeToggleMap } from "@/libs/hooks/useLikeToggle";
 import MobileAgentsPage from "@/libs/components/mobile/agents/MobileAgentsPage";
 import { sweetMixinErrorAlert } from "@/libs/sweetAlert";
 import { toAssetUrl } from "@/libs/api";
+import type { PagedResult } from "@/libs/types/common";
+import type { MemberSummary } from "@/libs/types/member/member";
 import { formatCount } from "@/libs/utils/format";
 import { buildPageNumbers } from "@/libs/utils/pagination";
 
@@ -39,30 +41,10 @@ const SORT_OPTIONS = [
   { value: "memberComments", labelKey: "Most Comments" },
 ];
 
-interface AgentData {
-  _id: string;
-  memberType?: string | null;
-  memberStatus?: string | null;
-  memberNick?: string | null;
-  memberFullName?: string | null;
-  memberImage?: string | null;
-  memberLikes?: number | null;
-  memberViews?: number | null;
-  memberComments?: number | null;
-  meLiked?:
-    | {
-        memberId?: string | null;
-        likeRefId?: string | null;
-        myFavorite: boolean;
-      }[]
-    | null;
-}
+type AgentData = MemberSummary;
 
 interface GetAgentsResponse {
-  getAgents: {
-    list: AgentData[];
-    metaCounter: { total: number }[];
-  };
+  getAgents: PagedResult<AgentData>;
 }
 
 const displayName = (agent: AgentData, fallback: string) =>
@@ -99,6 +81,7 @@ const AgentsPage: NextPage = () => {
       },
     },
   });
+  
   const [likeTargetMember] = useMutation<{ likeTargetMember: AgentData }>(
     LIKE_TARGET_MEMBER,
   );

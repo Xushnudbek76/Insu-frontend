@@ -6,11 +6,17 @@ import { REMOVE_COMMENT_BY_ADMIN } from '@/apollo/admin/mutation';
 import CommentList from '@/libs/components/admin/comments/CommentList';
 import withLayoutAdmin from '@/layout/LayoutAdmin';
 import { getTotal } from '@/libs/utils/format';
+import type { Comment } from '@/libs/types/comment/comment';
+import type { PagedResult } from '@/libs/types/common';
 
 const DEFAULT_LIMIT = 8;
 
+interface GetAdminLatestCommentsResponse {
+  getLatestComments: PagedResult<Comment>;
+}
+
 const AdminComments: NextPage = () => {
-  const [comments, setComments] = useState<any[]>([]);
+  const [comments, setComments] = useState<Comment[]>([]);
   const [commentsTotal, setCommentsTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(DEFAULT_LIMIT);
@@ -25,16 +31,15 @@ const AdminComments: NextPage = () => {
     direction: 'DESC',
   }), [limit, page]);
 
-  const { data, loading, refetch } = useQuery(GET_ADMIN_LATEST_COMMENTS, {
+  const { data, loading, refetch } = useQuery<GetAdminLatestCommentsResponse>(GET_ADMIN_LATEST_COMMENTS, {
     fetchPolicy: 'network-only',
     notifyOnNetworkStatusChange: true,
     variables: { input: inquiry },
   });
 
   useEffect(() => {
-    const result = data as any;
-    setComments(result?.getLatestComments?.list ?? []);
-    setCommentsTotal(getTotal(result?.getLatestComments?.metaCounter));
+    setComments(data?.getLatestComments?.list ?? []);
+    setCommentsTotal(getTotal(data?.getLatestComments?.metaCounter));
   }, [data]);
 
   const syncComments = () => {

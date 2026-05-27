@@ -6,18 +6,28 @@ import { UPDATE_PACKAGE_BY_ADMIN } from '@/apollo/admin/mutation';
 import PackageList from '@/libs/components/admin/packages/PackageList';
 import withLayoutAdmin from '@/layout/LayoutAdmin';
 import { getTotal } from '@/libs/utils/format';
+import type { PagedResult } from '@/libs/types/common';
+import type { InsurancePackage } from '@/libs/types/package/package';
 
 const DEFAULT_LIMIT = 8;
 
+interface GetAllPackagesByAdminResponse {
+  getAllPackagesByAdmin: PagedResult<InsurancePackage>;
+}
+
+interface UpdatePackageByAdminResponse {
+  updatePackageByAdmin: InsurancePackage;
+}
+
 const AdminPackages: NextPage = () => {
   const [anchorEl, setAnchorEl] = useState<Record<string, HTMLElement | null>>({});
-  const [packages, setPackages] = useState<any[]>([]);
+  const [packages, setPackages] = useState<InsurancePackage[]>([]);
   const [packagesTotal, setPackagesTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(DEFAULT_LIMIT);
   const [status, setStatus] = useState('ALL');
   const [type, setType] = useState('ALL');
-  const [updatePackage] = useMutation(UPDATE_PACKAGE_BY_ADMIN);
+  const [updatePackage] = useMutation<UpdatePackageByAdminResponse>(UPDATE_PACKAGE_BY_ADMIN);
 
   const inquiry = useMemo(() => ({
     page,
@@ -30,16 +40,15 @@ const AdminPackages: NextPage = () => {
     },
   }), [limit, page, status, type]);
 
-  const { data, loading, refetch } = useQuery(GET_ALL_PACKAGES_BY_ADMIN, {
+  const { data, loading, refetch } = useQuery<GetAllPackagesByAdminResponse>(GET_ALL_PACKAGES_BY_ADMIN, {
     fetchPolicy: 'network-only',
     notifyOnNetworkStatusChange: true,
     variables: { input: inquiry },
   });
 
   useEffect(() => {
-    const result = data as any;
-    setPackages(result?.getAllPackagesByAdmin?.list ?? []);
-    setPackagesTotal(getTotal(result?.getAllPackagesByAdmin?.metaCounter));
+    setPackages(data?.getAllPackagesByAdmin?.list ?? []);
+    setPackagesTotal(getTotal(data?.getAllPackagesByAdmin?.metaCounter));
   }, [data]);
 
   const openMenu = (key: string, event: React.MouseEvent<HTMLButtonElement>) => {
@@ -60,7 +69,7 @@ const AdminPackages: NextPage = () => {
     closeMenu();
     try {
       const result = await updatePackage({ variables: { input: { _id, packageStatus } } });
-      const updated = (result.data as any)?.updatePackageByAdmin;
+      const updated = result.data?.updatePackageByAdmin;
       if (!updated?._id) throw new Error('Package status update returned no package payload');
       setPackages((prev) => prev.map((pkg) => (pkg._id === _id ? { ...pkg, ...updated } : pkg)));
       await syncPackages();

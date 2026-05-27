@@ -2,9 +2,10 @@ import Link from 'next/link';
 import { Box, Stack } from '@mui/material';
 import AdminTablePanel, { AdminInlineMenu, AdminTableColumn, AdminTableRow } from '@/libs/components/admin/AdminTablePanel';
 import { adminUserImage } from '@/libs/admin/image';
+import type { MemberSummary } from '@/libs/types/member/member';
 
 type MemberListProps = {
-  members: any[];
+  members: MemberSummary[];
   loading: boolean;
   total: number;
   page: number;

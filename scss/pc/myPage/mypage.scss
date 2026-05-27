@@ -334,6 +334,10 @@
         align-items: start;
     }
 
+    .mypage-profile-grid-single {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
     .mypage-form {
         display: flex;
         flex-direction: column;

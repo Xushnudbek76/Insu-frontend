@@ -1,8 +1,9 @@
 import { Box } from '@mui/material';
 import AdminTablePanel, { AdminTableColumn, AdminTableRow } from '@/libs/components/admin/AdminTablePanel';
+import type { Claim } from '@/libs/types/claim/claim';
 
 type ClaimListProps = {
-  claims: any[];
+  claims: Claim[];
   loading: boolean;
   total: number;
   page: number;

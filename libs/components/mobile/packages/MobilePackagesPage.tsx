@@ -9,6 +9,7 @@ import TuneOutlinedIcon from '@mui/icons-material/TuneOutlined';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ShieldOutlinedIcon from '@mui/icons-material/ShieldOutlined';
+import type { PackageSelectOption } from '@/libs/components/packages/config';
 import type { PackageFilterValues } from '@/libs/components/packages/PackageFilter';
 import PackageFilter from '@/libs/components/packages/PackageFilter';
 import { buildPageNumbers } from '@/libs/utils/pagination';
@@ -29,18 +30,13 @@ interface InsurancePackage {
   meLiked?: { myFavorite: boolean }[] | null;
 }
 
-interface Option {
-  value: string;
-  label: string;
-}
-
 interface MobilePackagesPageProps {
   filterValues: PackageFilterValues;
   setFilterValues: Dispatch<SetStateAction<PackageFilterValues>>;
-  typeOptions: Option[];
-  statusOptions: Option[];
-  coverageOptions: Option[];
-  sortOptions: Option[];
+  typeOptions: PackageSelectOption[];
+  statusOptions: PackageSelectOption[];
+  coverageOptions: PackageSelectOption[];
+  sortOptions: PackageSelectOption[];
   packages: InsurancePackage[];
   total: number;
   page: number;

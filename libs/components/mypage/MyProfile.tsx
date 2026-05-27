@@ -2,14 +2,10 @@ import { ChangeEvent } from 'react';
 import { Box, Stack } from '@mui/material';
 import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
-import type { CustomJwtPayload } from '@/libs/types/customJwtPayload';
-import { avatarUrl, formatCurrency, PolicyData, ProfileForm, ClaimData } from './types';
+import { avatarUrl, ProfileForm } from './types';
 
 interface MyProfileProps {
-  user: CustomJwtPayload;
   profileForm: ProfileForm;
-  policies: PolicyData[];
-  myClaims: ClaimData[];
   t: (key: string) => string;
   onProfileChange: (field: keyof ProfileForm) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   onUploadProfileImage: (event: ChangeEvent<HTMLInputElement>) => void;
@@ -17,16 +13,13 @@ interface MyProfileProps {
 }
 
 const MyProfile = ({
-  user,
   profileForm,
-  policies,
-  myClaims,
   t,
   onProfileChange,
   onUploadProfileImage,
   onUpdateProfile,
 }: MyProfileProps) => (
-  <Box className='mypage-profile-grid'>
+  <Box className='mypage-profile-grid mypage-profile-grid-single'>
     <Stack className='mypage-panel'>
       <Stack className='mypage-panel-head'>
         <span>{t('Profile Settings')}</span>
@@ -79,23 +72,6 @@ const MyProfile = ({
             <EditOutlinedIcon />
             {t('Update Profile')}
           </button>
-        </Stack>
-      </Box>
-    </Stack>
-
-    <Stack className='mypage-preview-card'>
-      <Box component='img' src={avatarUrl(profileForm.memberImage)} alt={profileForm.memberNick} />
-      <span>{user.memberType}</span>
-      <h2>{profileForm.memberFullName || profileForm.memberNick || t('Member')}</h2>
-      <p>{profileForm.memberDesc || t('Your profile description will appear here.')}</p>
-      <Box className='mypage-preview-meta'>
-        <Stack>
-          <strong>{formatCurrency(policies.reduce((sum, policy) => sum + (policy.premiumAmount ?? 0), 0))}</strong>
-          <span>{t('Monthly Premiums')}</span>
-        </Stack>
-        <Stack>
-          <strong>{myClaims.length}</strong>
-          <span>{t('Claims')}</span>
         </Stack>
       </Box>
     </Stack>

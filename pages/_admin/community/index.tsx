@@ -6,18 +6,28 @@ import { REMOVE_BOARD_ARTICLE_BY_ADMIN, UPDATE_BOARD_ARTICLE_BY_ADMIN } from '@/
 import CommunityArticleList from '@/libs/components/admin/community/CommunityArticleList';
 import withLayoutAdmin from '@/layout/LayoutAdmin';
 import { getTotal } from '@/libs/utils/format';
+import type { BoardArticle } from '@/libs/types/board-article/board-article';
+import type { PagedResult } from '@/libs/types/common';
 
 const DEFAULT_LIMIT = 8;
 
+interface GetAllBoardArticlesByAdminResponse {
+  getAllBoardArticlesByAdmin: PagedResult<BoardArticle>;
+}
+
+interface UpdateBoardArticleByAdminResponse {
+  updateBoardArticleByAdmin: BoardArticle;
+}
+
 const AdminCommunity: NextPage = () => {
   const [anchorEl, setAnchorEl] = useState<Record<string, HTMLElement | null>>({});
-  const [articles, setArticles] = useState<any[]>([]);
+  const [articles, setArticles] = useState<BoardArticle[]>([]);
   const [articlesTotal, setArticlesTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(DEFAULT_LIMIT);
   const [status, setStatus] = useState('ALL');
   const [category, setCategory] = useState('ALL');
-  const [updateArticle] = useMutation(UPDATE_BOARD_ARTICLE_BY_ADMIN);
+  const [updateArticle] = useMutation<UpdateBoardArticleByAdminResponse>(UPDATE_BOARD_ARTICLE_BY_ADMIN);
   const [removeArticle] = useMutation(REMOVE_BOARD_ARTICLE_BY_ADMIN);
 
   const inquiry = useMemo(() => ({
@@ -31,16 +41,15 @@ const AdminCommunity: NextPage = () => {
     },
   }), [category, limit, page, status]);
 
-  const { data, loading, refetch } = useQuery(GET_ALL_BOARD_ARTICLES_BY_ADMIN, {
+  const { data, loading, refetch } = useQuery<GetAllBoardArticlesByAdminResponse>(GET_ALL_BOARD_ARTICLES_BY_ADMIN, {
     fetchPolicy: 'network-only',
     notifyOnNetworkStatusChange: true,
     variables: { input: inquiry },
   });
 
   useEffect(() => {
-    const result = data as any;
-    setArticles(result?.getAllBoardArticlesByAdmin?.list ?? []);
-    setArticlesTotal(getTotal(result?.getAllBoardArticlesByAdmin?.metaCounter));
+    setArticles(data?.getAllBoardArticlesByAdmin?.list ?? []);
+    setArticlesTotal(getTotal(data?.getAllBoardArticlesByAdmin?.metaCounter));
   }, [data]);
 
   const openMenu = (key: string, event: React.MouseEvent<HTMLButtonElement>) => {
@@ -58,7 +67,7 @@ const AdminCommunity: NextPage = () => {
     setArticles((prev) => prev.map((article) => (article._id === _id ? { ...article, articleStatus } : article)));
     try {
       const result = await updateArticle({ variables: { input: { _id, articleStatus } } });
-      const updated = (result.data as any)?.updateBoardArticleByAdmin;
+      const updated = result.data?.updateBoardArticleByAdmin;
       if (updated) setArticles((prev) => prev.map((article) => (article._id === _id ? { ...article, ...updated } : article)));
       syncArticles();
     } catch (error) {

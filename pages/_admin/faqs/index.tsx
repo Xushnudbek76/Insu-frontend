@@ -9,6 +9,8 @@ import { CREATE_FAQ_BY_ADMIN, REMOVE_FAQ_BY_ADMIN, UPDATE_FAQ_BY_ADMIN } from '@
 import { GET_ALL_FAQS_BY_ADMIN } from '@/apollo/faq/query';
 import withLayoutAdmin from '@/layout/LayoutAdmin';
 import { getTotal } from '@/libs/utils/format';
+import type { PagedResult } from '@/libs/types/common';
+import type { Faq } from '@/libs/types/faq/faq';
 
 const DEFAULT_LIMIT = 8;
 const faqCategories = ['POLICY', 'CLAIMS', 'PAYMENT', 'AGENTS', 'ACCOUNT', 'COMMUNITY', 'OTHER'];
@@ -23,6 +25,10 @@ const emptyForm = {
   faqOrder: 0,
 };
 
+interface GetAllFaqsByAdminResponse {
+  getAllFaqsByAdmin: PagedResult<Faq>;
+}
+
 const columns: AdminTableColumn[] = [
   { key: 'question', label: 'Question' },
   { key: 'category', label: 'Category', align: 'center' },
@@ -33,7 +39,7 @@ const columns: AdminTableColumn[] = [
 
 const AdminFaqs: NextPage = () => {
   const [anchorEl, setAnchorEl] = useState<Record<string, HTMLElement | null>>({});
-  const [faqs, setFaqs] = useState<any[]>([]);
+  const [faqs, setFaqs] = useState<Faq[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(DEFAULT_LIMIT);
@@ -59,16 +65,15 @@ const AdminFaqs: NextPage = () => {
     },
   }), [category, limit, page, status, submittedText]);
 
-  const { data, loading, refetch } = useQuery(GET_ALL_FAQS_BY_ADMIN, {
+  const { data, loading, refetch } = useQuery<GetAllFaqsByAdminResponse>(GET_ALL_FAQS_BY_ADMIN, {
     fetchPolicy: 'network-only',
     notifyOnNetworkStatusChange: true,
     variables: { input: inquiry },
   });
 
   useEffect(() => {
-    const result = data as any;
-    setFaqs(result?.getAllFaqsByAdmin?.list ?? []);
-    setTotal(getTotal(result?.getAllFaqsByAdmin?.metaCounter));
+    setFaqs(data?.getAllFaqsByAdmin?.list ?? []);
+    setTotal(getTotal(data?.getAllFaqsByAdmin?.metaCounter));
   }, [data]);
 
   const syncFaqs = () => {

@@ -6,12 +6,22 @@ import { UPDATE_MEMBER_BY_ADMIN } from '@/apollo/admin/mutation';
 import MemberList from '@/libs/components/admin/users/MemberList';
 import withLayoutAdmin from '@/layout/LayoutAdmin';
 import { getTotal } from '@/libs/utils/format';
+import type { PagedResult } from '@/libs/types/common';
+import type { MemberSummary } from '@/libs/types/member/member';
 
 const DEFAULT_LIMIT = 8;
 
+interface GetAllMembersByAdminResponse {
+  getAllMembersByAdmin: PagedResult<MemberSummary>;
+}
+
+interface UpdateMemberByAdminResponse {
+  updateMemberByAdmin: MemberSummary;
+}
+
 const AdminUsers: NextPage = () => {
   const [anchorEl, setAnchorEl] = useState<Record<string, HTMLElement | null>>({});
-  const [members, setMembers] = useState<any[]>([]);
+  const [members, setMembers] = useState<MemberSummary[]>([]);
   const [membersTotal, setMembersTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(DEFAULT_LIMIT);
@@ -19,7 +29,7 @@ const AdminUsers: NextPage = () => {
   const [type, setType] = useState('ALL');
   const [searchText, setSearchText] = useState('');
   const [submittedText, setSubmittedText] = useState('');
-  const [updateMember] = useMutation(UPDATE_MEMBER_BY_ADMIN);
+  const [updateMember] = useMutation<UpdateMemberByAdminResponse>(UPDATE_MEMBER_BY_ADMIN);
 
   const inquiry = useMemo(() => ({
     page,
@@ -33,16 +43,15 @@ const AdminUsers: NextPage = () => {
     },
   }), [limit, page, status, submittedText, type]);
 
-  const { data, loading, refetch } = useQuery(GET_ALL_MEMBERS_BY_ADMIN, {
+  const { data, loading, refetch } = useQuery<GetAllMembersByAdminResponse>(GET_ALL_MEMBERS_BY_ADMIN, {
     fetchPolicy: 'network-only',
     notifyOnNetworkStatusChange: true,
     variables: { input: inquiry },
   });
 
   useEffect(() => {
-    const result = data as any;
-    setMembers(result?.getAllMembersByAdmin?.list ?? []);
-    setMembersTotal(getTotal(result?.getAllMembersByAdmin?.metaCounter));
+    setMembers(data?.getAllMembersByAdmin?.list ?? []);
+    setMembersTotal(getTotal(data?.getAllMembersByAdmin?.metaCounter));
   }, [data]);
 
   const openMenu = (key: string, event: React.MouseEvent<HTMLButtonElement>) => {
@@ -60,7 +69,7 @@ const AdminUsers: NextPage = () => {
     setMembers((prev) => prev.map((member) => (member._id === _id ? { ...member, ...patch } : member)));
     try {
       const result = await updateMember({ variables: { input: { _id, ...patch } } });
-      const updated = (result.data as any)?.updateMemberByAdmin;
+      const updated = result.data?.updateMemberByAdmin;
       if (updated) {
         setMembers((prev) => prev.map((member) => (member._id === _id ? { ...member, ...updated } : member)));
       }

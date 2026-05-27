@@ -1,6 +1,7 @@
 import { ChangeEvent } from 'react';
 import { Box } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
+import type { PackageSelectOption } from '@/libs/components/packages/config';
 
 export interface PackageFilterValues {
   selectedType: string;
@@ -11,16 +12,11 @@ export interface PackageFilterValues {
   coverageLimit: string;
 }
 
-interface FilterOption {
-  value: string;
-  label: string;
-}
-
 interface PackageFilterProps {
   values: PackageFilterValues;
-  typeOptions: FilterOption[];
-  statusOptions: FilterOption[];
-  coverageOptions: FilterOption[];
+  typeOptions: PackageSelectOption[];
+  statusOptions: PackageSelectOption[];
+  coverageOptions: PackageSelectOption[];
   onChange: (values: PackageFilterValues) => void;
   onApply: () => void;
 }

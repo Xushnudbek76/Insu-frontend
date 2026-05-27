@@ -71,10 +71,7 @@ const MobileMyPage = ({
 
     {access.category === 'myProfile' && access.user && (
       <MyProfile
-        user={access.user}
         profileForm={profile.form}
-        policies={policies.items}
-        myClaims={claims.items}
         t={t}
         onProfileChange={profile.onChange}
         onUploadProfileImage={profile.onUploadImage}

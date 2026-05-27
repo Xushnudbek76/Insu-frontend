@@ -5,11 +5,17 @@ import { GET_ALL_CLAIMS_BY_ADMIN } from '@/apollo/admin/query';
 import ClaimList from '@/libs/components/admin/claims/ClaimList';
 import withLayoutAdmin from '@/layout/LayoutAdmin';
 import { getTotal } from '@/libs/utils/format';
+import type { Claim } from '@/libs/types/claim/claim';
+import type { PagedResult } from '@/libs/types/common';
 
 const DEFAULT_LIMIT = 8;
 
+interface GetAllClaimsByAdminResponse {
+  getAllClaimsByAdmin: PagedResult<Claim>;
+}
+
 const AdminClaims: NextPage = () => {
-  const [claims, setClaims] = useState<any[]>([]);
+  const [claims, setClaims] = useState<Claim[]>([]);
   const [claimsTotal, setClaimsTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(DEFAULT_LIMIT);
@@ -28,16 +34,15 @@ const AdminClaims: NextPage = () => {
     },
   }), [limit, page, status, submittedText]);
 
-  const { data, loading, refetch } = useQuery(GET_ALL_CLAIMS_BY_ADMIN, {
+  const { data, loading } = useQuery<GetAllClaimsByAdminResponse>(GET_ALL_CLAIMS_BY_ADMIN, {
     fetchPolicy: 'network-only',
     notifyOnNetworkStatusChange: true,
     variables: { input: inquiry },
   });
 
   useEffect(() => {
-    const result = data as any;
-    setClaims(result?.getAllClaimsByAdmin?.list ?? []);
-    setClaimsTotal(getTotal(result?.getAllClaimsByAdmin?.metaCounter));
+    setClaims(data?.getAllClaimsByAdmin?.list ?? []);
+    setClaimsTotal(getTotal(data?.getAllClaimsByAdmin?.metaCounter));
   }, [data]);
 
   return (

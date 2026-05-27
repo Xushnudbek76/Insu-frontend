@@ -18,11 +18,19 @@ import { LIKE_TARGET_PACKAGE } from '@/apollo/package/mutation';
 import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
 import { getMeLiked, useLikeToggleMap } from '@/libs/hooks/useLikeToggle';
 import MobilePackagesPage from '@/libs/components/mobile/packages/MobilePackagesPage';
+import {
+  PACKAGE_COVERAGE_OPTIONS,
+  PACKAGE_SORT_OPTIONS,
+  PACKAGE_STATUS_FILTER_OPTIONS,
+  PACKAGE_TYPE_OPTIONS,
+} from '@/libs/components/packages/config';
+import { formatCoverage, getPackageImage, typeLabel } from '@/libs/components/packages/helpers';
 import { sweetMixinErrorAlert } from '@/libs/sweetAlert';
-import { toAssetUrl } from '@/libs/api';
+import type { PagedResult } from '@/libs/types/common';
+import type { InsurancePackage } from '@/libs/types/package/package';
 import { formatCount } from '@/libs/utils/format';
 import { buildPageNumbers } from '@/libs/utils/pagination';
-import { isTopRankedPackage, PACKAGE_STATUS_OPTIONS } from '@/libs/utils/ranking';
+import { isTopRankedPackage } from '@/libs/utils/ranking';
 import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
 import PackageFilter, { PackageFilterValues } from '@/libs/components/packages/PackageFilter';
 
@@ -34,55 +42,8 @@ export const getStaticProps = async ({ locale = 'en' }: { locale?: string }) => 
 
 const LIMIT = 9;
 
-const TYPE_OPTIONS = [
-  { value: '', label: 'All Types' },
-  { value: 'HEALTH', label: 'Health' },
-  { value: 'AUTO', label: 'Auto' },
-  { value: 'HOME', label: 'Home' },
-  { value: 'TRAVEL', label: 'Travel' },
-];
-
-const STATUS_OPTIONS = [...PACKAGE_STATUS_OPTIONS];
-
-const COVERAGE_OPTIONS = [
-  { value: '', label: 'Any' },
-  { value: '100000', label: '$100k+' },
-  { value: '250000', label: '$250k+' },
-  { value: '500000', label: '$500k+' },
-  { value: '1000000', label: '$1M+' },
-];
-
-const SORT_OPTIONS = [
-  { value: 'createdAt', label: 'Newest' },
-  { value: 'packageViews', label: 'Most Viewed' },
-  { value: 'packageLikes', label: 'Most Liked' },
-  { value: 'packagePrice', label: 'Price' },
-  { value: 'packageRank', label: 'Top Ranked' },
-];
-
-interface InsurancePackage {
-  _id: string;
-  packageType: string;
-  packageStatus: string;
-  packageTitle: string;
-  packagePrice: number;
-  packageViews?: number | null;
-  packageLikes?: number | null;
-  packageRank?: number | null;
-  packageDesc?: string | null;
-  packageImages?: string[] | null;
-  packageCoverageLimit?: number | null;
-  packageMinAge?: number | null;
-  packageMaxAge?: number | null;
-  packageComments?: number | null;
-  meLiked?: { myFavorite: boolean }[] | null;
-}
-
 interface GetPackagesResponse {
-  getPackages: {
-    list: InsurancePackage[];
-    metaCounter: { total: number }[];
-  };
+  getPackages: PagedResult<InsurancePackage>;
 }
 
 const PackagesPage: NextPage = () => {
@@ -196,20 +157,7 @@ const PackagesPage: NextPage = () => {
     void packageLikes.toggle(id);
   };
 
-  const getImage = (images?: string[] | null) =>
-    toAssetUrl(images?.[0]) ?? '/img/placeholder-article.svg';
-
-  const formatCoverage = (value?: number | null) =>
-    value == null
-      ? null
-      : value >= 1_000_000
-        ? `$${(value / 1_000_000).toFixed(0)}M+`
-        : value >= 1_000
-          ? `$${(value / 1_000).toFixed(0)}k`
-          : `$${value}`;
-
-  const typeLabel = (value: string) =>
-    ({ AUTO: 'Auto', HOME: 'Home', HEALTH: 'Health', TRAVEL: 'Travel' })[value] ?? value;
+  const getImage = getPackageImage;
 
   const total = data?.getPackages?.metaCounter?.[0]?.total ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / LIMIT));
@@ -220,10 +168,10 @@ const PackagesPage: NextPage = () => {
       <MobilePackagesPage
         filterValues={filterValues}
         setFilterValues={setFilterValues}
-        typeOptions={TYPE_OPTIONS}
-        statusOptions={STATUS_OPTIONS}
-        coverageOptions={COVERAGE_OPTIONS}
-        sortOptions={SORT_OPTIONS}
+        typeOptions={PACKAGE_TYPE_OPTIONS}
+        statusOptions={PACKAGE_STATUS_FILTER_OPTIONS}
+        coverageOptions={PACKAGE_COVERAGE_OPTIONS}
+        sortOptions={PACKAGE_SORT_OPTIONS}
         packages={visiblePackages}
         total={total}
         page={page}
@@ -256,12 +204,12 @@ const PackagesPage: NextPage = () => {
         </p>
       </Box>
 
-      <Box className={'packages-body'}>
+          <Box className={'packages-body'}>
         <PackageFilter
           values={filterValues}
-          typeOptions={TYPE_OPTIONS}
-          statusOptions={STATUS_OPTIONS}
-          coverageOptions={COVERAGE_OPTIONS}
+          typeOptions={PACKAGE_TYPE_OPTIONS}
+          statusOptions={PACKAGE_STATUS_FILTER_OPTIONS}
+          coverageOptions={PACKAGE_COVERAGE_OPTIONS}
           onChange={setFilterValues}
           onApply={handleApplyFilters}
         />
@@ -281,7 +229,7 @@ const PackagesPage: NextPage = () => {
                   setPage(1);
                 }}
               >
-                {SORT_OPTIONS.map((option) => (
+                {PACKAGE_SORT_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
                   </option>

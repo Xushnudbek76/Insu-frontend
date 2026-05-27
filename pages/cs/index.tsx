@@ -6,6 +6,9 @@ import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDown
 import { GET_FAQS } from '@/apollo/faq/query';
 import { GET_NOTICES } from '@/apollo/notice/query';
 import withLayoutMain from '@/layout/LayoutHome';
+import type { PagedResult } from '@/libs/types/common';
+import type { Faq } from '@/libs/types/faq/faq';
+import type { Notice } from '@/libs/types/notice/notice';
 
 const faqCategories = [
   { label: 'Policy', value: 'POLICY' },
@@ -42,25 +45,33 @@ const formatDate = (value?: string) => {
   }).format(new Date(value));
 };
 
+interface GetNoticesResponse {
+  getNotices: PagedResult<Notice>;
+}
+
+interface GetFaqsResponse {
+  getFaqs: PagedResult<Faq>;
+}
+
 const CsPage: NextPage = () => {
   const [activeTab, setActiveTab] = useState<'NOTICE' | 'FAQ'>('NOTICE');
   const [activeCategory, setActiveCategory] = useState('POLICY');
   const [openNoticeId, setOpenNoticeId] = useState<string | null>(null);
   const [openFaqId, setOpenFaqId] = useState<string | null>(null);
 
-  const { data: noticeData, loading: noticeLoading } = useQuery(GET_NOTICES, {
+  const { data: noticeData, loading: noticeLoading } = useQuery<GetNoticesResponse>(GET_NOTICES, {
     fetchPolicy: 'network-only',
     variables: { input: noticeInquiry },
   });
-  const { data: faqData, loading: faqLoading } = useQuery(GET_FAQS, {
+  const { data: faqData, loading: faqLoading } = useQuery<GetFaqsResponse>(GET_FAQS, {
     fetchPolicy: 'network-only',
     variables: { input: faqInquiry },
   });
 
-  const notices = (noticeData as any)?.getNotices?.list ?? [];
-  const faqs = (faqData as any)?.getFaqs?.list ?? [];
+  const notices = noticeData?.getNotices?.list ?? [];
+  const faqs = faqData?.getFaqs?.list ?? [];
   const visibleFaqs = useMemo(
-    () => faqs.filter((faq: any) => faq.faqCategory === activeCategory),
+    () => faqs.filter((faq) => faq.faqCategory === activeCategory),
     [activeCategory, faqs],
   );
 
@@ -93,7 +104,7 @@ const CsPage: NextPage = () => {
             {noticeLoading ? <Box className='cs-empty-row'>Loading...</Box> : null}
             {!noticeLoading && !notices.length ? <Box className='cs-empty-row'>No notices found.</Box> : null}
 
-            {notices.map((notice: any, index: number) => {
+            {notices.map((notice, index: number) => {
               const open = openNoticeId === notice._id;
               return (
                 <Stack key={notice._id} className={open ? 'cs-notice-row open' : 'cs-notice-row'}>
@@ -138,7 +149,7 @@ const CsPage: NextPage = () => {
             {faqLoading ? <Box className='cs-empty-row'>Loading...</Box> : null}
             {!faqLoading && !visibleFaqs.length ? <Box className='cs-empty-row'>No FAQs found.</Box> : null}
 
-            {visibleFaqs.map((faq: any) => {
+            {visibleFaqs.map((faq) => {
               const open = openFaqId === faq._id;
               return (
                 <Stack className='cs-faq-line' key={faq._id}>

@@ -3,9 +3,10 @@ import { Box, Stack } from '@mui/material';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import AdminTablePanel, { AdminInlineMenu, AdminTableColumn, AdminTableRow } from '@/libs/components/admin/AdminTablePanel';
 import { toAssetUrl } from '@/libs/api';
+import type { BoardArticle } from '@/libs/types/board-article/board-article';
 
 type CommunityArticleListProps = {
-  articles: any[];
+  articles: BoardArticle[];
   loading: boolean;
   total: number;
   page: number;

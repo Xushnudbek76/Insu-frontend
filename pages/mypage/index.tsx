@@ -67,10 +67,7 @@ const MyPage: NextPage = () => {
 
           {access.category === 'myProfile' && (
             <MyProfile
-              user={access.user}
               profileForm={profile.form}
-              policies={policies.items}
-              myClaims={claims.items}
               t={t}
               onProfileChange={profile.onChange}
               onUploadProfileImage={profile.onUploadImage}
