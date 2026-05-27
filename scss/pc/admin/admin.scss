@@ -31,14 +31,73 @@
 .admin-sidebar {
   position: sticky;
   top: 0;
+  overflow: hidden;
   width: 292px;
   height: 100vh;
-  padding: 24px 18px;
-  gap: 24px;
   border-right: 1px solid rgba(148, 163, 184, 0.25);
   background: rgba(255, 255, 255, 0.82);
   box-shadow: 18px 0 50px rgba(15, 23, 42, 0.05);
   backdrop-filter: blur(18px);
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    left: 18px;
+    right: 18px;
+    z-index: 2;
+    height: 22px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 180ms ease;
+  }
+
+  &::before {
+    top: 10px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(255, 255, 255, 0) 100%);
+  }
+
+  &::after {
+    bottom: 10px;
+    background: linear-gradient(0deg, rgba(255, 255, 255, 0.96) 0%, rgba(255, 255, 255, 0) 100%);
+  }
+
+  &.has-top-shadow::before {
+    opacity: 1;
+  }
+
+  &.has-bottom-shadow::after {
+    opacity: 1;
+  }
+}
+
+.admin-sidebar-scroll {
+  height: 100%;
+  padding: 24px 18px;
+  gap: 24px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.6) transparent;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border: 2px solid transparent;
+    border-radius: 999px;
+    background: rgba(148, 163, 184, 0.45);
+    background-clip: padding-box;
+  }
+
+  &:hover::-webkit-scrollbar-thumb {
+    background: rgba(100, 116, 139, 0.6);
+    background-clip: padding-box;
+  }
 }
 
 .admin-brand {
@@ -116,6 +175,7 @@
 
 .admin-menu-list {
   gap: 8px;
+  padding-bottom: 10px;
 }
 
 .admin-menu-item {
@@ -634,6 +694,16 @@
     position: relative;
     width: 100%;
     height: auto;
+    overflow: visible;
+
+    &::before,
+    &::after {
+      display: none;
+    }
+  }
+
+  .admin-sidebar-scroll {
+    overflow: visible;
   }
 
   .admin-menu-list {
@@ -872,6 +942,107 @@
     font-size: 14px;
     font-weight: 900;
     text-overflow: ellipsis;
+  }
+}
+
+.admin-text-name {
+  align-items: flex-start;
+  min-width: 280px;
+
+  small {
+    max-width: 420px;
+    overflow: hidden;
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.35;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.admin-table-actions {
+  flex-direction: row !important;
+  justify-content: center;
+  gap: 8px;
+}
+
+.admin-editor-card {
+  gap: 18px;
+  padding: 22px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.055);
+
+  span {
+    color: #2563eb;
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+  }
+
+  h2 {
+    margin: 6px 0 0;
+    color: #0f172a;
+    font-size: 26px;
+    line-height: 1.1;
+  }
+}
+
+.admin-editor-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+
+  input,
+  select,
+  textarea {
+    width: 100%;
+    min-width: 0;
+    border: 1px solid rgba(148, 163, 184, 0.26);
+    border-radius: 14px;
+    outline: none;
+    color: #0f172a;
+    background: #f8fafc;
+    font-size: 14px;
+    font-weight: 800;
+  }
+
+  input,
+  select {
+    height: 46px;
+    padding: 0 14px;
+  }
+
+  textarea {
+    min-height: 112px;
+    grid-column: 1 / -1;
+    padding: 14px;
+    resize: vertical;
+    line-height: 1.5;
+  }
+}
+
+.admin-editor-actions {
+  flex-direction: row !important;
+  gap: 10px;
+
+  button {
+    height: 40px;
+    padding: 0 16px;
+    border: 0;
+    border-radius: 12px;
+    color: #fff;
+    background: #2563eb;
+    font-size: 13px;
+    font-weight: 900;
+    cursor: pointer;
+
+    &[type='button'] {
+      color: #334155;
+      background: #e2e8f0;
+    }
   }
 }
 

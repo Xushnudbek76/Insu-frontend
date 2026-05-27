@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { Box, Stack } from '@mui/material';
-import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import AdminTablePanel, { AdminInlineMenu, AdminTableColumn, AdminTableRow } from '@/libs/components/admin/AdminTablePanel';
 import { toAssetUrl } from '@/libs/api';
 
@@ -16,7 +15,6 @@ type PackageListProps = {
   onOpenMenu: (key: string, event: React.MouseEvent<HTMLButtonElement>) => void;
   onCloseMenu: () => void;
   onUpdatePackage: (_id: string, packageStatus: string) => void;
-  onRemovePackage: (_id: string, title: string) => void;
   onStatusTabChange: (value: string) => void;
   onTypeFilterChange: (value: string) => void;
   onPageChange: (page: number) => void;
@@ -46,7 +44,6 @@ const PackageList = ({
   onOpenMenu,
   onCloseMenu,
   onUpdatePackage,
-  onRemovePackage,
   onStatusTabChange,
   onTypeFilterChange,
   onPageChange,
@@ -70,16 +67,12 @@ const PackageList = ({
         price: money(pkg.packagePrice),
         coverage: money(pkg.packageCoverageLimit),
         type: pkg.packageType,
-        status: pkg.packageStatus === 'ARCHIVED' ? (
-          <button className='admin-icon-action danger' type='button' onClick={() => onRemovePackage(pkg._id, title)}>
-            <DeleteOutlineOutlinedIcon />
-          </button>
-        ) : (
+        status: (
           <AdminInlineMenu
             anchorEl={anchorEl[`status-${pkg._id}`] ?? null}
             label={pkg.packageStatus}
             options={statusOptions.filter((status) => status !== pkg.packageStatus)}
-            tone={pkg.packageStatus === 'ACTIVE' ? 'success' : 'warning'}
+            tone={pkg.packageStatus === 'ACTIVE' ? 'success' : pkg.packageStatus === 'ARCHIVED' ? 'danger' : 'warning'}
             onClose={onCloseMenu}
             onOpen={(event) => onOpenMenu(`status-${pkg._id}`, event)}
             onSelect={(packageStatus) => onUpdatePackage(pkg._id, packageStatus)}

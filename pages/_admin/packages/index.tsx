@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { NextPage } from 'next';
 import { useMutation, useQuery } from '@apollo/client/react';
 import { GET_ALL_PACKAGES_BY_ADMIN } from '@/apollo/admin/query';
-import { REMOVE_PACKAGE_BY_ADMIN, UPDATE_PACKAGE_BY_ADMIN } from '@/apollo/admin/mutation';
+import { UPDATE_PACKAGE_BY_ADMIN } from '@/apollo/admin/mutation';
 import PackageList from '@/libs/components/admin/packages/PackageList';
 import withLayoutAdmin from '@/layout/LayoutAdmin';
 import { getTotal } from '@/libs/utils/format';
@@ -18,7 +18,6 @@ const AdminPackages: NextPage = () => {
   const [status, setStatus] = useState('ALL');
   const [type, setType] = useState('ALL');
   const [updatePackage] = useMutation(UPDATE_PACKAGE_BY_ADMIN);
-  const [removePackage] = useMutation(REMOVE_PACKAGE_BY_ADMIN);
 
   const inquiry = useMemo(() => ({
     page,
@@ -49,33 +48,25 @@ const AdminPackages: NextPage = () => {
 
   const closeMenu = () => setAnchorEl({});
 
-  const syncPackages = () => {
-    refetch({ input: inquiry }).catch((error) => console.warn('Admin packages refetch failed', error));
+  const syncPackages = async () => {
+    try {
+      await refetch({ input: inquiry });
+    } catch (error) {
+      console.warn('Admin packages refetch failed', error);
+    }
   };
 
   const updatePackageStatus = async (_id: string, packageStatus: string) => {
     closeMenu();
-    setPackages((prev) => prev.map((pkg) => (pkg._id === _id ? { ...pkg, packageStatus } : pkg)));
     try {
       const result = await updatePackage({ variables: { input: { _id, packageStatus } } });
       const updated = (result.data as any)?.updatePackageByAdmin;
-      if (updated) setPackages((prev) => prev.map((pkg) => (pkg._id === _id ? { ...pkg, ...updated } : pkg)));
-      syncPackages();
+      if (!updated?._id) throw new Error('Package status update returned no package payload');
+      setPackages((prev) => prev.map((pkg) => (pkg._id === _id ? { ...pkg, ...updated } : pkg)));
+      await syncPackages();
     } catch (error) {
-      syncPackages();
+      await syncPackages();
       console.warn('Admin package update failed', error);
-    }
-  };
-
-  const remove = async (_id: string, title: string) => {
-    if (!window.confirm(`Remove ${title}?`)) return;
-    try {
-      await removePackage({ variables: { packageId: _id } });
-      setPackages((prev) => prev.filter((pkg) => pkg._id !== _id));
-      syncPackages();
-    } catch (error) {
-      syncPackages();
-      console.warn('Admin package remove failed', error);
     }
   };
 
@@ -92,7 +83,6 @@ const AdminPackages: NextPage = () => {
       onOpenMenu={openMenu}
       onCloseMenu={closeMenu}
       onUpdatePackage={updatePackageStatus}
-      onRemovePackage={remove}
       onStatusTabChange={(value) => {
         setPage(1);
         setStatus(value);

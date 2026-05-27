@@ -1,4 +1,5 @@
-import AdminTablePanel, { AdminInlineMenu, AdminTableColumn, AdminTableRow } from '@/libs/components/admin/AdminTablePanel';
+import { Box } from '@mui/material';
+import AdminTablePanel, { AdminTableColumn, AdminTableRow } from '@/libs/components/admin/AdminTablePanel';
 
 type ClaimListProps = {
   claims: any[];
@@ -8,10 +9,6 @@ type ClaimListProps = {
   limit: number;
   activeStatus: string;
   searchText: string;
-  anchorEl: Record<string, HTMLElement | null>;
-  onOpenMenu: (key: string, event: React.MouseEvent<HTMLButtonElement>) => void;
-  onCloseMenu: () => void;
-  onUpdateClaim: (_id: string, newStatus: string) => void;
   onStatusTabChange: (value: string) => void;
   onSearchTextChange: (value: string) => void;
   onSearch: () => void;
@@ -27,7 +24,6 @@ const columns: AdminTableColumn[] = [
   { key: 'status', label: 'Status', align: 'center' },
 ];
 
-const statusOptions = ['APPROVED', 'REJECTED', 'SETTLED'];
 const money = (value?: number) => `$${Number(value ?? 0).toLocaleString()}`;
 
 const ClaimList = ({
@@ -38,10 +34,6 @@ const ClaimList = ({
   limit,
   activeStatus,
   searchText,
-  anchorEl,
-  onOpenMenu,
-  onCloseMenu,
-  onUpdateClaim,
   onStatusTabChange,
   onSearchTextChange,
   onSearch,
@@ -56,15 +48,9 @@ const ClaimList = ({
       description: claim.claimDesc || '-',
       documents: claim.claimDocuments?.length ?? 0,
       status: (
-        <AdminInlineMenu
-          anchorEl={anchorEl[`status-${claim._id}`] ?? null}
-          label={claim.claimStatus}
-          options={statusOptions.filter((status) => status !== claim.claimStatus)}
-          tone={claim.claimStatus === 'PENDING' ? 'warning' : claim.claimStatus === 'REJECTED' ? 'danger' : 'success'}
-          onClose={onCloseMenu}
-          onOpen={(event) => onOpenMenu(`status-${claim._id}`, event)}
-          onSelect={(newStatus) => onUpdateClaim(claim._id, newStatus)}
-        />
+        <Box className={`admin-status-chip ${String(claim.claimStatus || '').toLowerCase()}`}>
+          {claim.claimStatus || '-'}
+        </Box>
       ),
     },
   }));
@@ -72,7 +58,7 @@ const ClaimList = ({
   return (
     <AdminTablePanel
       title='Claim List'
-      description='Review claim requests and move them through the settlement workflow.'
+      description='Review claim requests and monitor their agent-managed settlement status.'
       tabs={[
         { label: 'All', value: 'ALL' },
         { label: 'Pending', value: 'PENDING' },
