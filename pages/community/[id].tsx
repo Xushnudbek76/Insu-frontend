@@ -1,6 +1,6 @@
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { useMutation, useQuery } from '@apollo/client/react';
 import { Avatar, Box, Stack } from '@mui/material';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
@@ -10,6 +10,7 @@ import ChatBubbleOutlineOutlinedIcon from '@mui/icons-material/ChatBubbleOutline
 import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
 import withLayoutMain from '@/layout/LayoutHome';
 import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
+import { getMeLiked, useSingleLikeToggle } from '@/libs/hooks/useLikeToggle';
 import { GET_BOARD_ARTICLE } from '@/apollo/board-article/query';
 import { LIKE_TARGET_BOARD_ARTICLE } from '@/apollo/board-article/mutation';
 import { GET_COMMENTS } from '@/apollo/comment/query';
@@ -69,9 +70,6 @@ const CommunityDetailPage: NextPage = () => {
   const { id } = router.query;
   const [commentText, setCommentText] = useState('');
   const [postingComment, setPostingComment] = useState(false);
-  const [liked, setLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(0);
-  const pendingLikeRef = useRef(false);
 
   const articleId = typeof id === 'string' ? id : undefined;
 
@@ -130,48 +128,25 @@ const CommunityDetailPage: NextPage = () => {
       minute: '2-digit',
     });
 
-  useEffect(() => {
-    if (pendingLikeRef.current) return;
-    if (!article) return;
-    setLiked(article.meLiked?.[0]?.myFavorite ?? false);
-    setLikeCount(article.articleLikes ?? 0);
-  }, [article]);
-
-  const handleToggleLike = async () => {
-    if (!article || pendingLikeRef.current) return;
-
-    const user = userVar();
-    if (!user?._id) {
-      await sweetMixinErrorAlert('Please login to like posts.');
-      return;
-    }
-
-    const previousLiked = liked;
-    const previousLikeCount = likeCount;
-    const nextLiked = !previousLiked;
-
-    pendingLikeRef.current = true;
-    setLiked(nextLiked);
-    setLikeCount((prev) => Math.max(0, prev + (nextLiked ? 1 : -1)));
-
-    try {
+  const articleLike = useSingleLikeToggle<
+    BoardArticleData,
+    { _id: string; articleLikes: number }
+  >({
+    source: article,
+    getSourceLiked: (source) => getMeLiked(source.meLiked),
+    getSourceCount: (source) => source.articleLikes,
+    isAuthenticated: () => Boolean(userVar()?._id),
+    onUnauthenticated: () => sweetMixinErrorAlert('Please login to like posts.'),
+    mutate: async (_, __, source) => {
       const result = await likeTargetBoardArticle({
-        variables: { articleId: article._id },
+        variables: { articleId: source._id },
       });
-      const updated = result.data?.likeTargetBoardArticle;
-      if (updated) {
-        setLikeCount(updated.articleLikes ?? likeCount);
-      }
-    } catch (err: any) {
-      setLiked(previousLiked);
-      setLikeCount(previousLikeCount);
-      await sweetMixinErrorAlert(
-        err?.graphQLErrors?.[0]?.message ?? 'Could not update likes.',
-      );
-    } finally {
-      pendingLikeRef.current = false;
-    }
-  };
+      return result.data?.likeTargetBoardArticle;
+    },
+    getServerCount: (updated) => updated.articleLikes,
+    onError: (message) => sweetMixinErrorAlert(message),
+    errorMessage: 'Could not update likes.',
+  });
 
   const handlePostComment = async () => {
     if (!article || !commentText.trim()) return;
@@ -235,14 +210,14 @@ const CommunityDetailPage: NextPage = () => {
         commentText={commentText}
         commentTotal={commentTotal}
         postingComment={postingComment}
-        liked={liked}
-        likeCount={likeCount}
+        liked={articleLike.liked}
+        likeCount={articleLike.count}
         categoryLabel={CATEGORY_LABEL[article.articleCategory]}
         getArticleImage={getArticleImage}
         formatDate={formatDate}
         onCommentTextChange={setCommentText}
         onBack={() => router.push('/community')}
-        onLike={handleToggleLike}
+        onLike={articleLike.toggle}
         onPostComment={handlePostComment}
       />
     );
@@ -287,9 +262,9 @@ const CommunityDetailPage: NextPage = () => {
                 <VisibilityOutlinedIcon />
                 {article.articleViews} views
               </span>
-              <button className={liked ? 'liked' : ''} onClick={handleToggleLike}>
-                {liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
-                {likeCount} likes
+              <button className={articleLike.liked ? 'liked' : ''} onClick={articleLike.toggle}>
+                {articleLike.liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+                {articleLike.count} likes
               </button>
               <span>
                 <ChatBubbleOutlineOutlinedIcon />

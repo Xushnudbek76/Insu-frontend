@@ -1,4 +1,4 @@
-import { ChangeEvent, MouseEvent, useEffect, useRef, useState } from 'react';
+import { ChangeEvent, MouseEvent, useEffect, useState } from 'react';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useMutation, useQuery } from '@apollo/client/react';
@@ -21,6 +21,7 @@ import BadgeOutlinedIcon from '@mui/icons-material/BadgeOutlined';
 import withLayoutMain from '@/layout/LayoutHome';
 import { userVar } from '@/apollo/store';
 import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
+import { getMeLiked, useLikeToggleMap } from '@/libs/hooks/useLikeToggle';
 import {
   GET_AGENT_PUBLIC_PACKAGES,
   GET_MEMBER,
@@ -139,13 +140,10 @@ const AgentDetailPage: NextPage = () => {
   const [listingPage, setListingPage] = useState(1);
   const [reviewPage, setReviewPage] = useState(1);
   const [reviewText, setReviewText] = useState('');
-  const [packageLikes, setPackageLikes] = useState<Record<string, number>>({});
-  const [packageLiked, setPackageLiked] = useState<Record<string, boolean>>({});
   const [isFollowing, setIsFollowing] = useState(false);
   const [followerCount, setFollowerCount] = useState(0);
   const [networkTab, setNetworkTab] = useState<NetworkTab>('followers');
   const [networkPage, setNetworkPage] = useState(1);
-  const pendingPackageLikeIdsRef = useRef<Set<string>>(new Set());
 
   const {
     loading: agentLoading,
@@ -268,18 +266,24 @@ const AgentDetailPage: NextPage = () => {
   const displayName = (agent?: AgentDetail | null) =>
     agent?.memberNick || agent?.memberFullName || t('Insurance Agent');
 
-  useEffect(() => {
-    if (!listings.length) return;
-
-    setPackageLiked((prev) => {
-      const next = { ...prev };
-      listings.forEach((pkg) => {
-        if (pendingPackageLikeIdsRef.current.has(pkg._id)) return;
-        next[pkg._id] = pkg.meLiked?.[0]?.myFavorite ?? false;
-      });
-      return next;
-    });
-  }, [listings]);
+  const packageLikeToggle = useLikeToggleMap<AgentPackage, AgentPackage>({
+    items: listings,
+    getId: (pkg) => pkg._id,
+    getItemLiked: (pkg) => getMeLiked(pkg.meLiked),
+    getItemCount: (pkg) => pkg.packageLikes,
+    isAuthenticated: () => Boolean(userVar()?._id),
+    onUnauthenticated: () => sweetMixinErrorAlert(t('Please login to like packages.')),
+    mutate: async (packageId) => {
+      const result = await likeTargetPackage({ variables: { packageId } });
+      return result.data?.likeTargetPackage;
+    },
+    getServerLiked: (updated) => getMeLiked(updated.meLiked),
+    getServerCount: (updated) => updated.packageLikes,
+    onError: (message) => sweetMixinErrorAlert(message),
+    errorMessage: t('Could not update package like.'),
+  });
+  const packageLiked = packageLikeToggle.likedById;
+  const packageLikes = packageLikeToggle.countsById;
 
   useEffect(() => {
     if (!agent) return;
@@ -359,52 +363,9 @@ const AgentDetailPage: NextPage = () => {
   const getNetworkMember = (item: NetworkFollow) =>
     networkTab === 'followers' ? item.followerData : item.followingData;
 
-  const handleLikePackage = async (event: MouseEvent, packageId: string) => {
+  const handleLikePackage = (event: MouseEvent, packageId: string) => {
     event.stopPropagation();
-
-    if (pendingPackageLikeIdsRef.current.has(packageId)) return;
-
-    const user = userVar();
-    if (!user?._id) {
-      await sweetMixinErrorAlert(t('Please login to like packages.'));
-      return;
-    }
-
-    const pkg = listings.find((item) => item._id === packageId);
-    const currentLiked = packageLiked[packageId] ?? pkg?.meLiked?.[0]?.myFavorite ?? false;
-    const currentLikes = packageLikes[packageId] ?? pkg?.packageLikes ?? 0;
-
-    setPackageLiked((prev) => ({ ...prev, [packageId]: !currentLiked }));
-    setPackageLikes((prev) => ({
-      ...prev,
-      [packageId]: Math.max(0, currentLikes + (!currentLiked ? 1 : -1)),
-    }));
-    pendingPackageLikeIdsRef.current.add(packageId);
-
-    try {
-      const result = await likeTargetPackage({ variables: { packageId } });
-      const updated = result.data?.likeTargetPackage;
-      if (updated) {
-        setPackageLiked((prev) => ({
-          ...prev,
-          [packageId]: updated.meLiked?.[0]?.myFavorite ?? !currentLiked,
-        }));
-        setPackageLikes((prev) => ({
-          ...prev,
-          [packageId]: updated.packageLikes ?? currentLikes,
-        }));
-      }
-    } catch (err: any) {
-      setPackageLiked((prev) => ({ ...prev, [packageId]: currentLiked }));
-      setPackageLikes((prev) => ({ ...prev, [packageId]: currentLikes }));
-      await sweetMixinErrorAlert(
-          err?.graphQLErrors?.[0]?.message?.replace('Definer: ', '') ??
-          err?.message ??
-          t('Could not update package like.'),
-      );
-    } finally {
-      pendingPackageLikeIdsRef.current.delete(packageId);
-    }
+    void packageLikeToggle.toggle(packageId);
   };
 
   const handlePostReview = async () => {

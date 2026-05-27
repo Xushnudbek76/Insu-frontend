@@ -1,6 +1,6 @@
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { MouseEvent, useEffect, useMemo, useRef, useState } from 'react';
+import { MouseEvent, useEffect, useMemo, useState } from 'react';
 import { Stack, Box } from '@mui/material';
 import { useMutation, useQuery } from '@apollo/client/react';
 import ShieldOutlinedIcon from '@mui/icons-material/ShieldOutlined';
@@ -16,6 +16,7 @@ import { userVar } from '@/apollo/store';
 import { GET_PACKAGES } from '@/apollo/user/query';
 import { LIKE_TARGET_PACKAGE } from '@/apollo/package/mutation';
 import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
+import { getMeLiked, useLikeToggleMap } from '@/libs/hooks/useLikeToggle';
 import MobilePackagesPage from '@/libs/components/mobile/packages/MobilePackagesPage';
 import { sweetMixinErrorAlert } from '@/libs/sweetAlert';
 import { toAssetUrl } from '@/libs/api';
@@ -87,7 +88,6 @@ interface GetPackagesResponse {
 const PackagesPage: NextPage = () => {
   const router = useRouter();
   const device = useDeviceDetect();
-  const pendingLikeIdsRef = useRef<Set<string>>(new Set());
 
   const [filterValues, setFilterValues] = useState<PackageFilterValues>({
     selectedType: '',
@@ -98,7 +98,6 @@ const PackagesPage: NextPage = () => {
     coverageLimit: '',
   });
 
-  const [packages, setPackages] = useState<InsurancePackage[]>([]);
   const [page, setPage] = useState(1);
   const [sort, setSort] = useState('createdAt');
   const [appliedFilters, setAppliedFilters] = useState<PackageFilterValues>({
@@ -141,21 +140,46 @@ const PackagesPage: NextPage = () => {
     LIKE_TARGET_PACKAGE,
   );
 
-  useEffect(() => {
-    if (!data?.getPackages) return;
+  const packages = data?.getPackages?.list ?? [];
 
-    setPackages((prev) => {
-      const optimisticPackages = new Map(
-        prev
-          .filter((pkg) => pendingLikeIdsRef.current.has(pkg._id))
-          .map((pkg) => [pkg._id, pkg]),
-      );
+  const packageLikes = useLikeToggleMap<InsurancePackage, InsurancePackage>({
+    items: packages,
+    getId: (pkg) => pkg._id,
+    getItemLiked: (pkg) => getMeLiked(pkg.meLiked),
+    getItemCount: (pkg) => pkg.packageLikes,
+    isAuthenticated: () => Boolean(userVar()?._id),
+    onUnauthenticated: () => sweetMixinErrorAlert('Please login to like packages.'),
+    mutate: async (packageId) => {
+      const result = await likeTargetPackage({ variables: { packageId } });
+      return result.data?.likeTargetPackage;
+    },
+    getServerLiked: (updated) => getMeLiked(updated.meLiked),
+    getServerCount: (updated) => updated.packageLikes,
+    onError: (message) => sweetMixinErrorAlert(message),
+    errorMessage: 'Could not update favorites.',
+  });
 
-      return (data.getPackages.list || []).map(
-        (pkg) => optimisticPackages.get(pkg._id) ?? pkg,
-      );
-    });
-  }, [data]);
+  const visiblePackages = useMemo(
+    () =>
+      packages.map((pkg) => {
+        const likeState = packageLikes.getState(pkg._id, {
+          liked: getMeLiked(pkg.meLiked),
+          count: pkg.packageLikes ?? 0,
+        });
+
+        return {
+          ...pkg,
+          packageLikes: likeState.count,
+          meLiked: [
+            {
+              ...(pkg.meLiked?.[0] ?? {}),
+              myFavorite: likeState.liked,
+            },
+          ],
+        };
+      }),
+    [packages, packageLikes.getState],
+  );
 
   useEffect(() => {
     if (!error) return;
@@ -167,70 +191,9 @@ const PackagesPage: NextPage = () => {
     setAppliedFilters(filterValues);
   };
 
-  const handleToggleLike = async (e: MouseEvent, id: string) => {
+  const handleToggleLike = (e: MouseEvent, id: string) => {
     e.stopPropagation();
-
-    if (pendingLikeIdsRef.current.has(id)) return;
-
-    let previousPackage: InsurancePackage | undefined;
-
-    try {
-      const user = userVar();
-      if (!user?._id) {
-        await sweetMixinErrorAlert('Please login to like packages.');
-        return;
-      }
-
-      previousPackage = packages.find((pkg) => pkg._id === id);
-      if (!previousPackage) return;
-
-      const wasLiked = previousPackage.meLiked?.[0]?.myFavorite ?? false;
-      const nextLiked = !wasLiked;
-      const nextLikeCount = Math.max(
-        0,
-        (previousPackage.packageLikes ?? 0) + (nextLiked ? 1 : -1),
-      );
-
-      pendingLikeIdsRef.current.add(id);
-      setPackages((prev) =>
-        prev.map((pkg) =>
-          pkg._id === id
-            ? {
-                ...pkg,
-                packageLikes: nextLikeCount,
-                meLiked: [{ ...(pkg.meLiked?.[0] ?? {}), myFavorite: nextLiked }],
-              }
-            : pkg,
-        ),
-      );
-
-      const result = await likeTargetPackage({ variables: { packageId: id } });
-      const updated = result.data?.likeTargetPackage;
-      if (!updated) return;
-
-      setPackages((prev) =>
-        prev.map((pkg) =>
-          pkg._id === updated._id
-            ? {
-                ...pkg,
-                packageLikes: updated.packageLikes,
-                meLiked: updated.meLiked,
-              }
-            : pkg,
-        ),
-      );
-    } catch (err: any) {
-      setPackages((prev) =>
-        prev.map((pkg) => (pkg._id === id && previousPackage ? previousPackage : pkg)),
-      );
-      await sweetMixinErrorAlert(
-        err?.graphQLErrors?.[0]?.message?.replace('Definer: ', '') ??
-          err?.message ??
-          'Could not update favorites.',
-      );
-    } finally {
-      pendingLikeIdsRef.current.delete(id);
-    }
+    void packageLikes.toggle(id);
   };
 
   const getImage = (images?: string[] | null) =>
@@ -250,7 +213,7 @@ const PackagesPage: NextPage = () => {
 
   const total = data?.getPackages?.metaCounter?.[0]?.total ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / LIMIT));
-  const isLoading = queryLoading && packages.length === 0;
+  const isLoading = queryLoading && visiblePackages.length === 0;
 
   if (device === 'mobile') {
     return (
@@ -261,7 +224,7 @@ const PackagesPage: NextPage = () => {
         statusOptions={STATUS_OPTIONS}
         coverageOptions={COVERAGE_OPTIONS}
         sortOptions={SORT_OPTIONS}
-        packages={packages}
+        packages={visiblePackages}
         total={total}
         page={page}
         totalPages={totalPages}
@@ -346,7 +309,7 @@ const PackagesPage: NextPage = () => {
                 </Box>
               ))}
             </Box>
-          ) : packages.length === 0 ? (
+          ) : visiblePackages.length === 0 ? (
             <Box className={'empty-state'}>
               <ShieldOutlinedIcon className={'empty-icon'} />
               <p>No insurance packages found.</p>
@@ -354,7 +317,7 @@ const PackagesPage: NextPage = () => {
             </Box>
           ) : (
             <Box className={'packages-grid'}>
-              {packages.map((pkg, index) => {
+              {visiblePackages.map((pkg, index) => {
                 const liked = pkg.meLiked?.[0]?.myFavorite;
                 const isTopRanked = isTopRankedPackage(sort, index, pkg.packageRank);
 

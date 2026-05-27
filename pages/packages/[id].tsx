@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { Box } from '@mui/material';
@@ -11,6 +11,7 @@ import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import withLayoutMain from '@/layout/LayoutHome';
 import { userVar } from '@/apollo/store';
 import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
+import { getMeLiked, useSingleLikeToggle } from '@/libs/hooks/useLikeToggle';
 import { GET_PACKAGE, GET_PACKAGES } from '@/apollo/user/query';
 import { GET_COMMENTS } from '@/apollo/comment/query';
 import { LIKE_TARGET_PACKAGE } from '@/apollo/package/mutation';
@@ -49,7 +50,6 @@ const PackageDetailPage: NextPage = () => {
   const router = useRouter();
   const device = useDeviceDetect();
   const packageId = typeof router.query.id === 'string' ? router.query.id : '';
-  const pendingLikeRef = useRef(false);
 
   const [comments, setComments] = useState<Comment[]>([]);
   const [commentTotal, setCommentTotal] = useState(0);
@@ -123,51 +123,21 @@ const PackageDetailPage: NextPage = () => {
     LIKE_TARGET_PACKAGE
   );
 
-  const [liked, setLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(0);
-
-  useEffect(() => {
-    if (pendingLikeRef.current) return;
-    if (pkg) {
-      setLiked(pkg.meLiked?.[0]?.myFavorite ?? false);
-      setLikeCount(pkg.packageLikes ?? 0);
-    }
-  }, [pkg]);
-
-  const handleLike = async () => {
-    if (pendingLikeRef.current) return;
-
-    const user = userVar();
-    if (!user?._id) {
-      await sweetMixinErrorAlert('Please login to like packages.');
-      return;
-    }
-
-    const previousLiked = liked;
-    const previousLikeCount = likeCount;
-    const nextLiked = !previousLiked;
-
-    pendingLikeRef.current = true;
-    setLiked(nextLiked);
-    setLikeCount((prev) => Math.max(0, prev + (nextLiked ? 1 : -1)));
-
-    try {
+  const packageLike = useSingleLikeToggle<PackageDetail, PackageDetail>({
+    source: pkg,
+    getSourceLiked: (source) => getMeLiked(source.meLiked),
+    getSourceCount: (source) => source.packageLikes,
+    isAuthenticated: () => Boolean(userVar()?._id),
+    onUnauthenticated: () => sweetMixinErrorAlert('Please login to like packages.'),
+    mutate: async () => {
       const res = await likePackage({ variables: { packageId } });
-      const updated = res.data?.likeTargetPackage;
-      if (updated) {
-        setLiked(updated.meLiked?.[0]?.myFavorite ?? false);
-        setLikeCount(updated.packageLikes ?? 0);
-      }
-    } catch (err: any) {
-      setLiked(previousLiked);
-      setLikeCount(previousLikeCount);
-      await sweetMixinErrorAlert(
-        err?.graphQLErrors?.[0]?.message ?? 'Error updating like.'
-      );
-    } finally {
-      pendingLikeRef.current = false;
-    }
-  };
+      return res.data?.likeTargetPackage;
+    },
+    getServerLiked: (updated) => getMeLiked(updated.meLiked),
+    getServerCount: (updated) => updated.packageLikes,
+    onError: (message) => sweetMixinErrorAlert(message),
+    errorMessage: 'Error updating like.',
+  });
 
   const handleCommentAdded = (newComment: Comment) => {
     setComments((prev) => [newComment, ...prev]);
@@ -201,10 +171,10 @@ const PackageDetailPage: NextPage = () => {
         comments={comments}
         commentTotal={commentTotal}
         related={related}
-        liked={liked}
-        likeCount={likeCount}
+        liked={packageLike.liked}
+        likeCount={packageLike.count}
         onBack={() => router.push('/packages')}
-        onLike={handleLike}
+        onLike={packageLike.toggle}
         onCommentAdded={handleCommentAdded}
       />
     );
@@ -244,11 +214,11 @@ const PackageDetailPage: NextPage = () => {
               {formatCount(pkg.packageViews)} Views
             </span>
             <button
-              className={`pd-stat pd-like${liked ? ' liked' : ''}`}
-              onClick={handleLike}
+              className={`pd-stat pd-like${packageLike.liked ? ' liked' : ''}`}
+              onClick={packageLike.toggle}
             >
-              {liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
-              {formatCount(likeCount)} Likes
+              {packageLike.liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+              {formatCount(packageLike.count)} Likes
             </button>
             <span className={'pd-stat'}>
               <ChatBubbleOutlinedIcon />

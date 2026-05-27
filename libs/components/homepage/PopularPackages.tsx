@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import { Stack, Box, IconButton } from '@mui/material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import { useRouter } from 'next/router';
@@ -8,6 +8,7 @@ import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
 import { GET_PACKAGES } from '@/apollo/user/query';
 import { LIKE_TARGET_PACKAGE } from '@/apollo/package/mutation';
 import { userVar } from '@/apollo/store';
+import { getMeLiked, useLikeToggleMap } from '@/libs/hooks/useLikeToggle';
 import { sweetMixinErrorAlert } from '@/libs/sweetAlert';
 import { toAssetUrl } from '@/libs/api';
 
@@ -34,8 +35,6 @@ interface GetPackagesResponse {
 const PopularPackages: React.FC = () => {
 	const device = useDeviceDetect();
 	const router = useRouter();
-	const pendingLikeIdsRef = useRef<Set<string>>(new Set());
-	const [likedByPackage, setLikedByPackage] = useState<Record<string, boolean>>({});
 
 	const { data, loading, error } = useQuery<GetPackagesResponse>(GET_PACKAGES, {
 		variables: {
@@ -58,61 +57,34 @@ const PopularPackages: React.FC = () => {
 	const getPackageImage = (images?: string[] | null) =>
 		toAssetUrl(images?.[0]) ?? '/img/placeholder-article.svg';
 
-	useEffect(() => {
-		if (!packages.length) return;
-
-		setLikedByPackage((prev) => {
-			const next = { ...prev };
-			packages.forEach((pkg) => {
-				if (!(pkg._id in next)) {
-					next[pkg._id] = pkg.meLiked?.[0]?.myFavorite ?? false;
-				}
-			});
-			return next;
-		});
-	}, [packages]);
+	const packageLikes = useLikeToggleMap<PopularPackage, PopularPackage>({
+		items: packages,
+		getId: (pkg) => pkg._id,
+		getItemLiked: (pkg) => getMeLiked(pkg.meLiked),
+		getItemCount: (pkg) => pkg.packageLikes,
+		isAuthenticated: () => Boolean(userVar()?._id),
+		onUnauthenticated: () => sweetMixinErrorAlert('Please login to like packages.'),
+		mutate: async (packageId) => {
+			const result = await likePackage({ variables: { packageId } });
+			return result.data?.likeTargetPackage;
+		},
+		getServerLiked: (updated) => getMeLiked(updated.meLiked),
+		getServerCount: (updated) => updated.packageLikes,
+		onError: async (message, error) => {
+			console.error('Error, likeTargetPackage', error);
+			await sweetMixinErrorAlert(message);
+		},
+		errorMessage: 'Could not update favorites.',
+	});
+	const likedByPackage = packageLikes.likedById;
 
 	const handleCardClick = (id: string) => {
 		if (!id) return;
 		router.push(`/packages/${id}`);
 	};
 
-	const handleToggleLike = async (id: string) => {
-		if (pendingLikeIdsRef.current.has(id)) return;
-
-		const pkg = packages.find((item) => item._id === id);
-		const previousLiked = likedByPackage[id] ?? pkg?.meLiked?.[0]?.myFavorite ?? false;
-		const nextLiked = !previousLiked;
-
-		try {
-			const currentUser = userVar();
-			if (!currentUser?._id) {
-				await sweetMixinErrorAlert('Please login to like packages.');
-				return;
-			}
-
-			pendingLikeIdsRef.current.add(id);
-			setLikedByPackage((prev) => ({ ...prev, [id]: nextLiked }));
-
-			const result = await likePackage({ variables: { packageId: id } });
-			const updated = result.data?.likeTargetPackage;
-			if (updated) {
-				setLikedByPackage((prev) => ({
-					...prev,
-					[id]: updated.meLiked?.[0]?.myFavorite ?? nextLiked,
-				}));
-			}
-		} catch (err: any) {
-			setLikedByPackage((prev) => ({ ...prev, [id]: previousLiked }));
-			console.error('Error, likeTargetPackage', err);
-			const message =
-				err?.graphQLErrors?.[0]?.message?.replace('Definer: ', '') ??
-				err?.message ??
-				'Could not update favorites.';
-			await sweetMixinErrorAlert(message);
-		} finally {
-			pendingLikeIdsRef.current.delete(id);
-		}
+	const handleToggleLike = (id: string) => {
+		void packageLikes.toggle(id);
 	};
 
 	const hasPackages = packages && packages.length > 0;
