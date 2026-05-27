@@ -45,7 +45,7 @@ const Header = () => {
 							<NextLink href={'/packages'} className={'hero-btn primary'}>
 								Browse Insurance
 							</NextLink>
-							<NextLink href={'/account/join'} className={'hero-btn secondary'}>
+							<NextLink href={'/#insurance-adviser'} className={'hero-btn secondary'}>
 								Find a plan
 							</NextLink>
 						</Box>

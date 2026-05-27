@@ -118,7 +118,7 @@ const InsuranceAdviser: React.FC = () => {
 	};
 
 	return (
-		<Stack className={'trend-packages ai-recommendation'}>
+		<Stack className={'trend-packages ai-recommendation'} id='insurance-adviser'>
 			<Stack className={'container'}>
 				<Stack className={'ai-header'}>
 					<Box component={'div'} className={'ai-header-text'}>
