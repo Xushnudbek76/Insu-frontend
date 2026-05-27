@@ -3,6 +3,7 @@ import AddPackage from '@/libs/components/mypage/AddPackage';
 import AgentClaims from '@/libs/components/mypage/AgentClaims';
 import MyClaims from '@/libs/components/mypage/MyClaims';
 import MyFavorites from '@/libs/components/mypage/MyFavorites';
+import MyPackages from '@/libs/components/mypage/MyPackages';
 import MyPolicies from '@/libs/components/mypage/MyPolicies';
 import MyProfile from '@/libs/components/mypage/MyProfile';
 import SubmitClaimPanel from '@/libs/components/mypage/SubmitClaimPanel';
@@ -16,6 +17,7 @@ interface MobileMyPageProps {
   policies: MyPageControllerResult['policies'];
   claims: MyPageControllerResult['claims'];
   agentClaims: MyPageControllerResult['agentClaims'];
+  agentPackages: MyPageControllerResult['agentPackages'];
   favorites: MyPageControllerResult['favorites'];
   packageCreation: MyPageControllerResult['packageCreation'];
   claimPanel: MyPageControllerResult['claimPanel'];
@@ -30,6 +32,7 @@ const MobileMyPage = ({
   policies,
   claims,
   agentClaims,
+  agentPackages,
   favorites,
   packageCreation,
   claimPanel,
@@ -82,10 +85,28 @@ const MobileMyPage = ({
     {access.category === 'addPackage' && access.isAgent && (
       <AddPackage
         packageForm={packageCreation.form}
+        isEditing={packageCreation.isEditing}
         t={t}
         onPackageChange={packageCreation.onChange}
         onUploadPackageImages={packageCreation.onUploadImages}
-        onCreatePackage={packageCreation.onSubmit}
+        onSubmitPackage={packageCreation.onSubmit}
+        onCancelEdit={packageCreation.onCancelEdit}
+      />
+    )}
+
+    {access.category === 'myPackages' && access.isAgent && (
+      <MyPackages
+        packages={agentPackages.items}
+        loading={agentPackages.loading}
+        error={agentPackages.error}
+        status={agentPackages.status}
+        page={agentPackages.page}
+        totalPages={agentPackages.totalPages}
+        t={t}
+        onStatusChange={agentPackages.onStatusChange}
+        onEditPackage={agentPackages.onEdit}
+        onUpdateStatus={agentPackages.onUpdateStatus}
+        onPageChange={agentPackages.onPageChange}
       />
     )}
 

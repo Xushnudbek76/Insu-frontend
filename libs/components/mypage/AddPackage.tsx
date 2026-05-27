@@ -6,20 +6,30 @@ import { formatCurrency, packageImageUrl, PackageForm, packageTypes } from './ty
 
 interface AddPackageProps {
   packageForm: PackageForm;
+  isEditing: boolean;
   t: (key: string) => string;
   onPackageChange: (
     field: keyof PackageForm,
   ) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
   onUploadPackageImages: (event: ChangeEvent<HTMLInputElement>) => void;
-  onCreatePackage: () => void;
+  onSubmitPackage: () => void;
+  onCancelEdit?: () => void;
 }
 
-const AddPackage = ({ packageForm, t, onPackageChange, onUploadPackageImages, onCreatePackage }: AddPackageProps) => (
+const AddPackage = ({
+  packageForm,
+  isEditing,
+  t,
+  onPackageChange,
+  onUploadPackageImages,
+  onSubmitPackage,
+  onCancelEdit,
+}: AddPackageProps) => (
   <Box className='mypage-profile-grid'>
     <Stack className='mypage-panel'>
       <Stack className='mypage-panel-head'>
         <span>{t('Agent Listing')}</span>
-        <h2>{t('Create insurance package')}</h2>
+        <h2>{isEditing ? t('Update insurance package') : t('Create insurance package')}</h2>
       </Stack>
       <Box component='form' className='mypage-form'>
         <Stack className='mypage-upload-row'>
@@ -97,10 +107,15 @@ const AddPackage = ({ packageForm, t, onPackageChange, onUploadPackageImages, on
         </Box>
 
         <Stack className='mypage-actions'>
-          <button type='button' onClick={onCreatePackage}>
+          <button type='button' onClick={onSubmitPackage}>
             <AddBusinessOutlinedIcon />
-            {t('Create Package')}
+            {isEditing ? t('Update Package') : t('Create Package')}
           </button>
+          {isEditing && onCancelEdit ? (
+            <button type='button' className='ghost' onClick={onCancelEdit}>
+              {t('Cancel')}
+            </button>
+          ) : null}
         </Stack>
       </Box>
     </Stack>

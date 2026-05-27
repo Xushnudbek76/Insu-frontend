@@ -7,6 +7,7 @@ import GavelOutlinedIcon from '@mui/icons-material/GavelOutlined';
 import FavoriteBorderOutlinedIcon from '@mui/icons-material/FavoriteBorderOutlined';
 import SupportAgentOutlinedIcon from '@mui/icons-material/SupportAgentOutlined';
 import AddBusinessOutlinedIcon from '@mui/icons-material/AddBusinessOutlined';
+import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
 import { useTranslation } from 'next-i18next/pages';
 import { userVar } from '@/apollo/store';
 import { GET_MY_POLICIES } from '@/apollo/policy/query';
@@ -15,13 +16,16 @@ import { GET_CLAIMS_BY_AGENT, GET_MY_CLAIMS } from '@/apollo/claim/query';
 import { SUBMIT_CLAIM, UPDATE_CLAIM_STATUS } from '@/apollo/claim/mutation';
 import { GET_FAVORITE_PACKAGES } from '@/apollo/favorite/query';
 import { IMAGE_UPLOADER_MUTATION, IMAGES_UPLOADER_MUTATION, UPDATE_MEMBER } from '@/apollo/member/mutation';
-import { CREATE_PACKAGE } from '@/apollo/package/mutation';
+import { CREATE_PACKAGE, UPDATE_PACKAGE } from '@/apollo/package/mutation';
+import { GET_AGENT_PACKAGES } from '@/apollo/package/query';
 import { getJwtToken, logOut, setJwtToken, updateUserInfo } from '@/libs/auth';
 import { sweetMixinErrorAlert, sweetTopSuccessAlert } from '@/libs/sweetAlert';
 import type { CustomJwtPayload } from '@/libs/types/customJwtPayload';
 import { getMyPageErrorMessage } from '@/libs/components/mypage/error';
 import type { MyPageNavItem } from '@/libs/components/mypage/MyPageSidebar';
 import {
+  AGENT_PACKAGE_LIMIT,
+  AgentOwnedPackage,
   AGENT_CLAIM_LIMIT,
   Category,
   ClaimData,
@@ -97,11 +101,25 @@ export interface MyPageControllerResult {
   };
   packageCreation: {
     form: PackageForm;
+    isEditing: boolean;
     onChange: (
       field: keyof PackageForm,
     ) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
     onUploadImages: (event: ChangeEvent<HTMLInputElement>) => Promise<void>;
     onSubmit: () => Promise<void>;
+    onCancelEdit: () => void;
+  };
+  agentPackages: {
+    items: AgentOwnedPackage[];
+    loading: boolean;
+    error: string | null;
+    page: number;
+    totalPages: number;
+    status: string;
+    onStatusChange: (status: string) => void;
+    onPageChange: (page: number) => void;
+    onEdit: (pkg: AgentOwnedPackage) => void;
+    onUpdateStatus: (packageId: string, nextStatus: string) => Promise<void>;
   };
   claimPanel: {
     open: boolean;
@@ -132,6 +150,8 @@ export const useMyPageController = (): MyPageControllerResult => {
   const [policyPage, setPolicyPage] = useState(1);
   const [policyStatus, setPolicyStatus] = useState('');
   const [favoritePage, setFavoritePage] = useState(1);
+  const [agentPackagePage, setAgentPackagePage] = useState(1);
+  const [agentPackageStatus, setAgentPackageStatus] = useState('');
   const [agentClaimPage, setAgentClaimPage] = useState(1);
   const [agentClaimStatus, setAgentClaimStatus] = useState('');
   const [agentClaimText, setAgentClaimText] = useState('');
@@ -181,10 +201,21 @@ export const useMyPageController = (): MyPageControllerResult => {
   }, [user]);
 
   useEffect(() => {
-    if ((category === 'agentClaims' || category === 'addPackage') && authReady && user && !isAgent) {
+    if ((category === 'agentClaims' || category === 'addPackage' || category === 'myPackages') && authReady && user && !isAgent) {
       router.replace('/mypage?category=myProfile');
     }
   }, [authReady, category, isAgent, router, user]);
+
+  const agentPackagesInput = useMemo(
+    () => ({
+      page: agentPackagePage,
+      limit: AGENT_PACKAGE_LIMIT,
+      sort: 'createdAt',
+      direction: 'DESC',
+      search: agentPackageStatus ? { packageStatus: agentPackageStatus } : {},
+    }),
+    [agentPackagePage, agentPackageStatus],
+  );
 
   const policyInput = useMemo(
     () => ({
@@ -250,6 +281,20 @@ export const useMyPageController = (): MyPageControllerResult => {
   );
 
   const {
+    loading: agentPackagesLoading,
+    data: agentPackagesData,
+    error: agentPackagesError,
+    refetch: refetchAgentPackages,
+  } = useQuery<{ getAgentPackages: { list: AgentOwnedPackage[]; metaCounter?: { total?: number }[] } }>(
+    GET_AGENT_PACKAGES,
+    {
+      skip: !isAgent,
+      fetchPolicy: 'no-cache',
+      variables: { input: agentPackagesInput },
+    },
+  );
+
+  const {
     loading: favoritesLoading,
     data: favoritesData,
     error: favoritesError,
@@ -267,6 +312,7 @@ export const useMyPageController = (): MyPageControllerResult => {
   const [uploadImage] = useMutation<{ imageUploader: string }>(IMAGE_UPLOADER_MUTATION);
   const [uploadImages] = useMutation<{ imagesUploader: string[] }>(IMAGES_UPLOADER_MUTATION);
   const [createPackage] = useMutation<{ createPackage: { _id: string } }>(CREATE_PACKAGE);
+  const [updatePackage] = useMutation<{ updatePackage: { _id: string } }>(UPDATE_PACKAGE);
   const [cancelPolicy] = useMutation<{ cancelPolicy: PolicyData }>(CANCEL_POLICY);
   const [submitClaim] = useMutation<{ submitClaim: ClaimData }>(SUBMIT_CLAIM);
   const [updateClaimStatus] = useMutation<{ updateClaimStatus: ClaimData }>(UPDATE_CLAIM_STATUS);
@@ -278,6 +324,9 @@ export const useMyPageController = (): MyPageControllerResult => {
   const agentClaims = agentClaimsData?.getClaimsByAgent.list ?? [];
   const agentClaimTotal = agentClaimsData?.getClaimsByAgent.metaCounter?.[0]?.total ?? 0;
   const agentClaimTotalPages = Math.max(1, Math.ceil(agentClaimTotal / AGENT_CLAIM_LIMIT));
+  const agentPackages = agentPackagesData?.getAgentPackages.list ?? [];
+  const agentPackageTotal = agentPackagesData?.getAgentPackages.metaCounter?.[0]?.total ?? 0;
+  const agentPackageTotalPages = Math.max(1, Math.ceil(agentPackageTotal / AGENT_PACKAGE_LIMIT));
   const favorites = favoritesData?.getFavoritePackages.list ?? [];
   const favoriteTotal = favoritesData?.getFavoritePackages.metaCounter?.[0]?.total ?? 0;
   const favoriteTotalPages = Math.max(1, Math.ceil(favoriteTotal / FAVORITE_LIMIT));
@@ -289,12 +338,16 @@ export const useMyPageController = (): MyPageControllerResult => {
   const agentClaimsErrorMessage = agentClaimsError
     ? getMyPageErrorMessage(agentClaimsError, t('Could not load agent claims.'))
     : null;
+  const agentPackagesErrorMessage = agentPackagesError
+    ? getMyPageErrorMessage(agentPackagesError, t('Could not load packages.'))
+    : null;
   const favoritesErrorMessage = favoritesError
     ? getMyPageErrorMessage(favoritesError, t('Could not load favorites.'))
     : null;
 
   const navItems: MyPageNavItem[] = [
     { key: 'myProfile', label: t('My Profile'), icon: AccountCircleOutlinedIcon },
+    ...(isAgent ? [{ key: 'myPackages' as Category, label: t('My Packages'), icon: Inventory2OutlinedIcon }] : []),
     ...(isAgent ? [{ key: 'addPackage' as Category, label: t('Add Package'), icon: AddBusinessOutlinedIcon }] : []),
     { key: 'myPolicies', label: t('My Policies'), icon: AssignmentOutlinedIcon },
     { key: 'myClaims', label: t('My Claims'), icon: GavelOutlinedIcon },
@@ -303,6 +356,9 @@ export const useMyPageController = (): MyPageControllerResult => {
   ];
 
   const handleCategoryChange = (nextCategory: Category) => {
+    if (nextCategory === 'addPackage') {
+      setPackageForm(initialPackageForm);
+    }
     router.push({ pathname: '/mypage', query: { category: nextCategory } }, undefined, { shallow: true });
   };
 
@@ -319,6 +375,11 @@ export const useMyPageController = (): MyPageControllerResult => {
   const handleAgentClaimStatusChange = (nextStatus: string) => {
     setAgentClaimStatus(nextStatus);
     setAgentClaimPage(1);
+  };
+
+  const handleAgentPackageStatusChange = (nextStatus: string) => {
+    setAgentPackageStatus(nextStatus);
+    setAgentPackagePage(1);
   };
 
   const handleProfileChange =
@@ -392,6 +453,75 @@ export const useMyPageController = (): MyPageControllerResult => {
       if (result.data?.createPackage._id) await router.push(`/packages/${result.data.createPackage._id}`);
     } catch (err: unknown) {
       await sweetMixinErrorAlert(getMyPageErrorMessage(err, t('Could not create package.')));
+    }
+  };
+
+  const handleEditPackage = (pkg: AgentOwnedPackage) => {
+    setPackageForm({
+      _id: pkg._id,
+      packageType: pkg.packageType as PackageForm['packageType'],
+      packageName: pkg.packageTitle,
+      packageDesc: pkg.packageDesc ?? '',
+      packagePrice: String(pkg.packagePrice ?? ''),
+      packageCoverageLimit: pkg.packageCoverageLimit != null ? String(pkg.packageCoverageLimit) : '',
+      packageMinAge: pkg.packageMinAge != null ? String(pkg.packageMinAge) : '',
+      packageMaxAge: pkg.packageMaxAge != null ? String(pkg.packageMaxAge) : '',
+      packageAssetTags: pkg.packageAssetTags?.join(', ') ?? '',
+      packageImages: pkg.packageImages ?? [],
+    });
+    router.push({ pathname: '/mypage', query: { category: 'addPackage' } }, undefined, { shallow: true });
+  };
+
+  const handleCancelPackageEdit = () => {
+    setPackageForm(initialPackageForm);
+  };
+
+  const handleUpdatePackage = async () => {
+    if (!packageForm._id || !packageForm.packageType || !packageForm.packageName.trim() || !packageForm.packagePrice) {
+      await sweetMixinErrorAlert(t('Please complete the package form.'));
+      return;
+    }
+
+    const input = {
+      _id: packageForm._id,
+      packageType: packageForm.packageType,
+      packageName: packageForm.packageName.trim(),
+      packageDesc: packageForm.packageDesc.trim(),
+      packagePrice: Number(packageForm.packagePrice),
+      ...(packageForm.packageCoverageLimit ? { packageCoverageLimit: Number(packageForm.packageCoverageLimit) } : {}),
+      ...(packageForm.packageMinAge ? { packageMinAge: Number(packageForm.packageMinAge) } : {}),
+      ...(packageForm.packageMaxAge ? { packageMaxAge: Number(packageForm.packageMaxAge) } : {}),
+      ...(packageForm.packageAssetTags.trim()
+        ? {
+            packageAssetTags: packageForm.packageAssetTags
+              .split(',')
+              .map((tag) => tag.trim())
+              .filter(Boolean),
+          }
+        : { packageAssetTags: [] }),
+      ...(packageForm.packageImages.length ? { packageImages: packageForm.packageImages } : {}),
+    };
+
+    try {
+      const result = await updatePackage({ variables: { input } });
+      setPackageForm(initialPackageForm);
+      await refetchAgentPackages({ input: agentPackagesInput });
+      await sweetTopSuccessAlert(t('Package updated successfully.'));
+      if (result.data?.updatePackage._id) {
+        await router.push({ pathname: '/mypage', query: { category: 'myPackages' } }, undefined, { shallow: true });
+      }
+    } catch (err: unknown) {
+      await sweetMixinErrorAlert(getMyPageErrorMessage(err, t('Could not update package.')));
+    }
+  };
+
+  const handleAgentPackageStatusUpdate = async (packageId: string, nextStatus: string) => {
+    try {
+      await updatePackage({ variables: { input: { _id: packageId, packageStatus: nextStatus } } });
+      await refetchAgentPackages({ input: agentPackagesInput });
+      await sweetTopSuccessAlert(t('Package status updated.'));
+    } catch (err: unknown) {
+      await sweetMixinErrorAlert(getMyPageErrorMessage(err, t('Could not update package.')));
     }
   };
 
@@ -554,9 +684,23 @@ export const useMyPageController = (): MyPageControllerResult => {
     },
     packageCreation: {
       form: packageForm,
+      isEditing: Boolean(packageForm._id),
       onChange: handlePackageChange,
       onUploadImages: handleUploadPackageImages,
-      onSubmit: handleCreatePackage,
+      onSubmit: packageForm._id ? handleUpdatePackage : handleCreatePackage,
+      onCancelEdit: handleCancelPackageEdit,
+    },
+    agentPackages: {
+      items: agentPackages,
+      loading: agentPackagesLoading,
+      error: agentPackagesErrorMessage,
+      page: agentPackagePage,
+      totalPages: agentPackageTotalPages,
+      status: agentPackageStatus,
+      onStatusChange: handleAgentPackageStatusChange,
+      onPageChange: setAgentPackagePage,
+      onEdit: handleEditPackage,
+      onUpdateStatus: handleAgentPackageStatusUpdate,
     },
     claimPanel: {
       open: claimPanelOpen,

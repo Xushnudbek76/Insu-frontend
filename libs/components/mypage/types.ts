@@ -3,8 +3,9 @@ import { toAssetUrl } from '@/libs/api';
 export const POLICY_LIMIT = 5;
 export const AGENT_CLAIM_LIMIT = 5;
 export const FAVORITE_LIMIT = 6;
+export const AGENT_PACKAGE_LIMIT = 6;
 
-export type Category = 'myProfile' | 'addPackage' | 'myPolicies' | 'myClaims' | 'myFavorites' | 'agentClaims';
+export type Category = 'myProfile' | 'myPackages' | 'addPackage' | 'myPolicies' | 'myClaims' | 'myFavorites' | 'agentClaims';
 export type PackageType =
   | 'TERM_LIFE'
   | 'WHOLE_LIFE'
@@ -66,6 +67,25 @@ export interface FavoritePackage {
   memberData?: { _id: string; memberNick?: string | null; memberImage?: string | null } | null;
 }
 
+export interface AgentOwnedPackage {
+  _id: string;
+  packageType: string;
+  packageStatus: string;
+  packageTitle: string;
+  packageDesc?: string | null;
+  packagePrice: number;
+  packageCoverageLimit?: number | null;
+  packageMinAge?: number | null;
+  packageMaxAge?: number | null;
+  packageAssetTags?: string[] | null;
+  packageImages?: string[] | null;
+  packageViews?: number | null;
+  packageLikes?: number | null;
+  packageComments?: number | null;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+}
+
 export interface ProfileForm {
   memberNick: string;
   memberFullName: string;
@@ -84,6 +104,7 @@ export interface ClaimForm {
 }
 
 export interface PackageForm {
+  _id?: string;
   packageType: PackageType | '';
   packageName: string;
   packageDesc: string;
@@ -104,6 +125,7 @@ export const initialClaimForm: ClaimForm = {
 };
 
 export const initialPackageForm: PackageForm = {
+  _id: '',
   packageType: '',
   packageName: '',
   packageDesc: '',
@@ -132,7 +154,7 @@ export const packageTypes: PackageType[] = [
 ];
 
 export const isCategory = (value: unknown): value is Category =>
-  ['myProfile', 'addPackage', 'myPolicies', 'myClaims', 'myFavorites', 'agentClaims'].includes(`${value}`);
+  ['myProfile', 'myPackages', 'addPackage', 'myPolicies', 'myClaims', 'myFavorites', 'agentClaims'].includes(`${value}`);
 
 export const formatCurrency = (value?: number | null) =>
   value == null

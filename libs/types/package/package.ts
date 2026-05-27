@@ -5,6 +5,7 @@ export interface InsurancePackage {
   packageType: string;
   packageStatus: string;
   packageTitle: string;
+  packageAssetTags?: string[] | null;
   packagePrice: number;
   packageViews?: number | null;
   packageLikes?: number | null;

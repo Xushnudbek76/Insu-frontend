@@ -8,6 +8,7 @@ import AddPackage from '@/libs/components/mypage/AddPackage';
 import AgentClaims from '@/libs/components/mypage/AgentClaims';
 import MyClaims from '@/libs/components/mypage/MyClaims';
 import MyFavorites from '@/libs/components/mypage/MyFavorites';
+import MyPackages from '@/libs/components/mypage/MyPackages';
 import MyPageSidebar from '@/libs/components/mypage/MyPageSidebar';
 import MyPolicies from '@/libs/components/mypage/MyPolicies';
 import MyProfile from '@/libs/components/mypage/MyProfile';
@@ -18,7 +19,7 @@ import { useMyPageController } from '@/libs/components/mypage/useMyPageControlle
 const MyPage: NextPage = () => {
   const device = useDeviceDetect();
   const controller = useMyPageController();
-  const { t, access, profile, policies, claims, agentClaims, favorites, packageCreation, claimPanel, summary, navigation } =
+  const { t, access, profile, policies, claims, agentClaims, agentPackages, favorites, packageCreation, claimPanel, summary, navigation } =
     controller;
 
   if (!access.authReady || !access.user?._id) {
@@ -32,7 +33,7 @@ const MyPage: NextPage = () => {
   }
 
   if (device === 'mobile') {
-    return <MobileMyPage t={t} access={access} profile={profile} policies={policies} claims={claims} agentClaims={agentClaims} favorites={favorites} packageCreation={packageCreation} claimPanel={claimPanel} summary={summary} navigation={navigation} />;
+    return <MobileMyPage t={t} access={access} profile={profile} policies={policies} claims={claims} agentClaims={agentClaims} agentPackages={agentPackages} favorites={favorites} packageCreation={packageCreation} claimPanel={claimPanel} summary={summary} navigation={navigation} />;
   }
 
   return (
@@ -78,10 +79,28 @@ const MyPage: NextPage = () => {
           {access.category === 'addPackage' && access.isAgent && (
             <AddPackage
               packageForm={packageCreation.form}
+              isEditing={packageCreation.isEditing}
               t={t}
               onPackageChange={packageCreation.onChange}
               onUploadPackageImages={packageCreation.onUploadImages}
-              onCreatePackage={packageCreation.onSubmit}
+              onSubmitPackage={packageCreation.onSubmit}
+              onCancelEdit={packageCreation.onCancelEdit}
+            />
+          )}
+
+          {access.category === 'myPackages' && access.isAgent && (
+            <MyPackages
+              packages={agentPackages.items}
+              loading={agentPackages.loading}
+              error={agentPackages.error}
+              status={agentPackages.status}
+              page={agentPackages.page}
+              totalPages={agentPackages.totalPages}
+              t={t}
+              onStatusChange={agentPackages.onStatusChange}
+              onEditPackage={agentPackages.onEdit}
+              onUpdateStatus={agentPackages.onUpdateStatus}
+              onPageChange={agentPackages.onPageChange}
             />
           )}
 
