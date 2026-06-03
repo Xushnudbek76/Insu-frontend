@@ -801,12 +801,13 @@
             .swiper-slide {
                 display: flex;
                 height: auto;
+                align-items: flex-start;
             }
 
             .comment-card {
                 width: 100%;
-                min-height: 150px;
-                height: 100%;
+                min-height: 132px;
+                height: auto;
                 padding: 18px 20px;
                 border-radius: 18px;
                 background: $white;
