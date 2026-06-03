@@ -2,9 +2,7 @@
 #mobile-wrap {
     .mypage-dashboard {
         min-height: 78vh;
-        background:
-            radial-gradient(circle at 8% 8%, rgba(64, 64, 242, 0.13), transparent 30%),
-            linear-gradient(180deg, #f8f9fb 0%, #f2f4f6 100%);
+        background: #ffffff;
         color: #191c1e;
     }
 
@@ -27,22 +25,9 @@
         padding: 20px;
         border: 1px solid #e1e2e4;
         border-radius: 26px;
-        background:
-            linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(255, 255, 255, 0.96)),
-            radial-gradient(circle at 20% 0%, rgba(64, 64, 242, 0.16), transparent 36%);
+        background: #ffffff;
         box-shadow: 0 24px 70px rgba(15, 23, 42, 0.08);
         overflow: hidden;
-    }
-
-    .mypage-profile-aura {
-        position: absolute;
-        width: 180px;
-        height: 180px;
-        top: -70px;
-        right: -50px;
-        border-radius: 999px;
-        background: rgba(64, 64, 242, 0.17);
-        filter: blur(2px);
     }
 
     .mypage-user-card {
@@ -238,9 +223,7 @@
         align-items: flex-start;
         justify-content: space-between;
         gap: 24px;
-        background:
-            radial-gradient(circle at 84% 18%, rgba(64, 64, 242, 0.12), transparent 28%),
-            #ffffff;
+        background: #ffffff;
 
         span {
             color: #4040f2;

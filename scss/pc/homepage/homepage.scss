@@ -791,6 +791,7 @@
                 width: 100%;
                 padding-bottom: 32px;
                 padding-top: 32px;
+                overflow: hidden;
             }
 
             .swiper .swiper-wrapper {
@@ -803,7 +804,9 @@
             }
 
             .comment-card {
-                height: 90%;
+                width: 100%;
+                min-height: 150px;
+                height: 100%;
                 padding: 18px 20px;
                 border-radius: 18px;
                 background: $white;
@@ -811,7 +814,6 @@
                     0 1px 3px rgba(15, 23, 42, 0.04),
                     0 4px 16px rgba(15, 23, 42, 0.07);
                 display: flex;
-
                 flex-direction: column;
                 gap: 10px;
             }

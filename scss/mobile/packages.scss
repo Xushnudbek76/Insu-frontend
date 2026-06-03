@@ -530,17 +530,6 @@
       color: #4040f2;
     }
 
-    .pd-contact-btn {
-      min-height: 48px;
-      width: 100%;
-      border: 1px solid #2218dc;
-      border-radius: 999px;
-      background: #ffffff;
-      color: #2218dc;
-      font-size: 14px;
-      font-weight: 800;
-    }
-
     .pd-specs {
       display: grid;
       grid-template-columns: minmax(0, 1fr);
@@ -692,23 +681,6 @@
       color: #454556;
     }
 
-    .pd-comment-actions {
-      display: flex;
-      gap: 14px;
-      flex-wrap: wrap;
-    }
-
-    .pd-action-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 0;
-      border: 0;
-      background: transparent;
-      color: #616269;
-      font-size: 12px;
-      font-weight: 700;
-    }
   }
 
   .pd-related {

@@ -85,7 +85,7 @@ const HomeComments: React.FC = () => {
   }, [comments]);
 
   const hasComments = displayComments && displayComments.length > 0;
-  const slidesPerView = device === 'mobile' ? 1.1 : 3.2;
+  const slidesPerView = device === 'mobile' ? 1.1 : 3;
   const spaceBetween = device === 'mobile' ? 12 : 24;
 
   return (
@@ -127,7 +127,7 @@ const HomeComments: React.FC = () => {
                 pauseOnMouseEnter: true,
               }}
               pagination={{ clickable: true }}
-              centeredSlides={device !== 'mobile'}
+              centeredSlides={false}
               speed={4000}
               className={'comments-swiper'}
               observer={true}

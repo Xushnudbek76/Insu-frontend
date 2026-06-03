@@ -39,7 +39,6 @@ const MyPageSidebar = ({
   onLogout,
 }: MyPageSidebarProps) => (
   <Stack className='mypage-sidebar'>
-    <Box className='mypage-profile-aura' />
     <Stack className='mypage-user-card'>
       <Box component='img' src={avatarUrl(profileForm.memberImage) ?? '/img/profile/defaultUser.svg'} alt={user.memberNick} className='mypage-avatar' />
       <span className='mypage-role-chip'>{user.memberType}</span>

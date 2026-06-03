@@ -29,7 +29,6 @@ const PackageAgentCard = ({ agent }: PackageAgentCardProps) => (
         <StarIcon /> 4.9/5 Provider Rating
       </span>
     </Box>
-    <button className={'pd-contact-btn'}>Contact Agent</button>
   </Box>
 );
 

@@ -1,7 +1,5 @@
 import { useState } from 'react';
 import { Box, Avatar } from '@mui/material';
-import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
-import ReplyIcon from '@mui/icons-material/Reply';
 import { useMutation } from '@apollo/client/react';
 import { userVar } from '@/apollo/store';
 import { CREATE_COMMENT } from '@/apollo/comment/mutation';
@@ -102,14 +100,6 @@ const PackageComments = ({
                   <span className={'pd-comment-time'}>{timeAgo(c.createdAt)}</span>
                 </Box>
                 <p className={'pd-comment-text'}>{c.commentContent}</p>
-                <Box className={'pd-comment-actions'}>
-                  <button className={'pd-action-btn'}>
-                    <ThumbUpOutlinedIcon /> Like
-                  </button>
-                  <button className={'pd-action-btn'}>
-                    <ReplyIcon /> Reply
-                  </button>
-                </Box>
               </Box>
             </Box>
           ))

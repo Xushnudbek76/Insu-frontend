@@ -308,26 +308,6 @@ $mono:  'JetBrains Mono', monospace;
       margin: 0;
     }
 
-    .pd-comment-actions { display: flex; gap: 12px; }
-
-    .pd-action-btn {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      background: none;
-      border: none;
-      padding: 0;
-      cursor: pointer;
-      font-family: $mono;
-      font-size: 12px;
-      font-weight: 500;
-      color: $pd-grey;
-      transition: color 0.15s;
-
-      svg { font-size: 14px !important; }
-      &:hover { color: $pd-blue; }
-    }
-
     /* ── Sidebar ─────────────────────────────── */
     .pd-sidebar {
       position: sticky;
@@ -463,22 +443,6 @@ $mono:  'JetBrains Mono', monospace;
       color: $pd-grey;
 
       svg { font-size: 16px !important; color: $pd-blue; }
-    }
-
-    .pd-contact-btn {
-      width: 100%;
-      padding: 10px;
-      background: transparent;
-      color: $pd-blue;
-      border: 1px solid $pd-blue;
-      border-radius: 8px;
-      font-family: $hk;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.2s, color 0.2s;
-
-      &:hover { background: $pd-blue; color: $pd-white; }
     }
 
     /* ── Related packages ────────────────────── */
