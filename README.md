@@ -4,6 +4,10 @@ INSU Web is the customer-facing frontend for a full-stack insurance platform. It
 
 The application helps users browse insurance packages, filter plans by category and price, view package details, interact with community posts, upload images, and use authenticated features such as likes, comments, and profile-based actions.
 
+## Backend Schema
+
+The backend schema reference for the simplified social domain lives in [docs/backend-schema.dbml](/Users/user/Desktop/insu-web/docs/backend-schema.dbml).
+
 ## Features
 
 - Insurance package listing with search, type, status, price, and coverage filters.
