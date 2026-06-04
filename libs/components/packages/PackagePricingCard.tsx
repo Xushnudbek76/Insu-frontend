@@ -2,6 +2,7 @@ import { Box } from '@mui/material';
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import { useMutation } from '@apollo/client/react';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'next-i18next/pages';
 import { userVar } from '@/apollo/store';
 import { PURCHASE_POLICY } from '@/apollo/policy/mutation';
 import { sweetMixinErrorAlert, sweetTopSuccessAlert } from '@/libs/sweetAlert';
@@ -19,6 +20,7 @@ const PackagePricingCard = ({
   status,
 }: PackagePricingCardProps) => {
   const router = useRouter();
+  const { t } = useTranslation('common');
   const [purchasePolicy, { loading: applying }] = useMutation<{
     purchasePolicy: PurchasedPolicy;
   }>(PURCHASE_POLICY);
@@ -26,7 +28,7 @@ const PackagePricingCard = ({
   const handleApply = async () => {
     const user = userVar();
     if (!user?._id) {
-      await sweetMixinErrorAlert('Please login to apply for this package.');
+      await sweetMixinErrorAlert(t('Please login to apply for this package.'));
       router.push('/account/join');
       return;
     }
@@ -36,13 +38,13 @@ const PackagePricingCard = ({
         variables: { input: { packageId } },
       });
       if (res.data?.purchasePolicy) {
-        await sweetTopSuccessAlert('Application submitted successfully!');
+        await sweetTopSuccessAlert(t('Application submitted successfully!'));
       }
     } catch (err: any) {
       await sweetMixinErrorAlert(
-        err?.graphQLErrors?.[0]?.message?.replace('Definer: ', '') ??
+          err?.graphQLErrors?.[0]?.message?.replace('Definer: ', '') ??
           err?.message ??
-          'Could not submit your application.'
+          t('Could not submit your application.')
       );
     }
   };
@@ -50,21 +52,21 @@ const PackagePricingCard = ({
   return (
     <Box className={'pd-pricing-card'}>
       <Box className={'pd-pricing-top'}>
-        <span className={'pd-pricing-label'}>Monthly Premium</span>
+        <span className={'pd-pricing-label'}>{t('Monthly Premium')}</span>
         <Box className={'pd-pricing-amount'}>
           <span className={'pd-price'}>${price.toLocaleString()}</span>
-          <span className={'pd-price-unit'}>/mo</span>
+          <span className={'pd-price-unit'}>{t('/mo')}</span>
         </Box>
       </Box>
       <ul className={'pd-features'}>
         <li>
-          <CheckCircleOutlinedIcon /> Zero Deductible Options
+          <CheckCircleOutlinedIcon /> {t('Zero Deductible Options')}
         </li>
         <li>
-          <CheckCircleOutlinedIcon /> 24/7 Technical Support
+          <CheckCircleOutlinedIcon /> {t('24/7 Technical Support')}
         </li>
         <li>
-          <CheckCircleOutlinedIcon /> Direct Digital Claims
+          <CheckCircleOutlinedIcon /> {t('Direct Digital Claims')}
         </li>
       </ul>
       <button
@@ -72,7 +74,7 @@ const PackagePricingCard = ({
         onClick={handleApply}
         disabled={applying || status !== 'ACTIVE'}
       >
-        {applying ? 'Applying...' : 'Apply Now'}
+        {applying ? t('Applying...') : t('Apply Now')}
       </button>
     </Box>
   );

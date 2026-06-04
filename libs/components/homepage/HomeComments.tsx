@@ -10,6 +10,7 @@ import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
 import { initializeApollo } from '@/apollo/client';
 import { GET_LATEST_COMMENTS } from '@/apollo/comment/query';
 import { toAssetUrl } from '@/libs/api';
+import { useTranslation } from 'next-i18next/pages';
 
 interface CommentMember {
   _id: string;
@@ -35,6 +36,7 @@ const getCommentAvatar = (image?: string | null) =>
 
 const HomeComments: React.FC = () => {
   const device = useDeviceDetect();
+  const { t } = useTranslation('common');
   const [comments, setComments] = useState<HomeComment[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -63,7 +65,7 @@ const HomeComments: React.FC = () => {
       .catch((err: any) => {
         // eslint-disable-next-line no-console
         console.error('Error, getLatestComments', err);
-        setError("Couldn't load comments. Please try again later.");
+        setError(t('Could not load comments. Please try again later.'));
       })
       .finally(() => {
         setLoading(false);
@@ -93,15 +95,15 @@ const HomeComments: React.FC = () => {
       <Stack className={'container'}>
         <Stack className={'info-box'}>
           <Box component={'div'} className={'left'}>
-            <span>What our members say</span>
-            <p>Real feedback from people using our insurance.</p>
+            <span>{t('What our members say')}</span>
+            <p>{t('Real feedback from people using our insurance.')}</p>
           </Box>
         </Stack>
 
         <Stack className={'comments-wrapper'}>
           {loading && (
             <Box component={'div'} className={'empty-list'}>
-              Loading comments...
+              {t('Loading comments...')}
             </Box>
           )}
 
@@ -113,7 +115,7 @@ const HomeComments: React.FC = () => {
 
           {!loading && !error && !hasComments && (
             <Box component={'div'} className={'empty-list'}>
-              No comments yet
+              {t('No comments yet')}
             </Box>
           )}
 
@@ -138,7 +140,7 @@ const HomeComments: React.FC = () => {
               {displayComments.map((comment, index) => {
                 const member = comment.memberData;
                 const avatarSrc = getCommentAvatar(member?.memberImage);
-                const nick = member?.memberNick || 'Member';
+                const nick = member?.memberNick || t('Member');
 
                 return (
                   <SwiperSlide key={`${comment._id}-${index}`}>

@@ -21,6 +21,8 @@ import { BoardArticleCategory } from '@/libs/enums/board-article.enum';
 import { toAssetUrl } from '@/libs/api';
 import MobileCommunityDetailPage from '@/libs/components/mobile/community/MobileCommunityDetailPage';
 import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
+import { useTranslation } from 'next-i18next/pages';
+import { formatLocaleDate } from '@/libs/utils/locale';
 
 export const getServerSideProps = async ({ locale = 'en' }: { locale?: string }) => ({
   props: {
@@ -66,6 +68,7 @@ const CATEGORY_LABEL: Record<BoardArticleCategory, string> = {
 
 const CommunityDetailPage: NextPage = () => {
   const router = useRouter();
+  const { t } = useTranslation('common');
   const device = useDeviceDetect();
   const { id } = router.query;
   const [commentText, setCommentText] = useState('');
@@ -120,7 +123,7 @@ const CommunityDetailPage: NextPage = () => {
     toAssetUrl(image) ?? '/img/placeholder-article.svg';
 
   const formatDate = (date: string) =>
-    new Date(date).toLocaleDateString('en-US', {
+    formatLocaleDate(date, router.locale, {
       month: 'long',
       day: '2-digit',
       year: 'numeric',
@@ -136,7 +139,7 @@ const CommunityDetailPage: NextPage = () => {
     getSourceLiked: (source) => getMeLiked(source.meLiked),
     getSourceCount: (source) => source.articleLikes,
     isAuthenticated: () => Boolean(userVar()?._id),
-    onUnauthenticated: () => sweetMixinErrorAlert('Please login to like posts.'),
+    onUnauthenticated: () => sweetMixinErrorAlert(t('Please login to like posts.')),
     mutate: async (_, __, source) => {
       const result = await likeTargetBoardArticle({
         variables: { articleId: source._id },
@@ -145,7 +148,7 @@ const CommunityDetailPage: NextPage = () => {
     },
     getServerCount: (updated) => updated.articleLikes,
     onError: (message) => sweetMixinErrorAlert(message),
-    errorMessage: 'Could not update likes.',
+    errorMessage: t('Could not update likes.'),
   });
 
   const handlePostComment = async () => {
@@ -153,7 +156,7 @@ const CommunityDetailPage: NextPage = () => {
 
     const user = userVar();
     if (!user?._id) {
-      await sweetMixinErrorAlert('Please login to comment.');
+      await sweetMixinErrorAlert(t('Please login to comment.'));
       return;
     }
 
@@ -173,10 +176,10 @@ const CommunityDetailPage: NextPage = () => {
 
       setCommentText('');
       await Promise.all([refetchArticle(), refetchComments()]);
-      await sweetTopSuccessAlert('Comment posted.');
+      await sweetTopSuccessAlert(t('Comment posted.'));
     } catch (err: any) {
       await sweetMixinErrorAlert(
-        err?.graphQLErrors?.[0]?.message ?? 'Could not post comment.',
+        err?.graphQLErrors?.[0]?.message ?? t('Could not post comment.'),
       );
     } finally {
       setPostingComment(false);
@@ -187,7 +190,7 @@ const CommunityDetailPage: NextPage = () => {
     return (
       <Stack className='community-detail-page'>
         <Box className='community-shell'>
-          <div className='community-detail-loading'>Loading community post...</div>
+          <div className='community-detail-loading'>{t('Loading community post...')}</div>
         </Box>
       </Stack>
     );
@@ -197,7 +200,7 @@ const CommunityDetailPage: NextPage = () => {
     return (
       <Stack className='community-detail-page'>
         <Box className='community-shell'>
-          <div className='community-detail-empty'>This post could not be found.</div>
+          <div className='community-detail-empty'>{t('This post could not be found.')}</div>
         </Box>
       </Stack>
     );
@@ -212,7 +215,7 @@ const CommunityDetailPage: NextPage = () => {
         postingComment={postingComment}
         liked={articleLike.liked}
         likeCount={articleLike.count}
-        categoryLabel={CATEGORY_LABEL[article.articleCategory]}
+        categoryLabel={t(CATEGORY_LABEL[article.articleCategory])}
         getArticleImage={getArticleImage}
         formatDate={formatDate}
         onCommentTextChange={setCommentText}
@@ -228,7 +231,7 @@ const CommunityDetailPage: NextPage = () => {
       <Box className='community-shell'>
         <button className='community-back-btn' onClick={() => router.push('/community')}>
           <ArrowBackOutlinedIcon />
-          Back to Community
+          {t('Back to Community')}
         </button>
 
         <Box className='community-detail-card'>
@@ -239,7 +242,7 @@ const CommunityDetailPage: NextPage = () => {
 
           <div className='community-detail-body'>
             <div className='community-detail-meta-top'>
-              <span className='community-category-pill'>{CATEGORY_LABEL[article.articleCategory]}</span>
+              <span className='community-category-pill'>{t(CATEGORY_LABEL[article.articleCategory])}</span>
               <span>{formatDate(article.createdAt)}</span>
             </div>
 
@@ -250,8 +253,8 @@ const CommunityDetailPage: NextPage = () => {
                 {article.memberData?.memberNick?.[0] ?? 'U'}
               </Avatar>
               <div>
-                <strong>{article.memberData?.memberNick ?? 'Community Member'}</strong>
-                <span>Shared with the INSU community</span>
+                <strong>{article.memberData?.memberNick ?? t('Community Member')}</strong>
+                <span>{t('Shared with the INSU community')}</span>
               </div>
             </div>
 
@@ -260,15 +263,15 @@ const CommunityDetailPage: NextPage = () => {
             <div className='community-detail-stats'>
               <span>
                 <VisibilityOutlinedIcon />
-                {article.articleViews} views
+                {article.articleViews} {t('views')}
               </span>
               <button className={articleLike.liked ? 'liked' : ''} onClick={articleLike.toggle}>
                 {articleLike.liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
-                {articleLike.count} likes
+                {articleLike.count} {t('likes')}
               </button>
               <span>
                 <ChatBubbleOutlineOutlinedIcon />
-                {commentTotal} comments
+                {commentTotal} {t('comments')}
               </span>
             </div>
           </div>
@@ -276,7 +279,7 @@ const CommunityDetailPage: NextPage = () => {
 
         <Box className='community-comments-card'>
           <div className='community-comments-header'>
-            <h2>Comments</h2>
+            <h2>{t('Comments')}</h2>
             <span>{commentTotal}</span>
           </div>
 
@@ -284,16 +287,16 @@ const CommunityDetailPage: NextPage = () => {
             <textarea
               value={commentText}
               onChange={(event) => setCommentText(event.target.value)}
-              placeholder='Share your thoughts about this post'
+              placeholder={t('Share your thoughts about this post')}
             />
             <button disabled={postingComment || !commentText.trim()} onClick={handlePostComment}>
-              {postingComment ? 'Posting...' : 'Post Comment'}
+              {postingComment ? t('Posting...') : t('Post Comment')}
             </button>
           </div>
 
           <div className='community-comment-list'>
             {comments.length === 0 ? (
-              <div className='community-comment-empty'>No comments yet. Start the conversation.</div>
+              <div className='community-comment-empty'>{t('No comments yet. Start the conversation.')}</div>
             ) : (
               comments.map((comment) => (
                 <div key={comment._id} className='community-comment-item'>
@@ -302,7 +305,7 @@ const CommunityDetailPage: NextPage = () => {
                   </Avatar>
                   <div className='community-comment-body'>
                     <div className='community-comment-head'>
-                      <strong>{comment.memberData?.memberNick ?? 'Member'}</strong>
+                      <strong>{comment.memberData?.memberNick ?? t('Member')}</strong>
                       <span>{formatDate(comment.createdAt)}</span>
                     </div>
                     <p>{comment.commentContent}</p>

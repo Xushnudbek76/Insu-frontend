@@ -1,6 +1,7 @@
 import { Box, Stack } from '@mui/material';
 import AddTaskOutlinedIcon from '@mui/icons-material/AddTaskOutlined';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
+import { useRouter } from 'next/router';
 import { formatCurrency, formatDate, PolicyData } from './types';
 import MyPageEmpty from './MyPageEmpty';
 import MyPagePagination from './MyPagePagination';
@@ -32,7 +33,38 @@ const MyPolicies = ({
   onCancelPolicy,
   onPageChange,
 }: MyPoliciesProps) => (
-  <Stack className='mypage-panel'>
+  <MyPoliciesContent
+    policies={policies}
+    loading={loading}
+    error={error}
+    policyStatus={policyStatus}
+    policyPage={policyPage}
+    policyTotalPages={policyTotalPages}
+    t={t}
+    onPolicyStatusChange={onPolicyStatusChange}
+    onOpenClaimPanel={onOpenClaimPanel}
+    onCancelPolicy={onCancelPolicy}
+    onPageChange={onPageChange}
+  />
+);
+
+const MyPoliciesContent = ({
+  policies,
+  loading,
+  error,
+  policyStatus,
+  policyPage,
+  policyTotalPages,
+  t,
+  onPolicyStatusChange,
+  onOpenClaimPanel,
+  onCancelPolicy,
+  onPageChange,
+}: MyPoliciesProps) => {
+  const router = useRouter();
+
+  return (
+    <Stack className='mypage-panel'>
     <Stack className='mypage-panel-head row'>
       <Stack>
         <span>{t('My Policies')}</span>
@@ -63,8 +95,8 @@ const MyPolicies = ({
               <p>{t('Policy ID')}: {policy._id}</p>
               <Box className='mypage-card-meta'>
                 <span>{t('Premium')}: {formatCurrency(policy.premiumAmount)}</span>
-                <span>{t('Start')}: {formatDate(policy.startDate)}</span>
-                <span>{t('End')}: {formatDate(policy.endDate)}</span>
+                <span>{t('Start')}: {formatDate(policy.startDate, router.locale)}</span>
+                <span>{t('End')}: {formatDate(policy.endDate, router.locale)}</span>
               </Box>
             </Stack>
             <Stack className='mypage-card-actions'>
@@ -86,7 +118,8 @@ const MyPolicies = ({
         <MyPagePagination page={policyPage} totalPages={policyTotalPages} onChange={onPageChange} t={t} />
       </Stack>
     )}
-  </Stack>
-);
+    </Stack>
+  );
+};
 
 export default MyPolicies;

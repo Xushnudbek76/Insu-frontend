@@ -18,6 +18,7 @@ import { LIKE_TARGET_PACKAGE } from '@/apollo/package/mutation';
 import { sweetMixinErrorAlert } from '@/libs/sweetAlert';
 import { formatCount } from '@/libs/utils/format';
 import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
+import { useTranslation } from 'next-i18next/pages';
 import {
   PackageDetailSkeleton,
   PackageDetailError,
@@ -48,6 +49,7 @@ export const getServerSideProps = async ({
 
 const PackageDetailPage: NextPage = () => {
   const router = useRouter();
+  const { t } = useTranslation('common');
   const device = useDeviceDetect();
   const packageId = typeof router.query.id === 'string' ? router.query.id : '';
 
@@ -128,7 +130,7 @@ const PackageDetailPage: NextPage = () => {
     getSourceLiked: (source) => getMeLiked(source.meLiked),
     getSourceCount: (source) => source.packageLikes,
     isAuthenticated: () => Boolean(userVar()?._id),
-    onUnauthenticated: () => sweetMixinErrorAlert('Please login to like packages.'),
+    onUnauthenticated: () => sweetMixinErrorAlert(t('Please login to like packages.')),
     mutate: async () => {
       const res = await likePackage({ variables: { packageId } });
       return res.data?.likeTargetPackage;
@@ -136,7 +138,7 @@ const PackageDetailPage: NextPage = () => {
     getServerLiked: (updated) => getMeLiked(updated.meLiked),
     getServerCount: (updated) => updated.packageLikes,
     onError: (message) => sweetMixinErrorAlert(message),
-    errorMessage: 'Error updating like.',
+    errorMessage: t('Error updating like.'),
   });
 
   const handleCommentAdded = (newComment: Comment) => {
@@ -153,8 +155,8 @@ const PackageDetailPage: NextPage = () => {
       <PackageDetailError
         message={
           msg === 'No data found!'
-            ? 'Insurance not found.'
-            : 'Failed to load. Please try again.'
+            ? t('Insurance not found.')
+            : t('Failed to load. Please try again.')
         }
         onBack={() => router.back()}
       />
@@ -187,11 +189,11 @@ const PackageDetailPage: NextPage = () => {
           <Box className={'pd-header'}>
             <Box className={'pd-badges'}>
               <span className={'pd-type-badge'}>
-                {typeLabel(pkg.packageType)}
+                {t(typeLabel(pkg.packageType))}
               </span>
               {pkg.packageStatus === 'ACTIVE' && (
                 <span className={'pd-status-active'}>
-                  <CheckCircleOutlinedIcon /> Active
+                  <CheckCircleOutlinedIcon /> {t('Active')}
                 </span>
               )}
             </Box>
@@ -211,24 +213,24 @@ const PackageDetailPage: NextPage = () => {
           <Box className={'pd-stats'}>
             <span className={'pd-stat'}>
               <VisibilityOutlinedIcon />
-              {formatCount(pkg.packageViews)} Views
+              {formatCount(pkg.packageViews)} {t('Views')}
             </span>
             <button
               className={`pd-stat pd-like${packageLike.liked ? ' liked' : ''}`}
               onClick={packageLike.toggle}
             >
               {packageLike.liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
-              {formatCount(packageLike.count)} Likes
+              {formatCount(packageLike.count)} {t('Likes')}
             </button>
             <span className={'pd-stat'}>
               <ChatBubbleOutlinedIcon />
-              {formatCount(commentTotal)} Comments
+              {formatCount(commentTotal)} {t('Comments')}
             </span>
           </Box>
 
           {pkg.packageDesc && (
             <Box component={'section'}>
-              <h2 className={'pd-section-title'}>Package Overview</h2>
+              <h2 className={'pd-section-title'}>{t('Package Overview')}</h2>
               <p className={'pd-overview-text'}>{pkg.packageDesc}</p>
             </Box>
           )}

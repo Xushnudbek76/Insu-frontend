@@ -1,7 +1,9 @@
 import NextLink from 'next/link';
+import { useTranslation } from 'next-i18next/pages';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
+  const { t } = useTranslation('common');
 
   return (
     <footer id="footer">
@@ -10,33 +12,32 @@ const Footer = () => {
           <div className="brand-col">
             <span className="logo">INSU</span>
             <p>
-              Smart insurance marketplace powered by AI. Discover tailored insurance,
-              compare coverage, and manage your policies effortlessly.
+              {t('Smart insurance marketplace powered by AI. Discover tailored insurance, compare coverage, and manage your policies effortlessly.')}
             </p>
           </div>
 
           <div className="links-col">
             <div className="link-group">
-              <strong>Explore</strong>
-              <NextLink href="/packages">Insurance</NextLink>
-              <NextLink href="/agents">Agents</NextLink>
-              <NextLink href="/community">Community</NextLink>
+              <strong>{t('Explore')}</strong>
+              <NextLink href="/packages">{t('Insurance')}</NextLink>
+              <NextLink href="/agents">{t('Agents')}</NextLink>
+              <NextLink href="/community">{t('Community')}</NextLink>
             </div>
 
             <div className="link-group">
-              <strong>Support</strong>
-              <NextLink href="/cs">Help Center</NextLink>
-              <a href="mailto:support@insu.ai">Contact</a>
-              <NextLink href="/about">About</NextLink>
+              <strong>{t('Support')}</strong>
+              <NextLink href="/cs">{t('Help Center')}</NextLink>
+              <a href="mailto:support@insu.ai">{t('Contact')}</a>
+              <NextLink href="/about">{t('About')}</NextLink>
             </div>
           </div>
         </div>
 
         <div className="second">
-          <span>© {currentYear} INSU. All rights reserved.</span>
+          <span>{t('footer rights', { year: currentYear })}</span>
           <div className="footer-links">
-            <NextLink href="/terms">Terms</NextLink>
-            <NextLink href="/privacy">Privacy</NextLink>
+            <NextLink href="/terms">{t('Terms')}</NextLink>
+            <NextLink href="/privacy">{t('Privacy')}</NextLink>
           </div>
         </div>
       </div>

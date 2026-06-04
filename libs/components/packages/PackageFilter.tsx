@@ -1,6 +1,7 @@
 import { ChangeEvent } from 'react';
 import { Box } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
+import { useTranslation } from 'next-i18next/pages';
 import type { PackageSelectOption } from '@/libs/components/packages/config';
 
 export interface PackageFilterValues {
@@ -29,6 +30,8 @@ const PackageFilter = ({
   onChange,
   onApply,
 }: PackageFilterProps) => {
+  const { t } = useTranslation('common');
+
   const updateValue = (key: keyof PackageFilterValues, value: string) => {
     onChange({ ...values, [key]: value });
   };
@@ -40,15 +43,15 @@ const PackageFilter = ({
 
   return (
     <Box className={'filters-sidebar'}>
-      <p className={'filters-title'}>Filters</p>
-      <p className={'filters-sub'}>Narrow your search</p>
+      <p className={'filters-title'}>{t('Filters')}</p>
+      <p className={'filters-sub'}>{t('Narrow your search')}</p>
 
       <Box className={'filter-section'}>
-        <p className={'filter-label'}>SEARCH</p>
+        <p className={'filter-label'}>{t('SEARCH')}</p>
         <Box className={'price-row'}>
           <input
             type='text'
-            placeholder='Package name'
+            placeholder={t('Package name')}
             value={values.searchText}
             onChange={(event) => updateValue('searchText', event.target.value)}
             className={'price-input'}
@@ -60,7 +63,7 @@ const PackageFilter = ({
       </Box>
 
       <Box className={'filter-section'}>
-        <p className={'filter-label'}>INSURANCE TYPE</p>
+        <p className={'filter-label'}>{t('INSURANCE TYPE')}</p>
         {typeOptions.map((option) => (
           <label key={option.value} className={'checkbox-row'}>
             <input
@@ -69,13 +72,13 @@ const PackageFilter = ({
               onChange={() => updateValue('selectedType', option.value)}
               className={'pkg-checkbox'}
             />
-            <span className={'checkbox-text'}>{option.label}</span>
+            <span className={'checkbox-text'}>{t(option.label)}</span>
           </label>
         ))}
       </Box>
 
       <Box className={'filter-section'}>
-        <p className={'filter-label'}>STATUS</p>
+        <p className={'filter-label'}>{t('STATUS')}</p>
         <select
           value={values.selectedStatus}
           onChange={(event) => updateValue('selectedStatus', event.target.value)}
@@ -83,25 +86,25 @@ const PackageFilter = ({
         >
           {statusOptions.map((option) => (
             <option key={option.value} value={option.value}>
-              {option.label}
+              {t(option.label)}
             </option>
           ))}
         </select>
       </Box>
 
       <Box className={'filter-section'}>
-        <p className={'filter-label'}>PRICE RANGE</p>
+        <p className={'filter-label'}>{t('PRICE RANGE')}</p>
         <Box className={'price-row'}>
           <input
             type='number'
-            placeholder='Min'
+            placeholder={t('Min')}
             value={values.priceMin}
             onChange={handlePriceChange('priceMin')}
             className={'price-input'}
           />
           <input
             type='number'
-            placeholder='Max'
+            placeholder={t('Max')}
             value={values.priceMax}
             onChange={handlePriceChange('priceMax')}
             className={'price-input'}
@@ -110,7 +113,7 @@ const PackageFilter = ({
       </Box>
 
       <Box className={'filter-section'}>
-        <p className={'filter-label'}>COVERAGE LIMIT</p>
+        <p className={'filter-label'}>{t('COVERAGE LIMIT')}</p>
         <select
           value={values.coverageLimit}
           onChange={(event) => updateValue('coverageLimit', event.target.value)}
@@ -118,14 +121,14 @@ const PackageFilter = ({
         >
           {coverageOptions.map((option) => (
             <option key={option.value} value={option.value}>
-              {option.label}
+              {t(option.label)}
             </option>
           ))}
         </select>
       </Box>
 
       <button className={'apply-btn'} onClick={onApply}>
-        Apply Filters
+        {t('Apply Filters')}
       </button>
     </Box>
   );

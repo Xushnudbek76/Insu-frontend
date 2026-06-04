@@ -9,6 +9,7 @@ import TuneOutlinedIcon from '@mui/icons-material/TuneOutlined';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ShieldOutlinedIcon from '@mui/icons-material/ShieldOutlined';
+import { useTranslation } from 'next-i18next/pages';
 import type { PackageSelectOption } from '@/libs/components/packages/config';
 import type { PackageFilterValues } from '@/libs/components/packages/PackageFilter';
 import PackageFilter from '@/libs/components/packages/PackageFilter';
@@ -75,27 +76,28 @@ const MobilePackagesPage = ({
   onOpenPackage,
   onToggleLike,
 }: MobilePackagesPageProps) => {
+  const { t } = useTranslation('common');
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   return (
     <Stack className='mobile-packages-page'>
       <Stack className='mobile-page-hero'>
-        <span>Insurance Packages</span>
-        <h1>Find protection that fits your life</h1>
-        <p>Browse active plans, compare coverage, and save the ones you want to revisit.</p>
+        <span>{t('Insurance Packages')}</span>
+        <h1>{t('Find protection that fits your life')}</h1>
+        <p>{t('Browse active plans, compare coverage, and save the ones you want to revisit.')}</p>
       </Stack>
 
       <Stack className='mobile-packages-toolbar'>
         <button className='mobile-filter-trigger' onClick={() => setFiltersOpen((prev) => !prev)}>
           <TuneOutlinedIcon />
-          {filtersOpen ? 'Hide filters' : 'Show filters'}
+          {filtersOpen ? t('Hide filters') : t('Show filters')}
         </button>
         <label className='mobile-sort-field'>
-          <span>Sort</span>
+          <span>{t('Sort')}</span>
           <select value={sort} onChange={(event) => onSortChange(event.target.value)}>
             {sortOptions.map((option) => (
               <option key={option.value} value={option.value}>
-                {option.label}
+                {t(option.label)}
               </option>
             ))}
           </select>
@@ -120,7 +122,7 @@ const MobilePackagesPage = ({
 
       <Stack className='mobile-packages-summary'>
         <strong>{total}</strong>
-        <span>packages available</span>
+        <span>{t('packages available')}</span>
       </Stack>
 
       {isLoading ? (
@@ -132,8 +134,8 @@ const MobilePackagesPage = ({
       ) : packages.length === 0 ? (
         <Stack className='mobile-empty-card'>
           <SearchOutlinedIcon />
-          <h2>No insurance packages found.</h2>
-          <p>Try adjusting your filters or searching with broader terms.</p>
+          <h2>{t('No insurance packages found.')}</h2>
+          <p>{t('Try adjusting your filters or searching with broader terms.')}</p>
         </Stack>
       ) : (
         <Box className='mobile-packages-list'>
@@ -148,7 +150,7 @@ const MobilePackagesPage = ({
                 <Stack className='mobile-package-body'>
                   <div className='mobile-package-topline'>
                     <span>{typeLabel(pkg.packageType)}</span>
-                    <strong>${pkg.packagePrice.toLocaleString()}/mo</strong>
+                    <strong>${pkg.packagePrice.toLocaleString()}{t('/mo')}</strong>
                   </div>
                   <h3>{pkg.packageTitle}</h3>
                   <Stack className='mobile-package-badges'>
@@ -158,7 +160,7 @@ const MobilePackagesPage = ({
                         {formatCoverage(pkg.packageCoverageLimit)}
                       </span>
                     )}
-                    {pkg.packageMinAge != null && <span>Ages {pkg.packageMinAge}-{pkg.packageMaxAge ?? '∞'}</span>}
+                    {pkg.packageMinAge != null && <span>{t('Ages')} {pkg.packageMinAge}-{pkg.packageMaxAge ?? '∞'}</span>}
                   </Stack>
                   <Stack className='mobile-package-stats'>
                     <span>

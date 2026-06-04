@@ -43,12 +43,14 @@ const Top = () => {
   }, []);
 
   useEffect(() => {
+    if (!router.isReady) return;
     const storedLocale = localStorage.getItem('locale');
-    const nextLocale = SUPPORTED_LOCALES.includes(storedLocale ?? '') ? storedLocale! : router.locale || 'en';
+    const routerLocale = SUPPORTED_LOCALES.includes(router.locale ?? '') ? router.locale! : '';
+    const nextLocale = routerLocale || (SUPPORTED_LOCALES.includes(storedLocale ?? '') ? storedLocale! : 'en');
     setLocale(nextLocale);
     localStorage.setItem('locale', nextLocale);
 
-    if (router.isReady && router.locale !== nextLocale) {
+    if (router.locale !== nextLocale) {
       router.replace(router.asPath, router.asPath, { locale: nextLocale });
     }
   }, [router]);

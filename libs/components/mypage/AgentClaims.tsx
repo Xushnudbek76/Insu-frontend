@@ -1,4 +1,5 @@
 import { Box, Stack } from '@mui/material';
+import { useRouter } from 'next/router';
 import { ClaimData, ClaimStatus, formatCurrency, formatDate } from './types';
 import MyPageEmpty from './MyPageEmpty';
 import MyPagePagination from './MyPagePagination';
@@ -32,7 +33,40 @@ const AgentClaims = ({
   onUpdateClaimStatus,
   onPageChange,
 }: AgentClaimsProps) => (
-  <Stack className='mypage-panel'>
+  <AgentClaimsContent
+    claims={claims}
+    loading={loading}
+    error={error}
+    claimStatus={claimStatus}
+    claimText={claimText}
+    page={page}
+    totalPages={totalPages}
+    t={t}
+    onTextChange={onTextChange}
+    onStatusChange={onStatusChange}
+    onUpdateClaimStatus={onUpdateClaimStatus}
+    onPageChange={onPageChange}
+  />
+);
+
+const AgentClaimsContent = ({
+  claims,
+  loading,
+  error,
+  claimStatus,
+  claimText,
+  page,
+  totalPages,
+  t,
+  onTextChange,
+  onStatusChange,
+  onUpdateClaimStatus,
+  onPageChange,
+}: AgentClaimsProps) => {
+  const router = useRouter();
+
+  return (
+    <Stack className='mypage-panel'>
     <Stack className='mypage-panel-head row'>
       <Stack>
         <span>{t('Agent Claims')}</span>
@@ -67,7 +101,7 @@ const AgentClaims = ({
               <Box className='mypage-card-meta'>
                 <span>{t('Amount')}: {formatCurrency(claim.claimAmount)}</span>
                 <span>{t('Policy ID')}: {claim.policyId}</span>
-                <span>{formatDate(claim.createdAt)}</span>
+                <span>{formatDate(claim.createdAt, router.locale)}</span>
               </Box>
               {claim.aiAnalysis && <strong>{t('AI Analysis')}: {claim.aiAnalysis}</strong>}
             </Stack>
@@ -83,7 +117,8 @@ const AgentClaims = ({
         <MyPagePagination page={page} totalPages={totalPages} onChange={onPageChange} t={t} />
       </Stack>
     )}
-  </Stack>
-);
+    </Stack>
+  );
+};
 
 export default AgentClaims;

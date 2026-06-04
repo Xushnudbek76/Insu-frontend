@@ -4,6 +4,7 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import { useRouter } from 'next/router';
 import NextLink from 'next/link';
 import { useQuery, useMutation } from '@apollo/client/react';
+import { useTranslation } from 'next-i18next/pages';
 import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
 import { GET_PACKAGES } from '@/apollo/user/query';
 import { LIKE_TARGET_PACKAGE } from '@/apollo/package/mutation';
@@ -35,6 +36,7 @@ interface GetPackagesResponse {
 const PopularPackages: React.FC = () => {
 	const device = useDeviceDetect();
 	const router = useRouter();
+	const { t } = useTranslation('common');
 
 	const { data, loading, error } = useQuery<GetPackagesResponse>(GET_PACKAGES, {
 		variables: {
@@ -63,7 +65,7 @@ const PopularPackages: React.FC = () => {
 		getItemLiked: (pkg) => getMeLiked(pkg.meLiked),
 		getItemCount: (pkg) => pkg.packageLikes,
 		isAuthenticated: () => Boolean(userVar()?._id),
-		onUnauthenticated: () => sweetMixinErrorAlert('Please login to like packages.'),
+		onUnauthenticated: () => sweetMixinErrorAlert(t('Please login to like packages.')),
 		mutate: async (packageId) => {
 			const result = await likePackage({ variables: { packageId } });
 			return result.data?.likeTargetPackage;
@@ -74,7 +76,7 @@ const PopularPackages: React.FC = () => {
 			console.error('Error, likeTargetPackage', error);
 			await sweetMixinErrorAlert(message);
 		},
-		errorMessage: 'Could not update favorites.',
+		errorMessage: t('Could not update favorites.'),
 	});
 	const likedByPackage = packageLikes.likedById;
 
@@ -94,17 +96,17 @@ const PopularPackages: React.FC = () => {
 			<Stack className={'popular-packages'}>
 				<Stack className={'container'}>
 					<Stack className={'info-box'}>
-						<span>Popular Insurance</span>
+						<span>{t('Popular Insurance')}</span>
 					</Stack>
 					<Stack className={'card-box'}>
 						{loading && (
 							<Box component={'div'} className={'empty-list'}>
-								Loading popular insurance...
+								{t('Loading popular insurance...')}
 							</Box>
 						)}
 						{!loading && error && (
 							<Box component={'div'} className={'empty-list'}>
-								Couldn't load popular packages. Please try again later.
+								{t('Could not load popular packages. Please try again later.')}
 							</Box>
 						)}
 						{!loading && !error && hasPackages && (
@@ -126,19 +128,19 @@ const PopularPackages: React.FC = () => {
 													className={'package-image'}
 												/>
 											</Box>
-											<span className={'package-type'}>{pkg.packageType}</span>
+											<span className={'package-type'}>{t(pkg.packageType)}</span>
 											<strong className={'package-name'}>{pkg.packageTitle}</strong>
 											{pkg.packageDesc && (
 												<p className={'package-desc'}>{pkg.packageDesc}</p>
 											)}
 											<span className={'package-price'}>
-												${pkg.packagePrice.toLocaleString()} / month
+												${pkg.packagePrice.toLocaleString()} {t('/ month')}
 											</span>
 											<Box component={'div'} className={'package-footer'}>
 												<span className={'package-meta'}>
 													{typeof pkg.packageViews === 'number'
-														? `${pkg.packageViews.toLocaleString()} views`
-														: 'New insurance'}
+														? t('views count', { count: pkg.packageViews.toLocaleString() })
+														: t('New insurance')}
 												</span>
 												<IconButton
 													className={'like-btn'}
@@ -162,7 +164,7 @@ const PopularPackages: React.FC = () => {
 						)}
 						{!loading && !error && !hasPackages && (
 							<Box component={'div'} className={'empty-list'}>
-								No popular insurance yet
+								{t('No popular insurance yet')}
 							</Box>
 						)}
 					</Stack>
@@ -176,24 +178,24 @@ const PopularPackages: React.FC = () => {
 			<Stack className={'container'}>
 				<Stack className={'info-box'}>
 					<Box component={'div'} className={'left'}>
-						<span>Popular Insurance</span>
-						<p>Popularity is based on views</p>
+						<span>{t('Popular Insurance')}</span>
+						<p>{t('Popularity is based on views')}</p>
 					</Box>
 					<Box component={'div'} className={'right'}>
 						<div className={'more-box'}>
-							<NextLink href={'/packages'}>See All Insurance</NextLink>
+							<NextLink href={'/packages'}>{t('See All Insurance')}</NextLink>
 						</div>
 					</Box>
 				</Stack>
 				<Stack className={'card-box'}>
 					{loading && (
 						<Box component={'div'} className={'empty-list'}>
-							Loading popular insurance...
+							{t('Loading popular insurance...')}
 						</Box>
 					)}
 					{!loading && error && (
 						<Box component={'div'} className={'empty-list'}>
-							Couldn't load popular packages. Please try again later.
+							{t('Could not load popular packages. Please try again later.')}
 						</Box>
 					)}
 					{!loading && !error && hasPackages && (
@@ -215,19 +217,19 @@ const PopularPackages: React.FC = () => {
 												className={'package-image'}
 											/>
 										</Box>
-										<span className={'package-type'}>{pkg.packageType}</span>
+										<span className={'package-type'}>{t(pkg.packageType)}</span>
 										<strong className={'package-name'}>{pkg.packageTitle}</strong>
 										{pkg.packageDesc && (
 											<p className={'package-desc'}>{pkg.packageDesc}</p>
 										)}
 										<span className={'package-price'}>
-											${pkg.packagePrice.toLocaleString()} / month
+											${pkg.packagePrice.toLocaleString()} {t('/ month')}
 										</span>
 										<Box component={'div'} className={'package-footer'}>
 											<span className={'package-meta'}>
 												{typeof pkg.packageViews === 'number'
-														? `${pkg.packageViews.toLocaleString()} views`
-														: 'New insurance'}
+														? t('views count', { count: pkg.packageViews.toLocaleString() })
+														: t('New insurance')}
 											</span>
 											<IconButton
 												className={'like-btn'}
@@ -251,7 +253,7 @@ const PopularPackages: React.FC = () => {
 					)}
 					{!loading && !error && !hasPackages && (
 						<Box component={'div'} className={'empty-list'}>
-							No popular insurance yet
+							{t('No popular insurance yet')}
 						</Box>
 					)}
 				</Stack>

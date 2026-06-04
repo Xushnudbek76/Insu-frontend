@@ -2,9 +2,11 @@ import React from 'react';
 import { Stack, Box, Typography, Skeleton } from '@mui/material';
 import { useQuery } from '@apollo/client/react';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'next-i18next/pages';
 import { GET_BOARD_ARTICLES } from '@/apollo/board-article/query';
 import { BoardArticleCategory } from '@/libs/enums/board-article.enum';
 import { toAssetUrl } from '@/libs/api';
+import { formatLocaleDate } from '@/libs/utils/locale';
 
 interface ArticleMember {
   _id: string;
@@ -33,6 +35,7 @@ interface GetBoardArticlesResponse {
 
 const BoardArticles: React.FC = () => {
   const router = useRouter();
+  const { t } = useTranslation('common');
 
   const { data: noticeData, loading: noticeLoading } = useQuery<GetBoardArticlesResponse>(
     GET_BOARD_ARTICLES,
@@ -90,7 +93,7 @@ const BoardArticles: React.FC = () => {
   };
 
   const formatDate = (date: string) =>
-    new Date(date).toLocaleDateString('en-US', {
+    formatLocaleDate(date, router.locale, {
       month: 'long',
       day: 'numeric',
       year: 'numeric',
@@ -134,7 +137,7 @@ const BoardArticles: React.FC = () => {
         />
       </Box>
       <Box className='magazine-copy'>
-        <span className='article-category'>{getCategoryLabel(article.articleCategory)}</span>
+        <span className='article-category'>{t(getCategoryLabel(article.articleCategory))}</span>
         <Typography className='article-title'>{article.articleTitle}</Typography>
         <small>{formatDate(article.createdAt)}</small>
       </Box>
@@ -156,7 +159,7 @@ const BoardArticles: React.FC = () => {
         />
       </Box>
       <Box className='magazine-copy'>
-        <span className='article-category'>{getCategoryLabel(article.articleCategory)}</span>
+        <span className='article-category'>{t(getCategoryLabel(article.articleCategory))}</span>
         <Typography className='article-title'>{article.articleTitle}</Typography>
         <Typography className='article-excerpt'>{article.articleContent}</Typography>
         <small>
@@ -198,14 +201,14 @@ const BoardArticles: React.FC = () => {
             </Stack>
             <SkeletonBlock variant='feature' />
             <Stack className='latest-column'>
-              <h3>Latest</h3>
+              <h3>{t('Latest')}</h3>
               {[0, 1, 2, 3, 4].map((item) => (
                 <SkeletonBlock key={item} variant='latest' />
               ))}
             </Stack>
           </Box>
         ) : allArticles.length === 0 ? (
-          <Box className='articles-empty'>No community articles yet.</Box>
+          <Box className='articles-empty'>{t('No community articles yet.')}</Box>
         ) : (
           <Box className='article-magazine'>
             <Stack className='side-column'>
@@ -213,7 +216,7 @@ const BoardArticles: React.FC = () => {
             </Stack>
             {featuredArticle && renderFeatureArticle(featuredArticle)}
             <Stack className='latest-column'>
-              <h3>Latest</h3>
+              <h3>{t('Latest')}</h3>
               {latestArticles.map((article) => renderLatestArticle(article))}
             </Stack>
           </Box>

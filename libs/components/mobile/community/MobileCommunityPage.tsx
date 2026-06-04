@@ -5,6 +5,7 @@ import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import FavoriteBorderOutlinedIcon from '@mui/icons-material/FavoriteBorderOutlined';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import ChatBubbleOutlineOutlinedIcon from '@mui/icons-material/ChatBubbleOutlineOutlined';
+import { useTranslation } from 'next-i18next/pages';
 import type { BoardArticleCategory } from '@/libs/enums/board-article.enum';
 import { buildPageNumbers } from '@/libs/utils/pagination';
 
@@ -79,16 +80,67 @@ const MobileCommunityPage = ({
   onOpenWrite,
   onOpenArticle,
 }: MobileCommunityPageProps) => (
-  <Stack className='mobile-community-page'>
+  <MobileCommunityContent
+    category={category}
+    searchText={searchText}
+    sort={sort}
+    page={page}
+    totalPages={totalPages}
+    activeCategory={activeCategory}
+    categories={categories}
+    articles={articles}
+    total={total}
+    loading={loading}
+    sortOptions={sortOptions}
+    getArticleImage={getArticleImage}
+    formatDate={formatDate}
+    onSearchChange={onSearchChange}
+    onSearchKeyDown={onSearchKeyDown}
+    onSearchSubmit={onSearchSubmit}
+    onCategoryChange={onCategoryChange}
+    onSortChange={onSortChange}
+    onPageChange={onPageChange}
+    onOpenWrite={onOpenWrite}
+    onOpenArticle={onOpenArticle}
+  />
+);
+
+const MobileCommunityContent = ({
+  category,
+  searchText,
+  sort,
+  page,
+  totalPages,
+  activeCategory,
+  categories,
+  articles,
+  total,
+  loading,
+  sortOptions,
+  getArticleImage,
+  formatDate,
+  onSearchChange,
+  onSearchKeyDown,
+  onSearchSubmit,
+  onCategoryChange,
+  onSortChange,
+  onPageChange,
+  onOpenWrite,
+  onOpenArticle,
+}: MobileCommunityPageProps) => {
+  const { t } = useTranslation('common');
+
+  return (
+    <Stack className='mobile-community-page'>
     <Stack className='mobile-page-hero'>
-      <span>Community</span>
-      <h1>{activeCategory.label} board</h1>
-      <p>{activeCategory.description}</p>
+      <span>{t('Community')}</span>
+      <h1>{t('{{category}} board', { category: t(activeCategory.label) })}</h1>
+      <p>{t(activeCategory.description)}</p>
     </Stack>
 
     <button className='mobile-create-btn' onClick={onOpenWrite}>
       <AddOutlinedIcon />
-      Create Post
+      {t('Create Post')}
     </button>
 
     <Box className='mobile-category-scroll'>
@@ -98,7 +150,7 @@ const MobileCommunityPage = ({
           className={item.value === category ? 'active' : ''}
           onClick={() => onCategoryChange(item.value)}
         >
-          {item.label}
+          {t(item.label)}
         </button>
       ))}
     </Box>
@@ -109,22 +161,22 @@ const MobileCommunityPage = ({
         <input
           type='text'
           value={searchText}
-          placeholder='Search posts'
+          placeholder={t('Search posts')}
           onChange={onSearchChange}
           onKeyDown={onSearchKeyDown}
         />
-        <button onClick={onSearchSubmit}>Go</button>
+        <button onClick={onSearchSubmit}>{t('Go')}</button>
       </div>
       <select value={sort} onChange={(event) => onSortChange(event.target.value)}>
         {sortOptions.map((option) => (
           <option key={option.value} value={option.value}>
-            {option.label}
+            {t(option.label)}
           </option>
         ))}
       </select>
     </Stack>
 
-    <span className='mobile-community-total'>{total} posts</span>
+    <span className='mobile-community-total'>{t('posts count', { count: total })}</span>
 
     {loading ? (
       <Box className='mobile-community-list'>
@@ -134,8 +186,8 @@ const MobileCommunityPage = ({
       </Box>
     ) : articles.length === 0 ? (
       <Stack className='mobile-empty-card'>
-        <h2>No posts found</h2>
-        <p>Try changing the category or search terms.</p>
+        <h2>{t('No posts found')}</h2>
+        <p>{t('Try changing the category or search terms.')}</p>
       </Stack>
     ) : (
       <Box className='mobile-community-list'>
@@ -147,12 +199,12 @@ const MobileCommunityPage = ({
             />
             <Stack className='mobile-community-body'>
               <div className='mobile-community-meta'>
-                <span>{article.articleCategory}</span>
+                <span>{t(article.articleCategory)}</span>
                 <small>{formatDate(article.createdAt)}</small>
               </div>
               <h3>{article.articleTitle}</h3>
               <p>{article.articleContent}</p>
-              <strong>{article.memberData?.memberNick ?? 'Community Member'}</strong>
+              <strong>{article.memberData?.memberNick ?? t('Community Member')}</strong>
               <Stack className='mobile-community-stats'>
                 <span>
                   <VisibilityOutlinedIcon />
@@ -190,7 +242,8 @@ const MobileCommunityPage = ({
         )}
       </Box>
     )}
-  </Stack>
-);
+    </Stack>
+  );
+};
 
 export default MobileCommunityPage;

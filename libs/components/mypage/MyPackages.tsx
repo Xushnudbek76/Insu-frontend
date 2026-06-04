@@ -3,6 +3,7 @@ import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
 import RestoreOutlinedIcon from '@mui/icons-material/RestoreOutlined';
 import UnpublishedOutlinedIcon from '@mui/icons-material/UnpublishedOutlined';
 import { Box, Stack } from '@mui/material';
+import { useRouter } from 'next/router';
 import { AgentOwnedPackage, formatCurrency, formatDate, packageImageUrl } from './types';
 import MyPageEmpty from './MyPageEmpty';
 import MyPagePagination from './MyPagePagination';
@@ -34,7 +35,38 @@ const MyPackages = ({
   onUpdateStatus,
   onPageChange,
 }: MyPackagesProps) => (
-  <Stack className='mypage-panel'>
+  <MyPackagesContent
+    packages={packages}
+    loading={loading}
+    error={error}
+    status={status}
+    page={page}
+    totalPages={totalPages}
+    t={t}
+    onStatusChange={onStatusChange}
+    onEditPackage={onEditPackage}
+    onUpdateStatus={onUpdateStatus}
+    onPageChange={onPageChange}
+  />
+);
+
+const MyPackagesContent = ({
+  packages,
+  loading,
+  error,
+  status,
+  page,
+  totalPages,
+  t,
+  onStatusChange,
+  onEditPackage,
+  onUpdateStatus,
+  onPageChange,
+}: MyPackagesProps) => {
+  const router = useRouter();
+
+  return (
+    <Stack className='mypage-panel'>
     <Stack className='mypage-panel-head row'>
       <Stack>
         <span>{t('My Packages')}</span>
@@ -75,7 +107,7 @@ const MyPackages = ({
                 <Box className='mypage-card-meta'>
                   <span>{t('Coverage')}: {formatCurrency(pkg.packageCoverageLimit)}</span>
                   <span>{t('Views')}: {pkg.packageViews ?? 0}</span>
-                  <span>{t('Updated')}: {formatDate(pkg.updatedAt)}</span>
+                  <span>{t('Updated')}: {formatDate(pkg.updatedAt, router.locale)}</span>
                 </Box>
                 <Stack className='mypage-card-actions'>
                   <button onClick={() => onEditPackage(pkg)}>
@@ -101,7 +133,8 @@ const MyPackages = ({
         <MyPagePagination page={page} totalPages={totalPages} onChange={onPageChange} t={t} />
       </>
     )}
-  </Stack>
-);
+    </Stack>
+  );
+};
 
 export default MyPackages;

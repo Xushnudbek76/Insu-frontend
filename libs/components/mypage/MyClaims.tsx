@@ -1,4 +1,5 @@
 import { Box, Stack } from '@mui/material';
+import { useRouter } from 'next/router';
 import { ClaimData, formatCurrency, formatDate } from './types';
 import MyPageEmpty from './MyPageEmpty';
 
@@ -9,8 +10,11 @@ interface MyClaimsProps {
   t: (key: string, options?: Record<string, unknown>) => string;
 }
 
-const MyClaims = ({ claims, loading, error, t }: MyClaimsProps) => (
-  <Stack className='mypage-panel'>
+const MyClaims = ({ claims, loading, error, t }: MyClaimsProps) => {
+  const router = useRouter();
+
+  return (
+    <Stack className='mypage-panel'>
     <Stack className='mypage-panel-head'>
       <span>{t('My Claims')}</span>
       <h2>{t('Submitted claims')}</h2>
@@ -32,7 +36,7 @@ const MyClaims = ({ claims, loading, error, t }: MyClaimsProps) => (
               <Box className='mypage-card-meta'>
                 <span>{t('Amount')}: {formatCurrency(claim.claimAmount)}</span>
                 <span>{t('Policy ID')}: {claim.policyId}</span>
-                <span>{formatDate(claim.createdAt)}</span>
+                <span>{formatDate(claim.createdAt, router.locale)}</span>
               </Box>
               {claim.agentNote && <strong>{t('Agent Note')}: {claim.agentNote}</strong>}
               {claim.aiAnalysis && <strong>{t('AI Analysis')}: {claim.aiAnalysis}</strong>}
@@ -41,7 +45,8 @@ const MyClaims = ({ claims, loading, error, t }: MyClaimsProps) => (
         ))}
       </Stack>
     )}
-  </Stack>
-);
+    </Stack>
+  );
+};
 
 export default MyClaims;

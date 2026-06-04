@@ -20,6 +20,8 @@ import { BoardArticleCategory } from '@/libs/enums/board-article.enum';
 import { toAssetUrl } from '@/libs/api';
 import { buildPageNumbers } from '@/libs/utils/pagination';
 import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
+import { useTranslation } from 'next-i18next/pages';
+import { formatLocaleDate } from '@/libs/utils/locale';
 
 export const getStaticProps = async ({ locale = 'en' }: { locale?: string }) => ({
   props: {
@@ -91,6 +93,7 @@ interface GetBoardArticlesResponse {
 
 const CommunityPage: NextPage = () => {
   const router = useRouter();
+  const { t } = useTranslation('common');
   const device = useDeviceDetect();
   const [category, setCategory] = useState<BoardArticleCategory>(BoardArticleCategory.FREE);
   const [searchText, setSearchText] = useState('');
@@ -127,7 +130,7 @@ const CommunityPage: NextPage = () => {
     toAssetUrl(image) ?? '/img/placeholder-article.svg';
 
   const formatDate = (date: string) =>
-    new Date(date).toLocaleDateString('en-US', {
+    formatLocaleDate(date, router.locale, {
       month: 'long',
       day: '2-digit',
       year: 'numeric',
@@ -184,11 +187,10 @@ const CommunityPage: NextPage = () => {
         <Box className='community-hero-overlay' />
         <Box className='community-shell'>
           <Box className='community-hero-content'>
-            <span className='community-eyebrow'>Connect and Learn</span>
-            <h1>Community</h1>
+            <span className='community-eyebrow'>{t('Connect and Learn')}</span>
+            <h1>{t('Community')}</h1>
             <p>
-              Discover conversations, updates, and member stories across insurance topics
-              that matter most to you.
+              {t('Discover conversations, updates, and member stories across insurance topics that matter most to you.')}
             </p>
           </Box>
         </Box>
@@ -200,8 +202,8 @@ const CommunityPage: NextPage = () => {
             <div className='community-sidebar-icon'>
               <ForumOutlinedIcon />
             </div>
-            <h2>Categories</h2>
-            <p>Community Channels</p>
+            <h2>{t('Categories')}</h2>
+            <p>{t('Community Channels')}</p>
 
             <div className='community-category-list'>
               {CATEGORY_CONFIG.map((item) => {
@@ -215,7 +217,7 @@ const CommunityPage: NextPage = () => {
                     onClick={() => handleChangeCategory(item.value)}
                   >
                     <Icon />
-                    <span>{item.label}</span>
+                    <span>{t(item.label)}</span>
                   </button>
                 );
               })}
@@ -226,7 +228,7 @@ const CommunityPage: NextPage = () => {
               onClick={() => router.push('/community/write')}
             >
               <AddOutlinedIcon />
-              Create Post
+              {t('Create Post')}
             </button>
           </Box>
         </Box>
@@ -234,12 +236,12 @@ const CommunityPage: NextPage = () => {
         <Box className='community-content'>
           <Box className='community-toolbar'>
             <Box>
-              <h2>{activeCategory.label} Board</h2>
-              <p>{activeCategory.description}</p>
+              <h2>{t('{{category}} Board', { category: t(activeCategory.label) })}</h2>
+              <p>{t(activeCategory.description)}</p>
             </Box>
 
             <button className='community-top-write' onClick={() => router.push('/community/write')}>
-              Write
+              {t('Write')}
             </button>
           </Box>
 
@@ -249,11 +251,11 @@ const CommunityPage: NextPage = () => {
               <input
                 type='text'
                 value={searchText}
-                placeholder='Search posts'
+                placeholder={t('Search posts')}
                 onChange={(event: ChangeEvent<HTMLInputElement>) => setSearchText(event.target.value)}
                 onKeyDown={handleSearchEnter}
               />
-              <button onClick={handleSearchSubmit}>Search</button>
+              <button onClick={handleSearchSubmit}>{t('Search')}</button>
             </div>
 
             <select
@@ -265,7 +267,7 @@ const CommunityPage: NextPage = () => {
             >
               {SORT_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
-                  {option.label}
+                  {t(option.label)}
                 </option>
               ))}
             </select>
@@ -286,8 +288,8 @@ const CommunityPage: NextPage = () => {
             </Box>
           ) : articles.length === 0 ? (
             <Box className='community-empty'>
-              <h3>No posts found</h3>
-              <p>Try changing the category or search terms.</p>
+              <h3>{t('No posts found')}</h3>
+              <p>{t('Try changing the category or search terms.')}</p>
             </Box>
           ) : (
             <Box className='community-grid'>
@@ -302,9 +304,9 @@ const CommunityPage: NextPage = () => {
                     style={{ backgroundImage: `url(${getArticleImage(article.articleImage)})` }}
                   >
                     <div className='community-card-date'>
-                      <span>{new Date(article.createdAt).toLocaleDateString('en-US', { month: 'long' })}</span>
+                      <span>{formatLocaleDate(article.createdAt, router.locale, { month: 'long' })}</span>
                       <strong>
-                        {new Date(article.createdAt).toLocaleDateString('en-US', {
+                        {formatLocaleDate(article.createdAt, router.locale, {
                           day: '2-digit',
                         })}
                       </strong>
@@ -313,9 +315,9 @@ const CommunityPage: NextPage = () => {
 
                   <div className='community-card-body'>
                     <div className='community-card-meta-top'>
-                      <span className='community-category-pill'>{activeCategory.label}</span>
+                      <span className='community-category-pill'>{t(activeCategory.label)}</span>
                       <span className='community-author'>
-                        {article.memberData?.memberNick ?? 'Community Member'}
+                        {article.memberData?.memberNick ?? t('Community Member')}
                       </span>
                     </div>
                     <h3>{article.articleTitle}</h3>

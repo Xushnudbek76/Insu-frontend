@@ -9,6 +9,16 @@ import withLayoutMain from '@/layout/LayoutHome';
 import type { PagedResult } from '@/libs/types/common';
 import type { Faq } from '@/libs/types/faq/faq';
 import type { Notice } from '@/libs/types/notice/notice';
+import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
+import { useTranslation } from 'next-i18next/pages';
+import { useRouter } from 'next/router';
+import { formatLocaleDate } from '@/libs/utils/locale';
+
+export const getStaticProps = async ({ locale = 'en' }: { locale?: string }) => ({
+  props: {
+    ...(await serverSideTranslations(locale, ['common'])),
+  },
+});
 
 const faqCategories = [
   { label: 'Policy', value: 'POLICY' },
@@ -36,13 +46,13 @@ const faqInquiry = {
   search: {},
 };
 
-const formatDate = (value?: string) => {
+const formatDate = (value?: string, locale?: string) => {
   if (!value) return '-';
-  return new Intl.DateTimeFormat('en', {
+  return formatLocaleDate(value, locale, {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
-  }).format(new Date(value));
+  });
 };
 
 interface GetNoticesResponse {
@@ -54,6 +64,8 @@ interface GetFaqsResponse {
 }
 
 const CsPage: NextPage = () => {
+  const router = useRouter();
+  const { t } = useTranslation('common');
   const [activeTab, setActiveTab] = useState<'NOTICE' | 'FAQ'>('NOTICE');
   const [activeCategory, setActiveCategory] = useState('POLICY');
   const [openNoticeId, setOpenNoticeId] = useState<string | null>(null);
@@ -78,31 +90,31 @@ const CsPage: NextPage = () => {
   return (
     <Stack className='cs-center-page'>
       <Stack className='cs-center-hero'>
-        <h1>Cs center</h1>
-        <p>I will answer your questions</p>
+        <h1>{t('CS Center')}</h1>
+        <p>{t('We will answer your questions')}</p>
       </Stack>
 
       <Stack className='cs-center-tabs'>
         <button className={activeTab === 'NOTICE' ? 'active' : ''} type='button' onClick={() => setActiveTab('NOTICE')}>
-          Notice
+          {t('Notice')}
         </button>
         <button className={activeTab === 'FAQ' ? 'active' : ''} type='button' onClick={() => setActiveTab('FAQ')}>
-          FAQ
+          {t('FAQ')}
         </button>
       </Stack>
 
       {activeTab === 'NOTICE' ? (
         <Stack className='cs-center-section'>
-          <h2>Notice</h2>
+          <h2>{t('Notice')}</h2>
           <Stack className='cs-notice-table'>
             <Box className='cs-notice-head'>
-              <span>Number</span>
-              <span>Title</span>
-              <span>Date</span>
+              <span>{t('Number')}</span>
+              <span>{t('Title')}</span>
+              <span>{t('Date')}</span>
             </Box>
 
-            {noticeLoading ? <Box className='cs-empty-row'>Loading...</Box> : null}
-            {!noticeLoading && !notices.length ? <Box className='cs-empty-row'>No notices found.</Box> : null}
+            {noticeLoading ? <Box className='cs-empty-row'>{t('Loading...')}</Box> : null}
+            {!noticeLoading && !notices.length ? <Box className='cs-empty-row'>{t('No notices found.')}</Box> : null}
 
             {notices.map((notice, index: number) => {
               const open = openNoticeId === notice._id;
@@ -117,7 +129,7 @@ const CsPage: NextPage = () => {
                       {index === 0 ? notice.noticeCategory?.toLowerCase() : index + 1}
                     </span>
                     <strong>{notice.noticeTitle}</strong>
-                    <span>{formatDate(notice.createdAt)}</span>
+                    <span>{formatDate(notice.createdAt, router.locale)}</span>
                   </button>
                   <Collapse in={open} timeout='auto' unmountOnExit>
                     <Box className='cs-notice-content'>{notice.noticeContent}</Box>
@@ -140,14 +152,14 @@ const CsPage: NextPage = () => {
                   setOpenFaqId(null);
                 }}
               >
-                {category.label}
+                {t(category.label)}
               </button>
             ))}
           </Stack>
 
           <Stack className='cs-faq-list-panel'>
-            {faqLoading ? <Box className='cs-empty-row'>Loading...</Box> : null}
-            {!faqLoading && !visibleFaqs.length ? <Box className='cs-empty-row'>No FAQs found.</Box> : null}
+            {faqLoading ? <Box className='cs-empty-row'>{t('Loading...')}</Box> : null}
+            {!faqLoading && !visibleFaqs.length ? <Box className='cs-empty-row'>{t('No FAQs found.')}</Box> : null}
 
             {visibleFaqs.map((faq) => {
               const open = openFaqId === faq._id;

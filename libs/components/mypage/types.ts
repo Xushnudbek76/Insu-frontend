@@ -1,4 +1,5 @@
 import { toAssetUrl } from '@/libs/api';
+import { toIntlLocale } from '@/libs/utils/locale';
 
 export const POLICY_LIMIT = 5;
 export const AGENT_CLAIM_LIMIT = 5;
@@ -165,8 +166,8 @@ export const formatCurrency = (value?: number | null) =>
         maximumFractionDigits: 0,
       }).format(value);
 
-export const formatDate = (value?: string | null) =>
-  value ? new Date(value).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) : '-';
+export const formatDate = (value?: string | null, locale?: string) =>
+  value ? new Date(value).toLocaleDateString(toIntlLocale(locale), { month: 'short', day: '2-digit', year: 'numeric' }) : '-';
 
 export const avatarUrl = (image?: string | null) => toAssetUrl(image) ?? '/img/profile/defaultUser.svg';
 export const packageImageUrl = (image?: string | null) => toAssetUrl(image) ?? '/img/placeholder-article.svg';

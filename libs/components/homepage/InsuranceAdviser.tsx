@@ -2,6 +2,7 @@ import React, { FormEvent, useState } from 'react';
 import { Stack, Box } from '@mui/material';
 import { useRouter } from 'next/router';
 import { useLazyQuery } from '@apollo/client/react';
+import { useTranslation } from 'next-i18next/pages';
 import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
 import { GET_INSURANCE_RECOMMENDATION } from '@/apollo/user/query';
 
@@ -49,6 +50,7 @@ const INSURANCE_TYPE_OPTIONS: { value: InsuranceTypeValue; label: string }[] = [
 const InsuranceAdviser: React.FC = () => {
 	const device = useDeviceDetect();
 	const router = useRouter();
+	const { t } = useTranslation('common');
 	const [selectedType, setSelectedType] = useState<InsuranceTypeValue>('AUTO');
 	const [age, setAge] = useState('');
 	const [budget, setBudget] = useState('');
@@ -74,9 +76,9 @@ const InsuranceAdviser: React.FC = () => {
 			queryError.message ??
 			'';
 		if (graphQLErrorMessage === 'No data found!') {
-			return 'No matching insurance plans found for your criteria. Try increasing your budget or changing insurance type.';
+			return t('No matching insurance plans found for your criteria. Try increasing your budget or changing insurance type.');
 		}
-		return 'Something went wrong. Please try again.';
+		return t('Something went wrong. Please try again.');
 	};
 
 	const handleSelectType = (value: InsuranceTypeValue) => {
@@ -89,14 +91,14 @@ const InsuranceAdviser: React.FC = () => {
 		const trimmedAge = age.trim();
 		const ageValue = Number(trimmedAge);
 		if (!trimmedAge || Number.isNaN(ageValue) || ageValue <= 0) {
-			setFormError('Please enter a valid age.');
+			setFormError(t('Please enter a valid age.'));
 			return;
 		}
 
 		const trimmedBudget = budget.trim();
 		const budgetValue = Number(trimmedBudget);
 		if (!trimmedBudget || Number.isNaN(budgetValue) || budgetValue <= 0) {
-			setFormError('Please enter your monthly budget.');
+			setFormError(t('Please enter your monthly budget.'));
 			return;
 		}
 
@@ -122,18 +124,17 @@ const InsuranceAdviser: React.FC = () => {
 			<Stack className={'container'}>
 				<Stack className={'ai-header'}>
 					<Box component={'div'} className={'ai-header-text'}>
-						<span className={'section-label'}>AI Recommendation</span>
-						<strong className={'section-title'}>AI Insurance Advisor</strong>
+						<span className={'section-label'}>{t('AI Recommendation')}</span>
+						<strong className={'section-title'}>{t('AI Insurance Advisor')}</strong>
 						<p className={'section-desc'}>
-							Tell us what you want to protect and we&apos;ll suggest the best
-							insurance plans for you.
+							{t("Tell us what you want to protect and we'll suggest the best insurance plans for you.")}
 						</p>
 					</Box>
 				</Stack>
 				<Stack className={'ai-content'}>
 					<Box component={'form'} className={'ai-form'} onSubmit={handleSubmit}>
 						<Box component={'div'} className={'field-group'}>
-							<label className={'field-label'}>What do you want to insure?</label>
+							<label className={'field-label'}>{t('What do you want to insure?')}</label>
 							<Box component={'div'} className={'type-chip-group'}>
 								{INSURANCE_TYPE_OPTIONS.map((option) => (
 									<button
@@ -145,7 +146,7 @@ const InsuranceAdviser: React.FC = () => {
 										}
 										onClick={() => handleSelectType(option.value)}
 									>
-										{option.label}
+										{t(option.label)}
 									</button>
 								))}
 							</Box>
@@ -153,7 +154,7 @@ const InsuranceAdviser: React.FC = () => {
 						<Box component={'div'} className={'field-row'}>
 							<Box component={'div'} className={'field'}>
 								<label className={'field-label'} htmlFor="ai-age">
-									Age
+									{t('Age')}
 								</label>
 								<input
 									id="ai-age"
@@ -161,12 +162,12 @@ const InsuranceAdviser: React.FC = () => {
 									className={'text-input'}
 									value={age}
 									onChange={(event) => setAge(event.target.value)}
-									placeholder={device === 'mobile' ? 'Your age' : ''}
+									placeholder={device === 'mobile' ? t('Your age') : ''}
 								/>
 							</Box>
 							<Box component={'div'} className={'field'}>
 								<label className={'field-label'} htmlFor="ai-budget">
-									Monthly budget ($)
+									{t('Monthly budget ($)')}
 								</label>
 								<input
 									id="ai-budget"
@@ -174,13 +175,13 @@ const InsuranceAdviser: React.FC = () => {
 									className={'text-input'}
 									value={budget}
 									onChange={(event) => setBudget(event.target.value)}
-									placeholder={device === 'mobile' ? 'Budget per month' : ''}
+									placeholder={device === 'mobile' ? t('Budget per month') : ''}
 								/>
 							</Box>
 						</Box>
 						<Box component={'div'} className={'field'}>
 							<label className={'field-label'} htmlFor="ai-text">
-								Tell us more (optional)
+								{t('Tell us more (optional)')}
 							</label>
 							<textarea
 								id="ai-text"
@@ -188,7 +189,7 @@ const InsuranceAdviser: React.FC = () => {
 								rows={3}
 								value={text}
 								onChange={(event) => setText(event.target.value)}
-								placeholder="Example: I drive a new car and want full coverage, plus basic health protection."
+								placeholder={t('Example: I drive a new car and want full coverage, plus basic health protection.')}
 							/>
 						</Box>
 						{formError && <p className={'form-error'}>{formError}</p>}
@@ -196,22 +197,22 @@ const InsuranceAdviser: React.FC = () => {
 							<p className={'form-error'}>{getErrorMessage()}</p>
 						)}
 						<button type="submit" className={'primary-btn'} disabled={loading}>
-							{loading ? 'Asking AI…' : 'Get recommendation'}
+							{loading ? t('Asking AI...') : t('Get recommendation')}
 						</button>
 					</Box>
 					<Box component={'div'} className={'ai-result'}>
 						{!result && !loading && !error && !apiError && (
 							<Box component={'div'} className={'ai-result-empty'}>
-								<strong>AI suggestions will appear here.</strong>
+								<strong>{t('AI suggestions will appear here.')}</strong>
 								<p>
-									Choose what you want to insure and press “Get recommendation”.
+									{t('Choose what you want to insure and press Get recommendation.')}
 								</p>
 							</Box>
 						)}
 
 						{loading && (
 							<Box component={'div'} className={'ai-result-loading'}>
-								<span>Analyzing your options…</span>
+								<span>{t('Analyzing your options...')}</span>
 							</Box>
 						)}
 
@@ -219,7 +220,7 @@ const InsuranceAdviser: React.FC = () => {
 							<Box component={'div'} className={'ai-result-content'}>
 								<Box component={'div'} className={'ai-summary'}>
 									<span className={'risk-badge'}>
-										Risk score: {result.riskScore}
+										{t('Risk score')}: {result.riskScore}
 									</span>
 									<p className={'ai-reason'}>{result.reason}</p>
 								</Box>
@@ -232,7 +233,7 @@ const InsuranceAdviser: React.FC = () => {
 											onClick={() => router.push(`/packages/${pkg._id}`)}
 										>
 											<span className={'package-type'}>
-												{formatInsuranceType(pkg.packageType)}
+												{t(formatInsuranceType(pkg.packageType))}
 											</span>
 											<strong className={'package-name'}>
 												{pkg.packageTitle}
@@ -248,7 +249,7 @@ const InsuranceAdviser: React.FC = () => {
 								</Box>
 								{result.rawFactors && result.rawFactors.length > 0 && (
 									<Box component={'div'} className={'ai-factors'}>
-										<span className={'factors-label'}>Why these packages?</span>
+										<span className={'factors-label'}>{t('Why these packages?')}</span>
 										<ul className={'factors-list'}>
 											{result.rawFactors.map((factor, index) => (
 												<li key={index}>{factor}</li>

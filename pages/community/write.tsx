@@ -13,6 +13,7 @@ import { IMAGE_UPLOADER_MUTATION } from '@/apollo/member/mutation';
 import MobileCommunityWritePage from '@/libs/components/mobile/community/MobileCommunityWritePage';
 import { sweetMixinErrorAlert, sweetTopSuccessAlert } from '@/libs/sweetAlert';
 import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
+import { useTranslation } from 'next-i18next/pages';
 
 export const getStaticProps = async ({ locale = 'en' }: { locale?: string }) => ({
   props: {
@@ -29,6 +30,7 @@ const CATEGORY_OPTIONS = [
 
 const CommunityWritePage: NextPage = () => {
   const router = useRouter();
+  const { t } = useTranslation('common');
   const device = useDeviceDetect();
   const user = userVar();
   const [category, setCategory] = useState<BoardArticleCategory>(BoardArticleCategory.FREE);
@@ -60,13 +62,13 @@ const CommunityWritePage: NextPage = () => {
 
   const handleSubmit = async () => {
     if (!user?._id) {
-      await sweetMixinErrorAlert('Please login before writing a post.');
+      await sweetMixinErrorAlert(t('Please login before writing a post.'));
       router.push('/account/join');
       return;
     }
 
     if (title.trim().length < 3 || content.trim().length < 3) {
-      await sweetMixinErrorAlert('Title and content must be at least 3 characters long.');
+      await sweetMixinErrorAlert(t('Title and content must be at least 3 characters long.'));
       return;
     }
 
@@ -97,14 +99,14 @@ const CommunityWritePage: NextPage = () => {
 
       const createdId = res.data?.createBoardArticle._id;
       if (!createdId) {
-        throw new Error('Article was not created');
+        throw new Error(t('Article was not created'));
       }
 
-      await sweetTopSuccessAlert('Community post created.');
+      await sweetTopSuccessAlert(t('Community post created.'));
       router.push(`/community/${createdId}`);
     } catch (err: any) {
       await sweetMixinErrorAlert(
-        err?.graphQLErrors?.[0]?.message ?? err?.message ?? 'Could not create post.',
+        err?.graphQLErrors?.[0]?.message ?? err?.message ?? t('Could not create post.'),
       );
     } finally {
       setSubmitting(false);
@@ -136,70 +138,69 @@ const CommunityWritePage: NextPage = () => {
       <Box className='community-shell'>
         <Box className='community-write-card'>
           <div className='community-write-header'>
-            <span>Create a Community Post</span>
-            <h1>Share something useful with the INSU community</h1>
+            <span>{t('Create a Community Post')}</span>
+            <h1>{t('Share something useful with the INSU community')}</h1>
             <p>
-              Publish updates, questions, recommendations, or insights in the channel that fits
-              best.
+              {t('Publish updates, questions, recommendations, or insights in the channel that fits best.')}
             </p>
           </div>
 
           <div className='community-write-grid'>
             <label>
-              <span>Category</span>
+              <span>{t('Category')}</span>
               <select value={category} onChange={(event) => setCategory(event.target.value as BoardArticleCategory)}>
                 {CATEGORY_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
-                    {option.label}
+                    {t(option.label)}
                   </option>
                 ))}
               </select>
             </label>
 
             <label className='full'>
-              <span>Title</span>
+              <span>{t('Title')}</span>
               <input
                 type='text'
                 value={title}
                 maxLength={50}
                 onChange={(event) => setTitle(event.target.value)}
-                placeholder='Write a concise title'
+                placeholder={t('Write a concise title')}
               />
             </label>
 
             <label className='full'>
-              <span>Content</span>
+              <span>{t('Content')}</span>
               <textarea
                 value={content}
                 maxLength={250}
                 onChange={(event) => setContent(event.target.value)}
-                placeholder='Share your update, idea, or recommendation'
+                placeholder={t('Share your update, idea, or recommendation')}
               />
             </label>
 
             <label className='full community-upload-field'>
-              <span>Cover Image</span>
+              <span>{t('Cover Image')}</span>
               <div className='community-upload-box'>
                 <CloudUploadOutlinedIcon />
-                <strong>{file ? file.name : 'Upload a community image'}</strong>
-                <small>PNG, JPG, WEBP, or GIF. Leave empty to use the default image.</small>
+                <strong>{file ? file.name : t('Upload a community image')}</strong>
+                <small>{t('PNG, JPG, WEBP, or GIF. Leave empty to use the default image.')}</small>
                 <input type='file' accept='image/*' onChange={handleFileChange} />
               </div>
             </label>
 
             {previewUrl ? (
               <div className='community-upload-preview full'>
-                <img src={previewUrl} alt='Selected preview' />
+                <img src={previewUrl} alt={t('Selected preview')} />
               </div>
             ) : null}
           </div>
 
           <div className='community-write-actions'>
             <button className='ghost' onClick={() => router.push('/community')}>
-              Cancel
+              {t('Cancel')}
             </button>
             <button onClick={handleSubmit} disabled={submitting}>
-              {submitting ? 'Publishing...' : 'Publish Post'}
+              {submitting ? t('Publishing...') : t('Publish Post')}
             </button>
           </div>
         </Box>

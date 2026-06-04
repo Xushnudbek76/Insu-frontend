@@ -4,6 +4,7 @@ import SendIcon from '@mui/icons-material/Send';
 import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutlined';
 import { useReactiveVar } from '@apollo/client/react';
+import { useTranslation } from 'next-i18next/pages';
 import { socketVar, userVar } from '@/apollo/store';
 import { useSocket } from '@/libs/hooks/useSocket';
 import { sweetMixinErrorAlert } from '@/libs/sweetAlert';
@@ -35,6 +36,7 @@ const Chat = () => {
   const [onlineUsers, setOnlineUsers] = useState<number>(0);
   const [messageInput, setMessageInput] = useState<string>('');
   const [open, setOpen] = useState(false);
+  const { t } = useTranslation('common');
 
   const user = useReactiveVar(userVar);
   const socket = useSocket();
@@ -90,17 +92,17 @@ const Chat = () => {
 
   const handleSendMessage = async () => {
     if (!messageInput.trim()) {
-      await sweetMixinErrorAlert('Message is empty!');
+      await sweetMixinErrorAlert(t('Message is empty!'));
       return;
     }
 
     if (!socket?.connected) {
-      await sweetMixinErrorAlert('Not connected to chat server');
+      await sweetMixinErrorAlert(t('Not connected to chat server'));
       return;
     }
 
     if (!user?._id) {
-      await sweetMixinErrorAlert('Please login to send messages');
+      await sweetMixinErrorAlert(t('Please login to send messages'));
       return;
     }
 
@@ -122,7 +124,7 @@ const Chat = () => {
 
       <Stack className={`chat-frame ${open ? 'open' : ''}`}>
         <Box className="chat-top" component="div">
-          <span>Live Chat</span>
+          <span>{t('Live Chat')}</span>
           <Badge
             badgeContent={onlineUsers}
             color="success"
@@ -140,7 +142,7 @@ const Chat = () => {
               component="div"
               sx={{ display: 'flex', m: '10px 0' }}
             >
-              <div className="welcome">Welcome to Live Chat!</div>
+              <div className="welcome">{t('Welcome to Live Chat!')}</div>
             </Box>
 
             {messagesList.map((msg, index) => {
@@ -165,7 +167,7 @@ const Chat = () => {
                   ) : (
                     <>
                       <Avatar
-                        alt={memberData?.memberNick || 'User'}
+                        alt={memberData?.memberNick || t('User')}
                         src={memberImage}
                         sx={{ width: 32, height: 32 }}
                       />
@@ -183,7 +185,7 @@ const Chat = () => {
             type="text"
             name="message"
             className="msg-input"
-            placeholder="Type a message..."
+            placeholder={t('Type a message...')}
             value={messageInput}
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}

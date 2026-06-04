@@ -32,6 +32,7 @@ import { formatCount } from '@/libs/utils/format';
 import { buildPageNumbers } from '@/libs/utils/pagination';
 import { isTopRankedPackage } from '@/libs/utils/ranking';
 import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
+import { useTranslation } from 'next-i18next/pages';
 import PackageFilter, { PackageFilterValues } from '@/libs/components/packages/PackageFilter';
 
 export const getStaticProps = async ({ locale = 'en' }: { locale?: string }) => ({
@@ -48,6 +49,7 @@ interface GetPackagesResponse {
 
 const PackagesPage: NextPage = () => {
   const router = useRouter();
+  const { t } = useTranslation('common');
   const device = useDeviceDetect();
 
   const [filterValues, setFilterValues] = useState<PackageFilterValues>({
@@ -109,7 +111,7 @@ const PackagesPage: NextPage = () => {
     getItemLiked: (pkg) => getMeLiked(pkg.meLiked),
     getItemCount: (pkg) => pkg.packageLikes,
     isAuthenticated: () => Boolean(userVar()?._id),
-    onUnauthenticated: () => sweetMixinErrorAlert('Please login to like packages.'),
+    onUnauthenticated: () => sweetMixinErrorAlert(t('Please login to like packages.')),
     mutate: async (packageId) => {
       const result = await likeTargetPackage({ variables: { packageId } });
       return result.data?.likeTargetPackage;
@@ -117,7 +119,7 @@ const PackagesPage: NextPage = () => {
     getServerLiked: (updated) => getMeLiked(updated.meLiked),
     getServerCount: (updated) => updated.packageLikes,
     onError: (message) => sweetMixinErrorAlert(message),
-    errorMessage: 'Could not update favorites.',
+    errorMessage: t('Could not update favorites.'),
   });
 
   const visiblePackages = useMemo(
@@ -179,7 +181,7 @@ const PackagesPage: NextPage = () => {
         sort={sort}
         isLoading={isLoading}
         getImage={getImage}
-        typeLabel={typeLabel}
+        typeLabel={(value) => t(typeLabel(value))}
         formatCoverage={formatCoverage}
         onApplyFilters={handleApplyFilters}
         onSortChange={(value) => {
@@ -196,11 +198,11 @@ const PackagesPage: NextPage = () => {
   return (
     <Stack className={'packages-page'}>
       <Box className={'packages-hero'}>
-        <h1 className={'hero-title'}>Find the Right Protection for Your Life</h1>
+        <h1 className={'hero-title'}>{t('Find the Right Protection for Your Life')}</h1>
         <p className={'hero-sub'}>
-          Discover comprehensive coverage tailored to your specific needs.
+          {t('Discover comprehensive coverage tailored to your specific needs.')}
           <br />
-          Explore our packages and secure your future today.
+          {t('Explore our packages and secure your future today.')}
         </p>
       </Box>
 
@@ -217,10 +219,10 @@ const PackagesPage: NextPage = () => {
         <Box className={'packages-content'}>
           <Box className={'results-bar'}>
             <span className={'results-count'}>
-              Showing <strong>{total}</strong> result{total !== 1 ? 's' : ''}
+              {t('Showing results', { count: total })}
             </span>
             <Box className={'sort-box'}>
-              <span className={'sort-label'}>SORT BY:</span>
+              <span className={'sort-label'}>{t('SORT BY:')}</span>
               <select
                 className={'sort-select'}
                 value={sort}
@@ -231,7 +233,7 @@ const PackagesPage: NextPage = () => {
               >
                 {PACKAGE_SORT_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
-                    {option.label}
+                    {t(option.label)}
                   </option>
                 ))}
               </select>
@@ -260,8 +262,8 @@ const PackagesPage: NextPage = () => {
           ) : visiblePackages.length === 0 ? (
             <Box className={'empty-state'}>
               <ShieldOutlinedIcon className={'empty-icon'} />
-              <p>No insurance packages found.</p>
-              <span>Try adjusting your filters.</span>
+              <p>{t('No insurance packages found.')}</p>
+              <span>{t('Try adjusting your filters.')}</span>
             </Box>
           ) : (
             <Box className={'packages-grid'}>
@@ -283,10 +285,10 @@ const PackagesPage: NextPage = () => {
                         }}
                       />
                       <span className={`type-badge type-${pkg.packageType.toLowerCase()}`}>
-                        {typeLabel(pkg.packageType)}
+                        {t(typeLabel(pkg.packageType))}
                       </span>
                       {isTopRanked && (
-                        <span className={'top-badge'}>TOP</span>
+                        <span className={'top-badge'}>{t('TOP')}</span>
                       )}
                     </Box>
 
@@ -296,7 +298,7 @@ const PackagesPage: NextPage = () => {
                         <span className={'price-amount'}>
                           ${pkg.packagePrice.toLocaleString()}
                         </span>
-                        <span className={'price-unit'}>/ month</span>
+                        <span className={'price-unit'}>{t('/ month')}</span>
                       </Box>
 
                       {(pkg.packageCoverageLimit != null || pkg.packageMinAge != null) && (
@@ -304,13 +306,13 @@ const PackagesPage: NextPage = () => {
                           {pkg.packageCoverageLimit != null && (
                             <span className={'meta-item'}>
                               <ShieldOutlinedIcon />
-                              Cov: {formatCoverage(pkg.packageCoverageLimit)}
+                              {t('Cov:')} {formatCoverage(pkg.packageCoverageLimit)}
                             </span>
                           )}
                           {pkg.packageMinAge != null && (
                             <span className={'meta-item'}>
                               <PersonOutlinedIcon />
-                              Ages: {pkg.packageMinAge}–{pkg.packageMaxAge ?? '∞'}
+                              {t('Ages')}: {pkg.packageMinAge}–{pkg.packageMaxAge ?? '∞'}
                             </span>
                           )}
                         </Box>

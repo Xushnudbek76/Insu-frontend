@@ -2,9 +2,11 @@ import React from 'react';
 import { Stack, Box } from '@mui/material';
 import NextLink from 'next/link';
 import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
+import { useTranslation } from 'next-i18next/pages';
 
 const Header = () => {
 	const device = useDeviceDetect();
+	const { t } = useTranslation('common');
 
 	if (device === 'mobile') {
 		return (
@@ -12,15 +14,14 @@ const Header = () => {
 				<Stack className={'hero-inner'}>
 					<Box component={'div'} className={'hero-text'}>
 						<strong className={'hero-title'}>
-							AI insurance made for real life
+							{t('AI insurance made for real life')}
 						</strong>
 						<p className={'hero-desc'}>
-							We make insurance affordable, easy to understand, and tailored to your needs.
-							Some plans start at $0.
+							{t('We make insurance affordable, easy to understand, and tailored to your needs. Some plans start at $0.')}
 						</p>
 						<Box component={'div'} className={'hero-actions'}>
 							<NextLink href={'/packages'} className={'hero-btn primary'}>
-								Browse Insurance
+								{t('Browse Insurance')}
 							</NextLink>
 							
 						</Box>
@@ -34,19 +35,17 @@ const Header = () => {
 				<Stack className={'hero-inner'}>
 					<Box component={'div'} className={'hero-text'}>
 						<strong className={'hero-title'}>
-							Health insurance made for real life
+							{t('Health insurance made for real life')}
 						</strong>
 						<p className={'hero-desc'}>
-							We don’t just offer health insurance. We make sure it’s affordable,
-							easy to understand, and covers the care you really need,
-							whenever you need it. And yes, some plans start at $0.
+							{t('We do not just offer health insurance. We make sure it is affordable, easy to understand, and covers the care you really need, whenever you need it. And yes, some plans start at $0.')}
 						</p>
 						<Box component={'div'} className={'hero-actions'}>
 							<NextLink href={'/packages'} className={'hero-btn primary'}>
-								Browse Insurance
+								{t('Browse Insurance')}
 							</NextLink>
 							<NextLink href={'/#insurance-adviser'} className={'hero-btn secondary'}>
-								Find a plan
+								{t('Find a plan')}
 							</NextLink>
 						</Box>
 					</Box>
@@ -57,7 +56,7 @@ const Header = () => {
 									component={'img'}
 									className={'hero-card-image'}
 									src={'/img/hero-img/car.webp'}
-									alt={'car insurance'}
+									alt={t('car insurance')}
 								/>
 							</Box>
 							<Box component={'div'} className={'hero-card home-card'}>
@@ -65,7 +64,7 @@ const Header = () => {
 									component={'img'}
 									className={'hero-card-image'}
 									src={'/img/hero-img/home.webp'}
-									alt={'home insurance'}
+									alt={t('home insurance')}
 								/>
 							</Box>
 						</Box>
@@ -75,7 +74,7 @@ const Header = () => {
 									component={'img'}
 									className={'hero-card-image'}
 									src={'/img/hero-img/health.webp'}
-									alt={'health insurance'}
+									alt={t('health insurance')}
 								/>
 							</Box>
 						</Box>

@@ -1,6 +1,7 @@
 import { ChangeEvent } from 'react';
 import { Box, Stack } from '@mui/material';
 import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
+import { useTranslation } from 'next-i18next/pages';
 import type { BoardArticleCategory } from '@/libs/enums/board-article.enum';
 
 interface CategoryOption {
@@ -39,66 +40,102 @@ const MobileCommunityWritePage = ({
   onCancel,
   onSubmit,
 }: MobileCommunityWritePageProps) => (
-  <Stack className='mobile-community-write-page'>
+  <MobileCommunityWriteContent
+    category={category}
+    title={title}
+    content={content}
+    previewUrl={previewUrl}
+    fileName={fileName}
+    submitting={submitting}
+    categoryOptions={categoryOptions}
+    onCategoryChange={onCategoryChange}
+    onTitleChange={onTitleChange}
+    onContentChange={onContentChange}
+    onFileChange={onFileChange}
+    onCancel={onCancel}
+    onSubmit={onSubmit}
+  />
+);
+
+const MobileCommunityWriteContent = ({
+  category,
+  title,
+  content,
+  previewUrl,
+  fileName,
+  submitting,
+  categoryOptions,
+  onCategoryChange,
+  onTitleChange,
+  onContentChange,
+  onFileChange,
+  onCancel,
+  onSubmit,
+}: MobileCommunityWritePageProps) => {
+  const { t } = useTranslation('common');
+
+  return (
+    <Stack className='mobile-community-write-page'>
     <Stack className='mobile-page-hero'>
-      <span>Community Writing</span>
-      <h1>Share something useful</h1>
-      <p>Publish a quick update, question, review, or notice from your phone.</p>
+      <span>{t('Community Writing')}</span>
+      <h1>{t('Share something useful')}</h1>
+      <p>{t('Publish a quick update, question, review, or notice from your phone.')}</p>
     </Stack>
 
     <Stack className='mobile-community-write-form'>
       <label>
-        <span>Category</span>
+        <span>{t('Category')}</span>
         <select value={category} onChange={(event) => onCategoryChange(event.target.value as BoardArticleCategory)}>
           {categoryOptions.map((option) => (
             <option key={option.value} value={option.value}>
-              {option.label}
+              {t(option.label)}
             </option>
           ))}
         </select>
       </label>
 
       <label>
-        <span>Title</span>
-        <input value={title} maxLength={50} onChange={(event) => onTitleChange(event.target.value)} placeholder='Write a concise title' />
+        <span>{t('Title')}</span>
+        <input value={title} maxLength={50} onChange={(event) => onTitleChange(event.target.value)} placeholder={t('Write a concise title')} />
       </label>
 
       <label>
-        <span>Content</span>
+        <span>{t('Content')}</span>
         <textarea
           value={content}
           maxLength={250}
           onChange={(event) => onContentChange(event.target.value)}
-          placeholder='Share your update, idea, or recommendation'
+          placeholder={t('Share your update, idea, or recommendation')}
         />
       </label>
 
       <label className='mobile-upload-box'>
-        <span>Cover Image</span>
+        <span>{t('Cover Image')}</span>
         <div>
           <CloudUploadOutlinedIcon />
-          <strong>{fileName || 'Upload a community image'}</strong>
-          <small>PNG, JPG, WEBP, or GIF</small>
+          <strong>{fileName || t('Upload a community image')}</strong>
+          <small>{t('PNG, JPG, WEBP, or GIF')}</small>
         </div>
         <input type='file' accept='image/*' onChange={onFileChange} />
       </label>
 
       {previewUrl ? (
         <Box className='mobile-community-preview'>
-          <img src={previewUrl} alt='Selected preview' />
+          <img src={previewUrl} alt={t('Selected preview')} />
         </Box>
       ) : null}
 
       <Stack className='mobile-community-write-actions'>
         <button className='ghost' onClick={onCancel}>
-          Cancel
+          {t('Cancel')}
         </button>
         <button onClick={onSubmit} disabled={submitting}>
-          {submitting ? 'Publishing...' : 'Publish Post'}
+          {submitting ? t('Publishing...') : t('Publish Post')}
         </button>
       </Stack>
     </Stack>
-  </Stack>
-);
+    </Stack>
+  );
+};
 
 export default MobileCommunityWritePage;

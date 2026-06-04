@@ -4,6 +4,7 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import ChatBubbleOutlineOutlinedIcon from '@mui/icons-material/ChatBubbleOutlineOutlined';
+import { useTranslation } from 'next-i18next/pages';
 import type { BoardArticleCategory } from '@/libs/enums/board-article.enum';
 
 interface ArticleMember {
@@ -65,10 +66,47 @@ const MobileCommunityDetailPage = ({
   onLike,
   onPostComment,
 }: MobileCommunityDetailPageProps) => (
-  <Stack className='mobile-community-detail-page'>
+  <MobileCommunityDetailContent
+    article={article}
+    comments={comments}
+    commentText={commentText}
+    commentTotal={commentTotal}
+    postingComment={postingComment}
+    liked={liked}
+    likeCount={likeCount}
+    categoryLabel={categoryLabel}
+    getArticleImage={getArticleImage}
+    formatDate={formatDate}
+    onCommentTextChange={onCommentTextChange}
+    onBack={onBack}
+    onLike={onLike}
+    onPostComment={onPostComment}
+  />
+);
+
+const MobileCommunityDetailContent = ({
+  article,
+  comments,
+  commentText,
+  commentTotal,
+  postingComment,
+  liked,
+  likeCount,
+  categoryLabel,
+  getArticleImage,
+  formatDate,
+  onCommentTextChange,
+  onBack,
+  onLike,
+  onPostComment,
+}: MobileCommunityDetailPageProps) => {
+  const { t } = useTranslation('common');
+
+  return (
+    <Stack className='mobile-community-detail-page'>
     <button className='mobile-back-btn' onClick={onBack}>
       <ArrowBackOutlinedIcon />
-      Back to community
+      {t('Back to community')}
     </button>
 
     <Box
@@ -86,8 +124,8 @@ const MobileCommunityDetailPage = ({
           {article.memberData?.memberNick?.[0] ?? 'U'}
         </Avatar>
         <div>
-          <strong>{article.memberData?.memberNick ?? 'Community Member'}</strong>
-          <span>Shared with the INSU community</span>
+          <strong>{article.memberData?.memberNick ?? t('Community Member')}</strong>
+          <span>{t('Shared with the INSU community')}</span>
         </div>
       </Stack>
 
@@ -110,18 +148,18 @@ const MobileCommunityDetailPage = ({
     </Stack>
 
     <Stack className='mobile-community-comments'>
-      <h2>Comments ({commentTotal})</h2>
+      <h2>{t('Comments')} ({commentTotal})</h2>
       <textarea
         value={commentText}
         onChange={(event) => onCommentTextChange(event.target.value)}
-        placeholder='Share your thoughts about this post'
+        placeholder={t('Share your thoughts about this post')}
       />
       <button disabled={postingComment || !commentText.trim()} onClick={onPostComment}>
-        {postingComment ? 'Posting...' : 'Post Comment'}
+        {postingComment ? t('Posting...') : t('Post Comment')}
       </button>
 
       {comments.length === 0 ? (
-        <div className='mobile-comment-empty'>No comments yet. Start the conversation.</div>
+        <div className='mobile-comment-empty'>{t('No comments yet. Start the conversation.')}</div>
       ) : (
         comments.map((comment) => (
           <div key={comment._id} className='mobile-comment-item'>
@@ -129,7 +167,7 @@ const MobileCommunityDetailPage = ({
               {comment.memberData?.memberNick?.[0] ?? 'U'}
             </Avatar>
             <div>
-              <strong>{comment.memberData?.memberNick ?? 'Member'}</strong>
+              <strong>{comment.memberData?.memberNick ?? t('Member')}</strong>
               <span>{formatDate(comment.createdAt)}</span>
               <p>{comment.commentContent}</p>
             </div>
@@ -137,7 +175,8 @@ const MobileCommunityDetailPage = ({
         ))
       )}
     </Stack>
-  </Stack>
-);
+    </Stack>
+  );
+};
 
 export default MobileCommunityDetailPage;

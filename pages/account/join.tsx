@@ -19,6 +19,7 @@ import useDeviceDetect from "@/libs/hooks/useDeviceDetect";
 import MobileJoinPage from "@/libs/components/mobile/account/MobileJoinPage";
 import { sweetTopSuccessAlert } from "@/libs/sweetAlert";
 import { serverSideTranslations } from "next-i18next/pages/serverSideTranslations";
+import { useTranslation } from "next-i18next/pages";
 
 export const getStaticProps = async ({
   locale = "en",
@@ -31,6 +32,7 @@ export const getStaticProps = async ({
 });
 
 const JoinPage: NextPage = () => {
+  const { t } = useTranslation("common");
   const device = useDeviceDetect();
   const [activeTab, setActiveTab] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -58,10 +60,10 @@ const JoinPage: NextPage = () => {
         memberNick: loginNick,
         memberPassword: loginPassword,
       });
-      await sweetTopSuccessAlert("Welcome back!");
+      await sweetTopSuccessAlert(t("Welcome back!"));
       window.location.href = "/";
     } catch (err: any) {
-      setError(err?.message ?? "Login failed");
+      setError(err?.message ?? t("Login failed"));
     } finally {
       setLoading(false);
     }
@@ -78,10 +80,10 @@ const JoinPage: NextPage = () => {
         memberPhone: signupPhone,
         memberType: signupType,
       });
-      await sweetTopSuccessAlert("Account created successfully!");
+      await sweetTopSuccessAlert(t("Account created successfully!"));
       window.location.href = "/";
     } catch (err: any) {
-      setError(err?.message ?? "Signup failed");
+      setError(err?.message ?? t("Signup failed"));
     } finally {
       setLoading(false);
     }
@@ -116,12 +118,12 @@ const JoinPage: NextPage = () => {
     <Container maxWidth="sm">
       <Stack spacing={3} sx={{ py: 6 }}>
         <Typography variant="h4" sx={{ fontWeight: 700, textAlign: "center" }}>
-          Login / Register
+          {t("Login / Register")}
         </Typography>
 
         <Tabs value={activeTab} onChange={handleTabChange} centered>
-          <Tab label="Login" />
-          <Tab label="Register" />
+          <Tab label={t("Login")} />
+          <Tab label={t("Register")} />
         </Tabs>
 
         {error ? <Alert severity="error">{error}</Alert> : null}
@@ -129,13 +131,13 @@ const JoinPage: NextPage = () => {
         {activeTab === 0 ? (
           <Stack spacing={2}>
             <TextField
-              label="Nickname"
+              label={t("Nickname")}
               value={loginNick}
               onChange={(event) => setLoginNick(event.target.value)}
               fullWidth
             />
             <TextField
-              label="Password"
+              label={t("Password")}
               type="password"
               value={loginPassword}
               onChange={(event) => setLoginPassword(event.target.value)}
@@ -147,33 +149,33 @@ const JoinPage: NextPage = () => {
               disabled={loading || !loginNick || !loginPassword}
               onClick={handleLogin}
             >
-              {loading ? "Logging in..." : "Login"}
+              {loading ? t("Logging in...") : t("Login")}
             </Button>
           </Stack>
         ) : (
           <Stack spacing={2}>
             <TextField
-              label="Nickname"
+              label={t("Nickname")}
               value={signupNick}
               onChange={(event) => setSignupNick(event.target.value)}
               fullWidth
             />
             <TextField
-              label="Password"
+              label={t("Password")}
               type="password"
               value={signupPassword}
               onChange={(event) => setSignupPassword(event.target.value)}
               fullWidth
             />
             <TextField
-              label="Phone"
+              label={t("Phone")}
               value={signupPhone}
               onChange={(event) => setSignupPhone(event.target.value)}
               fullWidth
             />
             <TextField
               select
-              label="Member Type"
+              label={t("Member Type")}
               value={signupType}
               onChange={(event) =>
                 setSignupType(event.target.value as "USER" | "AGENT")
@@ -191,14 +193,14 @@ const JoinPage: NextPage = () => {
               }
               onClick={handleSignup}
             >
-              {loading ? "Registering..." : "Create Account"}
+              {loading ? t("Registering...") : t("Create Account")}
             </Button>
           </Stack>
         )}
 
         <Box sx={{ textAlign: "center" }}>
           <Typography variant="body2" color="text.secondary">
-            Welcome
+            {t("Welcome")}
           </Typography>
         </Box>
       </Stack>
