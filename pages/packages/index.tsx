@@ -105,19 +105,23 @@ const PackagesPage: NextPage = () => {
 
   const packages = data?.getPackages?.list ?? [];
 
-  const packageLikes = useLikeToggleMap<InsurancePackage, InsurancePackage>({
+  const packageLikes = useLikeToggleMap<InsurancePackage>({
     items: packages,
     getId: (pkg) => pkg._id,
     getItemLiked: (pkg) => getMeLiked(pkg.meLiked),
     getItemCount: (pkg) => pkg.packageLikes,
     isAuthenticated: () => Boolean(userVar()?._id),
     onUnauthenticated: () => sweetMixinErrorAlert(t('Please login to like packages.')),
-    mutate: async (packageId) => {
+    mutate: async (packageId, optimistic) => {
       const result = await likeTargetPackage({ variables: { packageId } });
-      return result.data?.likeTargetPackage;
+      const updated = result.data?.likeTargetPackage;
+      if (!updated) return null;
+
+      return {
+        liked: getMeLiked(updated.meLiked),
+        count: updated.packageLikes ?? optimistic.count,
+      };
     },
-    getServerLiked: (updated) => getMeLiked(updated.meLiked),
-    getServerCount: (updated) => updated.packageLikes,
     onError: (message) => sweetMixinErrorAlert(message),
     errorMessage: t('Could not update favorites.'),
   });

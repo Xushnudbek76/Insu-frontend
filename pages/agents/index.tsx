@@ -90,20 +90,25 @@ const AgentsPage: NextPage = () => {
   const total = data?.getAgents.metaCounter?.[0]?.total ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / LIMIT));
 
-  const agentLikes = useLikeToggleMap<AgentData, AgentData>({
+  const agentLikes = useLikeToggleMap<AgentData>({
     items: agents,
     getId: (agent) => agent._id,
     getItemLiked: (agent) => getMeLiked(agent.meLiked),
     getItemCount: (agent) => agent.memberLikes,
     isAuthenticated: () => Boolean(userVar()?._id),
     onUnauthenticated: () => sweetMixinErrorAlert(t("Please login to like agents.")),
-    mutate: async (memberId) => {
+    mutate: async (memberId, optimistic) => {
       const result = await likeTargetMember({
         variables: { input: memberId },
       });
-      return result.data?.likeTargetMember;
+      const updated = result.data?.likeTargetMember;
+      if (!updated) return null;
+
+      return {
+        liked: optimistic.liked,
+        count: updated.memberLikes ?? optimistic.count,
+      };
     },
-    getServerCount: (updated) => updated.memberLikes,
     onError: (message) => sweetMixinErrorAlert(message),
     errorMessage: t("Could not update likes."),
   });

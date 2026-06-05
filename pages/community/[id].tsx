@@ -131,22 +131,24 @@ const CommunityDetailPage: NextPage = () => {
       minute: '2-digit',
     });
 
-  const articleLike = useSingleLikeToggle<
-    BoardArticleData,
-    { _id: string; articleLikes: number }
-  >({
+  const articleLike = useSingleLikeToggle<BoardArticleData>({
     source: article,
     getSourceLiked: (source) => getMeLiked(source.meLiked),
     getSourceCount: (source) => source.articleLikes,
     isAuthenticated: () => Boolean(userVar()?._id),
     onUnauthenticated: () => sweetMixinErrorAlert(t('Please login to like posts.')),
-    mutate: async (_, __, source) => {
+    mutate: async (optimistic, _previous, source) => {
       const result = await likeTargetBoardArticle({
         variables: { articleId: source._id },
       });
-      return result.data?.likeTargetBoardArticle;
+      const updated = result.data?.likeTargetBoardArticle;
+      if (!updated) return null;
+
+      return {
+        liked: optimistic.liked,
+        count: updated.articleLikes,
+      };
     },
-    getServerCount: (updated) => updated.articleLikes,
     onError: (message) => sweetMixinErrorAlert(message),
     errorMessage: t('Could not update likes.'),
   });

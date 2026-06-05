@@ -2,8 +2,8 @@ import { describe, expect, it } from '@jest/globals';
 import {
   getMeLiked,
   getNextLikeState,
+  normalizeLikeState,
   normalizeLikeError,
-  resolveLikeState,
   toLikeCount,
 } from './useLikeToggle';
 
@@ -42,25 +42,14 @@ describe('like toggle helpers', () => {
     expect(normalizeLikeError({}, 'Try again later.')).toBe('Try again later.');
   });
 
-  it('reconciles optimistic state with optional server fields', () => {
+  it('normalizes mutation state and falls back to optimistic state', () => {
     const optimistic = { liked: true, count: 3 };
-    const previous = { liked: false, count: 2 };
 
-    expect(
-      resolveLikeState(
-        { meLiked: [{ myFavorite: false }], packageLikes: -1 },
-        optimistic,
-        previous,
-        {
-          getServerLiked: (result) => result.meLiked[0].myFavorite,
-          getServerCount: (result) => result.packageLikes,
-        },
-      ),
-    ).toEqual({ liked: false, count: 0 });
-
-    expect(resolveLikeState(null, optimistic, previous, {})).toEqual(
-      optimistic,
-    );
+    expect(normalizeLikeState({ liked: false, count: -1 }, optimistic)).toEqual({
+      liked: false,
+      count: 0,
+    });
+    expect(normalizeLikeState(null, optimistic)).toEqual(optimistic);
     expect(toLikeCount(null)).toBe(0);
   });
 });

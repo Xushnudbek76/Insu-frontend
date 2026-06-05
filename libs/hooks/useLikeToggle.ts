@@ -11,19 +11,6 @@ export interface FavoriteMarker {
   myFavorite?: boolean | null;
 }
 
-interface LikeResponseResolvers<TResult> {
-  getServerLiked?: (
-    result: TResult,
-    optimistic: LikeState,
-    previous: LikeState,
-  ) => boolean | null | undefined;
-  getServerCount?: (
-    result: TResult,
-    optimistic: LikeState,
-    previous: LikeState,
-  ) => number | null | undefined;
-}
-
 interface LikeGuardOptions {
   isAuthenticated: () => boolean;
   onUnauthenticated: () => MaybePromise<void>;
@@ -31,9 +18,7 @@ interface LikeGuardOptions {
   errorMessage: string;
 }
 
-interface UseSingleLikeToggleOptions<TSource, TResult>
-  extends LikeGuardOptions,
-    LikeResponseResolvers<TResult> {
+interface UseSingleLikeToggleOptions<TSource> extends LikeGuardOptions {
   source?: TSource | null;
   getSourceLiked: (source: TSource) => boolean;
   getSourceCount: (source: TSource) => number | null | undefined;
@@ -41,12 +26,10 @@ interface UseSingleLikeToggleOptions<TSource, TResult>
     optimistic: LikeState,
     previous: LikeState,
     source: TSource,
-  ) => Promise<TResult | null | undefined>;
+  ) => Promise<LikeState | null | undefined>;
 }
 
-interface UseLikeToggleMapOptions<TItem, TResult>
-  extends LikeGuardOptions,
-    LikeResponseResolvers<TResult> {
+interface UseLikeToggleMapOptions<TItem> extends LikeGuardOptions {
   items: TItem[];
   getId: (item: TItem) => string;
   getItemLiked: (item: TItem) => boolean;
@@ -56,7 +39,7 @@ interface UseLikeToggleMapOptions<TItem, TResult>
     optimistic: LikeState,
     previous: LikeState,
     item: TItem | undefined,
-  ) => Promise<TResult | null | undefined>;
+  ) => Promise<LikeState | null | undefined>;
 }
 
 export const toLikeCount = (count?: number | null) =>
@@ -69,6 +52,17 @@ export const getNextLikeState = (state: LikeState): LikeState => ({
   liked: !state.liked,
   count: toLikeCount(state.count + (!state.liked ? 1 : -1)),
 });
+
+export const normalizeLikeState = (
+  state: LikeState | null | undefined,
+  fallback: LikeState,
+): LikeState =>
+  state
+    ? {
+        liked: state.liked,
+        count: toLikeCount(state.count),
+      }
+    : fallback;
 
 export const normalizeLikeError = (
   error: unknown,
@@ -88,31 +82,6 @@ export const normalizeLikeError = (
   return message || fallback;
 };
 
-export const resolveLikeState = <TResult>(
-  result: TResult | null | undefined,
-  optimistic: LikeState,
-  previous: LikeState,
-  resolvers: LikeResponseResolvers<TResult>,
-): LikeState => {
-  if (!result) return optimistic;
-
-  const serverLiked = resolvers.getServerLiked?.(
-    result,
-    optimistic,
-    previous,
-  );
-  const serverCount = resolvers.getServerCount?.(
-    result,
-    optimistic,
-    previous,
-  );
-
-  return {
-    liked: typeof serverLiked === 'boolean' ? serverLiked : optimistic.liked,
-    count: typeof serverCount === 'number' ? toLikeCount(serverCount) : optimistic.count,
-  };
-};
-
 const buildSourceState = <TSource>(
   source: TSource,
   getLiked: (source: TSource) => boolean,
@@ -127,18 +96,16 @@ const buildFallbackState = (fallback?: Partial<LikeState>): LikeState => ({
   count: toLikeCount(fallback?.count),
 });
 
-export const useSingleLikeToggle = <TSource, TResult>({
+export const useSingleLikeToggle = <TSource>({
   source,
   getSourceLiked,
   getSourceCount,
   isAuthenticated,
   onUnauthenticated,
   mutate,
-  getServerLiked,
-  getServerCount,
   onError,
   errorMessage,
-}: UseSingleLikeToggleOptions<TSource, TResult>) => {
+}: UseSingleLikeToggleOptions<TSource>) => {
   const pendingRef = useRef(false);
   const [isPending, setIsPending] = useState(false);
   const [state, setState] = useState<LikeState>(() =>
@@ -169,12 +136,7 @@ export const useSingleLikeToggle = <TSource, TResult>({
 
     try {
       const result = await mutate(optimistic, previous, source);
-      setState(
-        resolveLikeState(result, optimistic, previous, {
-          getServerLiked,
-          getServerCount,
-        }),
-      );
+      setState(normalizeLikeState(result, optimistic));
     } catch (error) {
       setState(previous);
       await onError(normalizeLikeError(error, errorMessage), error);
@@ -188,8 +150,6 @@ export const useSingleLikeToggle = <TSource, TResult>({
     isAuthenticated,
     onUnauthenticated,
     mutate,
-    getServerLiked,
-    getServerCount,
     onError,
     errorMessage,
   ]);
@@ -202,7 +162,7 @@ export const useSingleLikeToggle = <TSource, TResult>({
   };
 };
 
-export const useLikeToggleMap = <TItem, TResult>({
+export const useLikeToggleMap = <TItem>({
   items,
   getId,
   getItemLiked,
@@ -210,11 +170,9 @@ export const useLikeToggleMap = <TItem, TResult>({
   isAuthenticated,
   onUnauthenticated,
   mutate,
-  getServerLiked,
-  getServerCount,
   onError,
   errorMessage,
-}: UseLikeToggleMapOptions<TItem, TResult>) => {
+}: UseLikeToggleMapOptions<TItem>) => {
   const pendingIdsRef = useRef<Set<string>>(new Set());
   const [states, setStates] = useState<Record<string, LikeState>>({});
 
@@ -290,10 +248,7 @@ export const useLikeToggleMap = <TItem, TResult>({
         const result = await mutate(id, optimistic, previous, item);
         setStates((prev) => ({
           ...prev,
-          [id]: resolveLikeState(result, optimistic, previous, {
-            getServerLiked,
-            getServerCount,
-          }),
+          [id]: normalizeLikeState(result, optimistic),
         }));
       } catch (error) {
         setStates((prev) => ({ ...prev, [id]: previous }));
@@ -310,8 +265,6 @@ export const useLikeToggleMap = <TItem, TResult>({
       isAuthenticated,
       onUnauthenticated,
       mutate,
-      getServerLiked,
-      getServerCount,
       onError,
       errorMessage,
       getState,
