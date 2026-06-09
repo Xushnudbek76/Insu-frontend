@@ -192,7 +192,9 @@ const MobileCommunityContent = ({
     ) : (
       <Box className='mobile-community-list'>
         {articles.map((article) => (
-          <Stack key={article._id} className='mobile-community-card' onClick={() => onOpenArticle(article._id)}>
+          <Stack key={article._id} className='mobile-community-card' onClick={() => {
+            event.stopPropagation();
+            onOpenArticle(article._id)}}>
             <Box
               className='mobile-community-image'
               style={{ backgroundImage: `url(${getArticleImage(article.articleImage)})` }}

@@ -225,7 +225,10 @@ const CommunityPage: NextPage = () => {
 
             <button
               className='community-create-btn'
-              onClick={() => router.push('/community/write')}
+              onClick={(event) => {
+                
+                router.push('/community/write');
+              }}
             >
               <AddOutlinedIcon />
               {t('Create Post')}
@@ -297,7 +300,9 @@ const CommunityPage: NextPage = () => {
                 <Box
                   key={article._id}
                   className='community-card'
-                  onClick={() => router.push(`/community/${article._id}`)}
+                  onClick={() =>{
+                    event.stopPropagation();
+                    router.push(`/community/${article._id}`)}}
                 >
                   <div
                     className='community-card-image'
