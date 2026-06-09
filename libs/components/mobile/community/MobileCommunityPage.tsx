@@ -209,7 +209,10 @@ const MobileCommunityContent = ({
               <h3>{article.articleTitle}</h3>
               <p>{article.articleContent}</p>
               <strong>{article.memberData?.memberNick ?? t('Community Member')}</strong>
-              <Stack className='mobile-community-stats'>
+              <Stack
+                className='mobile-community-stats'
+                onClick={(event) => event.stopPropagation()}
+              >
                 <span>
                   <VisibilityOutlinedIcon />
                   {article.articleViews}

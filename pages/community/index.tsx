@@ -327,7 +327,10 @@ const CommunityPage: NextPage = () => {
                     <p>{article.articleContent}</p>
                     <div className='community-card-footer'>
                       <span>{formatDate(article.createdAt)}</span>
-                      <div className='community-stats'>
+                      <div
+                        className='community-stats'
+                        onClick={(event) => event.stopPropagation()}
+                      >
                         <span>
                           <VisibilityOutlinedIcon />
                           {article.articleViews}
