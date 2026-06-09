@@ -44,6 +44,9 @@ export const GET_BOARD_ARTICLES = gql`
           memberNick
           memberImage
         }
+        meLiked {
+          myFavorite
+        }
       }
       metaCounter {
         total

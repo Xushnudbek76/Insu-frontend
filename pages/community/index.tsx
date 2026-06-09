@@ -1,7 +1,8 @@
-import { ChangeEvent, useMemo, useState } from 'react';
+import type { ChangeEvent, MouseEvent } from 'react';
+import { useMemo, useState } from 'react';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useQuery } from '@apollo/client/react';
+import { useMutation, useQuery } from '@apollo/client/react';
 import { Box, Stack } from '@mui/material';
 import ForumOutlinedIcon from '@mui/icons-material/ForumOutlined';
 import CampaignOutlinedIcon from '@mui/icons-material/CampaignOutlined';
@@ -9,13 +10,18 @@ import NewspaperOutlinedIcon from '@mui/icons-material/NewspaperOutlined';
 import ReviewsOutlinedIcon from '@mui/icons-material/ReviewsOutlined';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import FavoriteBorderOutlinedIcon from '@mui/icons-material/FavoriteBorderOutlined';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 import ChatBubbleOutlineOutlinedIcon from '@mui/icons-material/ChatBubbleOutlineOutlined';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import withLayoutMain from '@/layout/LayoutHome';
 import { GET_BOARD_ARTICLES } from '@/apollo/board-article/query';
+import { LIKE_TARGET_BOARD_ARTICLE } from '@/apollo/board-article/mutation';
 import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
 import MobileCommunityPage from '@/libs/components/mobile/community/MobileCommunityPage';
+import { userVar } from '@/apollo/store';
+import { getMeLiked, useLikeToggleMap } from '@/libs/hooks/useLikeToggle';
+import { sweetMixinErrorAlert } from '@/libs/sweetAlert';
 import { BoardArticleCategory } from '@/libs/enums/board-article.enum';
 import { toAssetUrl } from '@/libs/api';
 import { buildPageNumbers } from '@/libs/utils/pagination';
@@ -82,6 +88,7 @@ interface BoardArticleData {
   articleComments: number;
   createdAt: string;
   memberData?: ArticleMember | null;
+  meLiked?: { myFavorite?: boolean | null }[] | null;
 }
 
 interface GetBoardArticlesResponse {
@@ -122,9 +129,49 @@ const CommunityPage: NextPage = () => {
     },
   });
 
+  const [likeTargetBoardArticle] = useMutation<{
+    likeTargetBoardArticle: { _id: string; articleLikes: number };
+  }>(LIKE_TARGET_BOARD_ARTICLE);
+
   const articles = data?.getBoardArticles.list ?? [];
   const total = data?.getBoardArticles.metaCounter?.[0]?.total ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / LIMIT));
+
+  const articleLikes = useLikeToggleMap<BoardArticleData>({
+    items: articles,
+    getId: (article) => article._id,
+    getItemLiked: (article) => getMeLiked(article.meLiked),
+    getItemCount: (article) => article.articleLikes,
+    isAuthenticated: () => Boolean(userVar()?._id),
+    onUnauthenticated: () => sweetMixinErrorAlert(t('Please login to like posts.')),
+    mutate: async (articleId, optimistic) => {
+      const result = await likeTargetBoardArticle({ variables: { articleId } });
+      const updated = result.data?.likeTargetBoardArticle;
+      if (!updated) return null;
+
+      return {
+        liked: optimistic.liked,
+        count: updated.articleLikes,
+      };
+    },
+    onError: (message) => sweetMixinErrorAlert(message),
+    errorMessage: t('Could not update likes.'),
+  });
+
+  const articleLikeStates = useMemo(
+    () =>
+      Object.fromEntries(
+        articles.map((article) => {
+          const likeState = articleLikes.getState(article._id, {
+            liked: getMeLiked(article.meLiked),
+            count: article.articleLikes,
+          });
+
+          return [article._id, likeState];
+        }),
+      ),
+    [articles, articleLikes.getState],
+  );
 
   const getArticleImage = (image?: string | null) =>
     toAssetUrl(image) ?? '/img/placeholder-article.svg';
@@ -150,6 +197,11 @@ const CommunityPage: NextPage = () => {
     setPage(1);
   };
 
+  const handleToggleArticleLike = (event: MouseEvent, articleId: string) => {
+    event.stopPropagation();
+    void articleLikes.toggle(articleId);
+  };
+
   if (device === 'mobile') {
     return (
       <MobileCommunityPage
@@ -166,6 +218,7 @@ const CommunityPage: NextPage = () => {
         sortOptions={SORT_OPTIONS}
         getArticleImage={getArticleImage}
         formatDate={formatDate}
+        articleLikeStates={articleLikeStates}
         onSearchChange={(event) => setSearchText(event.target.value)}
         onSearchKeyDown={handleSearchEnter}
         onSearchSubmit={handleSearchSubmit}
@@ -177,6 +230,7 @@ const CommunityPage: NextPage = () => {
         onPageChange={setPage}
         onOpenWrite={() => router.push('/community/write')}
         onOpenArticle={(articleId) => router.push(`/community/${articleId}`)}
+        onToggleArticleLike={handleToggleArticleLike}
       />
     );
   }
@@ -296,58 +350,69 @@ const CommunityPage: NextPage = () => {
             </Box>
           ) : (
             <Box className='community-grid'>
-              {articles.map((article) => (
-                <Box
-                  key={article._id}
-                  className='community-card'
-                  onClick={() => router.push(`/community/${article._id}`)}
-                >
-                  <div
-                    className='community-card-image'
-                    style={{ backgroundImage: `url(${getArticleImage(article.articleImage)})` }}
-                  >
-                    <div className='community-card-date'>
-                      <span>{formatLocaleDate(article.createdAt, router.locale, { month: 'long' })}</span>
-                      <strong>
-                        {formatLocaleDate(article.createdAt, router.locale, {
-                          day: '2-digit',
-                        })}
-                      </strong>
-                    </div>
-                  </div>
+              {articles.map((article) => {
+                const likeState = articleLikeStates[article._id] ?? {
+                  liked: getMeLiked(article.meLiked),
+                  count: article.articleLikes,
+                };
 
-                  <div className='community-card-body'>
-                    <div className='community-card-meta-top'>
-                      <span className='community-category-pill'>{t(activeCategory.label)}</span>
-                      <span className='community-author'>
-                        {article.memberData?.memberNick ?? t('Community Member')}
-                      </span>
-                    </div>
-                    <h3>{article.articleTitle}</h3>
-                    <p>{article.articleContent}</p>
-                    <div className='community-card-footer'>
-                      <span>{formatDate(article.createdAt)}</span>
-                      <div
-                        className='community-stats'
-                        onClick={(event) => event.stopPropagation()}
-                      >
-                        <span>
-                          <VisibilityOutlinedIcon />
-                          {article.articleViews}
-                        </span>
-                        <span>
-                          <FavoriteBorderOutlinedIcon />
-                          {article.articleLikes}
-                        </span>
-                        <span>
-                          <ChatBubbleOutlineOutlinedIcon />
-                          {article.articleComments}
-                        </span>
+                return (
+                  <Box
+                    key={article._id}
+                    className='community-card'
+                    onClick={() => router.push(`/community/${article._id}`)}
+                  >
+                    <div
+                      className='community-card-image'
+                      style={{ backgroundImage: `url(${getArticleImage(article.articleImage)})` }}
+                    >
+                      <div className='community-card-date'>
+                        <span>{formatLocaleDate(article.createdAt, router.locale, { month: 'long' })}</span>
+                        <strong>
+                          {formatLocaleDate(article.createdAt, router.locale, {
+                            day: '2-digit',
+                          })}
+                        </strong>
                       </div>
                     </div>
-                  </div>
-                </Box>
-              ))}
+
+                    <div className='community-card-body'>
+                      <div className='community-card-meta-top'>
+                        <span className='community-category-pill'>{t(activeCategory.label)}</span>
+                        <span className='community-author'>
+                          {article.memberData?.memberNick ?? t('Community Member')}
+                        </span>
+                      </div>
+                      <h3>{article.articleTitle}</h3>
+                      <p>{article.articleContent}</p>
+                      <div className='community-card-footer'>
+                        <span>{formatDate(article.createdAt)}</span>
+                        <div
+                          className='community-stats'
+                          onClick={(event) => event.stopPropagation()}
+                        >
+                          <span>
+                            <VisibilityOutlinedIcon />
+                            {article.articleViews}
+                          </span>
+                          <button
+                            type='button'
+                            className={likeState.liked ? 'liked' : ''}
+                            onClick={(event) => handleToggleArticleLike(event, article._id)}
+                          >
+                            {likeState.liked ? <FavoriteIcon /> : <FavoriteBorderOutlinedIcon />}
+                            {likeState.count}
+                          </button>
+                          <span>
+                            <ChatBubbleOutlineOutlinedIcon />
+                            {article.articleComments}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </Box>
+                );
+              })}
             </Box>
           )}
 

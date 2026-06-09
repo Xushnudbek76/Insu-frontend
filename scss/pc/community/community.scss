@@ -404,18 +404,31 @@
             gap: 14px;
             flex-wrap: wrap;
 
-            span {
+            span,
+            button {
                 display: inline-flex;
                 align-items: center;
                 gap: 5px;
+                padding: 0;
+                border: 0;
+                background: transparent;
                 color: #303345;
                 font-size: 13px;
                 font-weight: 600;
             }
 
+            button {
+                cursor: pointer;
+            }
+
             svg {
                 font-size: 18px;
                 color: #767588;
+            }
+
+            button.liked,
+            button.liked svg {
+                color: #e74c61;
             }
         }
     }

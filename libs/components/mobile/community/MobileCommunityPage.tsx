@@ -1,13 +1,15 @@
-import type { ChangeEvent, KeyboardEvent } from 'react';
+import type { ChangeEvent, KeyboardEvent, MouseEvent } from 'react';
 import { Box, Stack } from '@mui/material';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import FavoriteBorderOutlinedIcon from '@mui/icons-material/FavoriteBorderOutlined';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import ChatBubbleOutlineOutlinedIcon from '@mui/icons-material/ChatBubbleOutlineOutlined';
 import { useTranslation } from 'next-i18next/pages';
 import type { BoardArticleCategory } from '@/libs/enums/board-article.enum';
 import { buildPageNumbers } from '@/libs/utils/pagination';
+import type { LikeState } from '@/libs/hooks/useLikeToggle';
 
 interface CategoryConfigItem {
   value: BoardArticleCategory;
@@ -31,6 +33,7 @@ interface BoardArticleData {
   articleComments: number;
   createdAt: string;
   memberData?: ArticleMember | null;
+  meLiked?: { myFavorite?: boolean | null }[] | null;
 }
 
 interface MobileCommunityPageProps {
@@ -47,6 +50,7 @@ interface MobileCommunityPageProps {
   sortOptions: { value: string; label: string }[];
   getArticleImage: (image?: string | null) => string;
   formatDate: (date: string) => string;
+  articleLikeStates: Record<string, LikeState>;
   onSearchChange: (event: ChangeEvent<HTMLInputElement>) => void;
   onSearchKeyDown: (event: KeyboardEvent<HTMLInputElement>) => void;
   onSearchSubmit: () => void;
@@ -55,6 +59,7 @@ interface MobileCommunityPageProps {
   onPageChange: (page: number) => void;
   onOpenWrite: () => void;
   onOpenArticle: (id: string) => void;
+  onToggleArticleLike: (event: MouseEvent, id: string) => void;
 }
 
 const MobileCommunityPage = ({
@@ -71,6 +76,7 @@ const MobileCommunityPage = ({
   sortOptions,
   getArticleImage,
   formatDate,
+  articleLikeStates,
   onSearchChange,
   onSearchKeyDown,
   onSearchSubmit,
@@ -79,6 +85,7 @@ const MobileCommunityPage = ({
   onPageChange,
   onOpenWrite,
   onOpenArticle,
+  onToggleArticleLike,
 }: MobileCommunityPageProps) => (
   <MobileCommunityContent
     category={category}
@@ -94,6 +101,7 @@ const MobileCommunityPage = ({
     sortOptions={sortOptions}
     getArticleImage={getArticleImage}
     formatDate={formatDate}
+    articleLikeStates={articleLikeStates}
     onSearchChange={onSearchChange}
     onSearchKeyDown={onSearchKeyDown}
     onSearchSubmit={onSearchSubmit}
@@ -102,6 +110,7 @@ const MobileCommunityPage = ({
     onPageChange={onPageChange}
     onOpenWrite={onOpenWrite}
     onOpenArticle={onOpenArticle}
+    onToggleArticleLike={onToggleArticleLike}
   />
 );
 
@@ -119,6 +128,7 @@ const MobileCommunityContent = ({
   sortOptions,
   getArticleImage,
   formatDate,
+  articleLikeStates,
   onSearchChange,
   onSearchKeyDown,
   onSearchSubmit,
@@ -127,6 +137,7 @@ const MobileCommunityContent = ({
   onPageChange,
   onOpenWrite,
   onOpenArticle,
+  onToggleArticleLike,
 }: MobileCommunityPageProps) => {
   const { t } = useTranslation('common');
 
@@ -191,44 +202,55 @@ const MobileCommunityContent = ({
       </Stack>
     ) : (
       <Box className='mobile-community-list'>
-        {articles.map((article) => (
-          <Stack
-            key={article._id}
-            className='mobile-community-card'
-            onClick={() => onOpenArticle(article._id)}
-          >
-            <Box
-              className='mobile-community-image'
-              style={{ backgroundImage: `url(${getArticleImage(article.articleImage)})` }}
-            />
-            <Stack className='mobile-community-body'>
-              <div className='mobile-community-meta'>
-                <span>{t(article.articleCategory)}</span>
-                <small>{formatDate(article.createdAt)}</small>
-              </div>
-              <h3>{article.articleTitle}</h3>
-              <p>{article.articleContent}</p>
-              <strong>{article.memberData?.memberNick ?? t('Community Member')}</strong>
-              <Stack
-                className='mobile-community-stats'
-                onClick={(event) => event.stopPropagation()}
-              >
-                <span>
-                  <VisibilityOutlinedIcon />
-                  {article.articleViews}
-                </span>
-                <span>
-                  <FavoriteBorderOutlinedIcon />
-                  {article.articleLikes}
-                </span>
-                <span>
-                  <ChatBubbleOutlineOutlinedIcon />
-                  {article.articleComments}
-                </span>
+        {articles.map((article) => {
+          const likeState = articleLikeStates[article._id] ?? {
+            liked: article.meLiked?.[0]?.myFavorite === true,
+            count: article.articleLikes,
+          };
+
+          return (
+            <Stack
+              key={article._id}
+              className='mobile-community-card'
+              onClick={() => onOpenArticle(article._id)}
+            >
+              <Box
+                className='mobile-community-image'
+                style={{ backgroundImage: `url(${getArticleImage(article.articleImage)})` }}
+              />
+              <Stack className='mobile-community-body'>
+                <div className='mobile-community-meta'>
+                  <span>{t(article.articleCategory)}</span>
+                  <small>{formatDate(article.createdAt)}</small>
+                </div>
+                <h3>{article.articleTitle}</h3>
+                <p>{article.articleContent}</p>
+                <strong>{article.memberData?.memberNick ?? t('Community Member')}</strong>
+                <Stack
+                  className='mobile-community-stats'
+                  onClick={(event) => event.stopPropagation()}
+                >
+                  <span>
+                    <VisibilityOutlinedIcon />
+                    {article.articleViews}
+                  </span>
+                  <button
+                    type='button'
+                    className={likeState.liked ? 'liked' : ''}
+                    onClick={(event) => onToggleArticleLike(event, article._id)}
+                  >
+                    {likeState.liked ? <FavoriteIcon /> : <FavoriteBorderOutlinedIcon />}
+                    {likeState.count}
+                  </button>
+                  <span>
+                    <ChatBubbleOutlineOutlinedIcon />
+                    {article.articleComments}
+                  </span>
+                </Stack>
               </Stack>
             </Stack>
-          </Stack>
-        ))}
+          );
+        })}
       </Box>
     )}
 
