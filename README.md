@@ -108,9 +108,7 @@ Make sure the backend GraphQL API is running before using package, community, up
 | `yarn start:public` | Start the production build on `0.0.0.0:3000` |
 | `yarn lint`  | Run Next.js linting                  |
 
-## Interview Practice
 
-This repo also includes a separate [30-day full-stack interview practice kit](./interview-practice/README.md). It contains realistic exercise briefs, a progress tracker, submission templates, and a scoring rubric for practicing take-home and live full-stack interview tasks.
 
 ## API Integration
 
