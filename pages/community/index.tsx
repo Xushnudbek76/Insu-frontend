@@ -300,9 +300,7 @@ const CommunityPage: NextPage = () => {
                 <Box
                   key={article._id}
                   className='community-card'
-                  onClick={() =>{
-                    event.stopPropagation();
-                    router.push(`/community/${article._id}`)}}
+                  onClick={() => router.push(`/community/${article._id}`)}
                 >
                   <div
                     className='community-card-image'
