@@ -2,6 +2,7 @@ import {
   ChangeEvent,
   KeyboardEvent,
   MouseEvent,
+  useMemo,
   useState,
 } from "react";
 import { NextPage } from "next";
@@ -24,6 +25,7 @@ import { LIKE_TARGET_MEMBER } from "@/apollo/member/mutation";
 import { GET_AGENTS } from "@/apollo/user/query";
 import useDeviceDetect from "@/libs/hooks/useDeviceDetect";
 import { getMeLiked, useLikeToggleMap } from "@/libs/hooks/useLikeToggle";
+import type { LikeState } from "@/libs/types/common";
 import MobileAgentsPage from "@/libs/components/mobile/agents/MobileAgentsPage";
 import { sweetMixinErrorAlert } from "@/libs/sweetAlert";
 import { toAssetUrl } from "@/libs/api";
@@ -90,11 +92,22 @@ const AgentsPage: NextPage = () => {
   const total = data?.getAgents.metaCounter?.[0]?.total ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / LIMIT));
 
-  const agentLikes = useLikeToggleMap<AgentData>({
-    items: agents,
-    getId: (agent) => agent._id,
-    getItemLiked: (agent) => getMeLiked(agent.meLiked),
-    getItemCount: (agent) => agent.memberLikes,
+  const agentLikeSourceStates = useMemo<Record<string, LikeState>>(
+    () =>
+      Object.fromEntries(
+        agents.map((agent) => [
+          agent._id,
+          {
+            liked: getMeLiked(agent.meLiked),
+            count: agent.memberLikes ?? 0,
+          },
+        ]),
+      ),
+    [agents],
+  );
+
+  const agentLikes = useLikeToggleMap({
+    sourceStates: agentLikeSourceStates,
     isAuthenticated: () => Boolean(userVar()?._id),
     onUnauthenticated: () => sweetMixinErrorAlert(t("Please login to like agents.")),
     mutate: async (memberId, optimistic) => {
@@ -112,8 +125,14 @@ const AgentsPage: NextPage = () => {
     onError: (message) => sweetMixinErrorAlert(message),
     errorMessage: t("Could not update likes."),
   });
-  const likedByAgent = agentLikes.likedById;
-  const likesByAgent = agentLikes.countsById;
+
+  const agentLikeStates = useMemo<Record<string, LikeState>>(
+    () =>
+      Object.fromEntries(
+        agents.map((agent) => [agent._id, agentLikes.getState(agent._id)]),
+      ),
+    [agents, agentLikes.getState],
+  );
 
   const handleSearchSubmit = () => {
     setPage(1);
@@ -142,8 +161,7 @@ const AgentsPage: NextPage = () => {
         totalPages={totalPages}
         loading={loading}
         agents={agents}
-        likedByAgent={agentLikes.likedById}
-        likesByAgent={agentLikes.countsById}
+        agentLikeStates={agentLikeStates}
         sortOptions={SORT_OPTIONS}
         displayName={displayName}
         readableStatus={readableStatus}
@@ -227,11 +245,10 @@ const AgentsPage: NextPage = () => {
         ) : (
           <Box className="agents-grid">
             {agents.map((agent) => {
-              const liked =
-                likedByAgent[agent._id] ??
-                agent.meLiked?.[0]?.myFavorite ??
-                false;
-              const likes = likesByAgent[agent._id] ?? agent.memberLikes;
+              const likeState = agentLikeStates[agent._id] ?? {
+                liked: getMeLiked(agent.meLiked),
+                count: agent.memberLikes ?? 0,
+              };
 
               return (
                 <Stack
@@ -266,11 +283,11 @@ const AgentsPage: NextPage = () => {
                       </Stack>
                       <button
                         type="button"
-                        className={`agent-stat like${liked ? " liked" : ""}`}
+                        className={`agent-stat like${likeState.liked ? " liked" : ""}`}
                         onClick={(event) => handleToggleLike(event, agent._id)}
                       >
-                        {liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
-                        <span>{formatCount(likes)}</span>
+                        {likeState.liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+                        <span>{formatCount(likeState.count)}</span>
                       </button>
                       <Stack className="agent-stat comments">
                         <ChatBubbleIcon />

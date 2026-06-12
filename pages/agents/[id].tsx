@@ -1,4 +1,4 @@
-import { ChangeEvent, MouseEvent, useEffect, useState } from 'react';
+import { ChangeEvent, MouseEvent, useEffect, useMemo, useState } from 'react';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useMutation, useQuery } from '@apollo/client/react';
@@ -22,6 +22,7 @@ import withLayoutMain from '@/layout/LayoutHome';
 import { userVar } from '@/apollo/store';
 import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
 import { getMeLiked, useLikeToggleMap } from '@/libs/hooks/useLikeToggle';
+import type { LikeState } from '@/libs/types/common';
 import {
   GET_AGENT_PUBLIC_PACKAGES,
   GET_MEMBER,
@@ -266,11 +267,22 @@ const AgentDetailPage: NextPage = () => {
   const displayName = (agent?: AgentDetail | null) =>
     agent?.memberNick || agent?.memberFullName || t('Insurance Agent');
 
-  const packageLikeToggle = useLikeToggleMap<AgentPackage>({
-    items: listings,
-    getId: (pkg) => pkg._id,
-    getItemLiked: (pkg) => getMeLiked(pkg.meLiked),
-    getItemCount: (pkg) => pkg.packageLikes,
+  const packageLikeSourceStates = useMemo<Record<string, LikeState>>(
+    () =>
+      Object.fromEntries(
+        listings.map((pkg) => [
+          pkg._id,
+          {
+            liked: getMeLiked(pkg.meLiked),
+            count: pkg.packageLikes ?? 0,
+          },
+        ]),
+      ),
+    [listings],
+  );
+
+  const packageLikeToggle = useLikeToggleMap({
+    sourceStates: packageLikeSourceStates,
     isAuthenticated: () => Boolean(userVar()?._id),
     onUnauthenticated: () => sweetMixinErrorAlert(t('Please login to like packages.')),
     mutate: async (packageId, optimistic) => {
@@ -286,8 +298,14 @@ const AgentDetailPage: NextPage = () => {
     onError: (message) => sweetMixinErrorAlert(message),
     errorMessage: t('Could not update package like.'),
   });
-  const packageLiked = packageLikeToggle.likedById;
-  const packageLikes = packageLikeToggle.countsById;
+
+  const packageLikeStates = useMemo<Record<string, LikeState>>(
+    () =>
+      Object.fromEntries(
+        listings.map((pkg) => [pkg._id, packageLikeToggle.getState(pkg._id)]),
+      ),
+    [listings, packageLikeToggle.getState],
+  );
 
   useEffect(() => {
     if (!agent) return;
@@ -467,8 +485,7 @@ const AgentDetailPage: NextPage = () => {
         reviewTotal={reviewTotal}
         reviewTotalPages={reviewTotalPages}
         reviewsLoading={reviewsLoading}
-        packageLiked={packageLiked}
-        packageLikes={packageLikes}
+        packageLikeStates={packageLikeStates}
         getAsset={getAsset}
         getPackageImage={getPackageImage}
         displayName={displayName}
@@ -693,8 +710,10 @@ const AgentDetailPage: NextPage = () => {
           ) : (
             <Box className='agent-listing-grid'>
               {listings.map((pkg, index) => {
-                const liked = packageLiked[pkg._id] ?? pkg.meLiked?.[0]?.myFavorite ?? false;
-                const likes = packageLikes[pkg._id] ?? pkg.packageLikes;
+                const likeState = packageLikeStates[pkg._id] ?? {
+                  liked: getMeLiked(pkg.meLiked),
+                  count: pkg.packageLikes ?? 0,
+                };
                 const isTopRanked = index < 3 && (pkg.packageRank ?? 0) > 0;
 
                 return (
@@ -735,11 +754,11 @@ const AgentDetailPage: NextPage = () => {
                         </Stack>
                         <button
                           type='button'
-                          className={liked ? 'liked' : ''}
+                          className={likeState.liked ? 'liked' : ''}
                           onClick={(event) => handleLikePackage(event, pkg._id)}
                         >
-                          {liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
-                          <span>{formatCount(likes)}</span>
+                          {likeState.liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+                          <span>{formatCount(likeState.count)}</span>
                         </button>
                         <Stack>
                           <ChatBubbleIcon />

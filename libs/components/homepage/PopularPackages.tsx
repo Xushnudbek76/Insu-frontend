@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Stack, Box, IconButton } from '@mui/material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import { useRouter } from 'next/router';
@@ -10,6 +10,7 @@ import { GET_PACKAGES } from '@/apollo/user/query';
 import { LIKE_TARGET_PACKAGE } from '@/apollo/package/mutation';
 import { userVar } from '@/apollo/store';
 import { getMeLiked, useLikeToggleMap } from '@/libs/hooks/useLikeToggle';
+import type { LikeState } from '@/libs/types/common';
 import { sweetMixinErrorAlert } from '@/libs/sweetAlert';
 import { toAssetUrl } from '@/libs/api';
 
@@ -59,11 +60,22 @@ const PopularPackages: React.FC = () => {
 	const getPackageImage = (images?: string[] | null) =>
 		toAssetUrl(images?.[0]) ?? '/img/placeholder-article.svg';
 
-	const packageLikes = useLikeToggleMap<PopularPackage>({
-		items: packages,
-		getId: (pkg) => pkg._id,
-		getItemLiked: (pkg) => getMeLiked(pkg.meLiked),
-		getItemCount: (pkg) => pkg.packageLikes,
+	const packageLikeSourceStates = useMemo<Record<string, LikeState>>(
+		() =>
+			Object.fromEntries(
+				packages.map((pkg) => [
+					pkg._id,
+					{
+						liked: getMeLiked(pkg.meLiked),
+						count: pkg.packageLikes ?? 0,
+					},
+				]),
+			),
+		[packages],
+	);
+
+	const packageLikes = useLikeToggleMap({
+		sourceStates: packageLikeSourceStates,
 		isAuthenticated: () => Boolean(userVar()?._id),
 		onUnauthenticated: () => sweetMixinErrorAlert(t('Please login to like packages.')),
 		mutate: async (packageId, optimistic) => {
@@ -82,7 +94,6 @@ const PopularPackages: React.FC = () => {
 		},
 		errorMessage: t('Could not update favorites.'),
 	});
-	const likedByPackage = packageLikes.likedById;
 
 	const handleCardClick = (id: string) => {
 		if (!id) return;
@@ -116,7 +127,7 @@ const PopularPackages: React.FC = () => {
 						{!loading && !error && hasPackages && (
 							<Stack className={'popular-grid'}>
 								{packages.map((pkg) => {
-									const liked = likedByPackage[pkg._id] ?? pkg.meLiked?.[0]?.myFavorite ?? false;
+									const likeState = packageLikes.getState(pkg._id);
 									return (
 										<Box
 											key={pkg._id}
@@ -156,14 +167,14 @@ const PopularPackages: React.FC = () => {
 												>
 													<FavoriteIcon
 														className={
-															'like-icon' + (liked ? ' liked' : '')
+															'like-icon' + (likeState.liked ? ' liked' : '')
 														}
 													/>
 												</IconButton>
 											</Box>
 										</Box>
-									);
-								})}
+										);
+									})}
 							</Stack>
 						)}
 						{!loading && !error && !hasPackages && (
@@ -205,7 +216,7 @@ const PopularPackages: React.FC = () => {
 					{!loading && !error && hasPackages && (
 						<Stack className={'popular-grid'}>
 							{packages.map((pkg) => {
-								const liked = likedByPackage[pkg._id] ?? pkg.meLiked?.[0]?.myFavorite ?? false;
+								const likeState = packageLikes.getState(pkg._id);
 								return (
 									<Box
 										key={pkg._id}
@@ -232,8 +243,8 @@ const PopularPackages: React.FC = () => {
 										<Box component={'div'} className={'package-footer'}>
 											<span className={'package-meta'}>
 												{typeof pkg.packageViews === 'number'
-														? t('views count', { count: pkg.packageViews.toLocaleString() })
-														: t('New insurance')}
+													? t('views count', { count: pkg.packageViews.toLocaleString() })
+													: t('New insurance')}
 											</span>
 											<IconButton
 												className={'like-btn'}
@@ -245,7 +256,7 @@ const PopularPackages: React.FC = () => {
 											>
 												<FavoriteIcon
 													className={
-														'like-icon' + (liked ? ' liked' : '')
+														'like-icon' + (likeState.liked ? ' liked' : '')
 													}
 												/>
 											</IconButton>

@@ -9,7 +9,7 @@ import ChatBubbleOutlineOutlinedIcon from '@mui/icons-material/ChatBubbleOutline
 import { useTranslation } from 'next-i18next/pages';
 import type { BoardArticleCategory } from '@/libs/enums/board-article.enum';
 import { buildPageNumbers } from '@/libs/utils/pagination';
-import type { LikeState } from '@/libs/hooks/useLikeToggle';
+import type { LikeState } from '@/libs/types/common';
 
 interface CategoryConfigItem {
   value: BoardArticleCategory;

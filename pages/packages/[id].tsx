@@ -125,16 +125,19 @@ const PackageDetailPage: NextPage = () => {
     LIKE_TARGET_PACKAGE
   );
 
-  const packageLike = useSingleLikeToggle<PackageDetail>({
-    source: pkg,
-    getSourceLiked: (source) => getMeLiked(source.meLiked),
-    getSourceCount: (source) => source.packageLikes,
+  const packageLike = useSingleLikeToggle({
+    sourceState: {
+      liked: getMeLiked(pkg?.meLiked),
+      count: pkg?.packageLikes ?? 0,
+    },
     isAuthenticated: () => Boolean(userVar()?._id),
     onUnauthenticated: () => sweetMixinErrorAlert(t('Please login to like packages.')),
     mutate: async (optimistic) => {
+      if (!packageId) return optimistic;
+
       const res = await likePackage({ variables: { packageId } });
       const updated = res.data?.likeTargetPackage;
-      if (!updated) return null;
+      if (!updated) return optimistic;
 
       return {
         liked: getMeLiked(updated.meLiked),

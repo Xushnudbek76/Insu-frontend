@@ -1,126 +1,39 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import type { LikeMapOptions, LikeState, SingleLikeOptions } from '@/libs/types/common';
 
-type MaybePromise<T> = T | Promise<T>;
-
-export interface LikeState {
-  liked: boolean;
-  count: number;
-}
-
-export interface FavoriteMarker {
-  myFavorite?: boolean | null;
-}
-
-interface LikeGuardOptions {
-  isAuthenticated: () => boolean;
-  onUnauthenticated: () => MaybePromise<void>;
-  onError: (message: string, error: unknown) => MaybePromise<void>;
-  errorMessage: string;
-}
-
-interface UseSingleLikeToggleOptions<TSource> extends LikeGuardOptions {
-  source?: TSource | null;
-  getSourceLiked: (source: TSource) => boolean;
-  getSourceCount: (source: TSource) => number | null | undefined;
-  mutate: (
-    optimistic: LikeState,
-    previous: LikeState,
-    source: TSource,
-  ) => Promise<LikeState | null | undefined>;
-}
-
-interface UseLikeToggleMapOptions<TItem> extends LikeGuardOptions {
-  items: TItem[];
-  getId: (item: TItem) => string;
-  getItemLiked: (item: TItem) => boolean;
-  getItemCount: (item: TItem) => number | null | undefined;
-  mutate: (
-    id: string,
-    optimistic: LikeState,
-    previous: LikeState,
-    item: TItem | undefined,
-  ) => Promise<LikeState | null | undefined>;
-}
-
-export const toLikeCount = (count?: number | null) =>
-  Math.max(0, count ?? 0);
-
-export const getMeLiked = (meLiked?: FavoriteMarker[] | null) =>
+export const getMeLiked = (
+  meLiked?: { myFavorite?: boolean }[],
+) =>
   meLiked?.[0]?.myFavorite === true;
 
 export const getNextLikeState = (state: LikeState): LikeState => ({
   liked: !state.liked,
-  count: toLikeCount(state.count + (!state.liked ? 1 : -1)),
+  count: state.count + (!state.liked ? 1 : -1),
 });
 
-export const normalizeLikeState = (
-  state: LikeState | null | undefined,
-  fallback: LikeState,
-): LikeState =>
-  state
-    ? {
-        liked: state.liked,
-        count: toLikeCount(state.count),
-      }
-    : fallback;
-
-export const normalizeLikeError = (
-  error: unknown,
-  fallback = 'Could not update likes.',
-) => {
-  const maybeError = error as {
-    graphQLErrors?: { message?: string }[];
-    message?: string;
-  };
-  const rawMessage =
-    maybeError?.graphQLErrors?.[0]?.message ?? maybeError?.message ?? fallback;
-  const message =
-    typeof rawMessage === 'string'
-      ? rawMessage.replace(/^Definer:\s*/, '').trim()
-      : fallback;
-
-  return message || fallback;
+const getLikeErrorMessage = (error: unknown, fallback: string) => {
+  return error instanceof Error ? error.message : fallback;
 };
 
-const buildSourceState = <TSource>(
-  source: TSource,
-  getLiked: (source: TSource) => boolean,
-  getCount: (source: TSource) => number | null | undefined,
-): LikeState => ({
-  liked: getLiked(source),
-  count: toLikeCount(getCount(source)),
-});
-
-const buildFallbackState = (fallback?: Partial<LikeState>): LikeState => ({
-  liked: fallback?.liked ?? false,
-  count: toLikeCount(fallback?.count),
-});
-
-export const useSingleLikeToggle = <TSource>({
-  source,
-  getSourceLiked,
-  getSourceCount,
+export const useSingleLikeToggle = ({
+  sourceState,
   isAuthenticated,
   onUnauthenticated,
   mutate,
   onError,
   errorMessage,
-}: UseSingleLikeToggleOptions<TSource>) => {
+}: SingleLikeOptions) => {
   const pendingRef = useRef(false);
   const [isPending, setIsPending] = useState(false);
-  const [state, setState] = useState<LikeState>(() =>
-    source
-      ? buildSourceState(source, getSourceLiked, getSourceCount)
-      : buildFallbackState(),
-  );
+  const [state, setState] = useState<LikeState>(sourceState);
 
   useEffect(() => {
-    if (!source || pendingRef.current) return;
-    setState(buildSourceState(source, getSourceLiked, getSourceCount));
-  }, [source]);
+    if (pendingRef.current) return;
+    setState(sourceState);
+  }, [sourceState.liked, sourceState.count]);
 
   const toggle = useCallback(async () => {
-    if (!source || pendingRef.current) return;
+    if (pendingRef.current) return;
 
     if (!isAuthenticated()) {
       await onUnauthenticated();
@@ -132,20 +45,23 @@ export const useSingleLikeToggle = <TSource>({
 
     pendingRef.current = true;
     setIsPending(true);
+    // Show the next like state immediately before the backend responds.
     setState(optimistic);
 
     try {
-      const result = await mutate(optimistic, previous, source);
-      setState(normalizeLikeState(result, optimistic));
+      const result = await mutate(optimistic, previous);
+      // Confirm with backend data.
+      setState(result);
     } catch (error) {
+      // If the request fails, restore the state from before the click.
       setState(previous);
-      await onError(normalizeLikeError(error, errorMessage), error);
+      await onError(getLikeErrorMessage(error, errorMessage), error);
     } finally {
       pendingRef.current = false;
       setIsPending(false);
     }
   }, [
-    source,
+    sourceState,
     state,
     isAuthenticated,
     onUnauthenticated,
@@ -162,106 +78,70 @@ export const useSingleLikeToggle = <TSource>({
   };
 };
 
-export const useLikeToggleMap = <TItem>({
-  items,
-  getId,
-  getItemLiked,
-  getItemCount,
+export const useLikeToggleMap = ({
+  sourceStates,
   isAuthenticated,
   onUnauthenticated,
   mutate,
   onError,
   errorMessage,
-}: UseLikeToggleMapOptions<TItem>) => {
+}: LikeMapOptions) => {
   const pendingIdsRef = useRef<Set<string>>(new Set());
   const [states, setStates] = useState<Record<string, LikeState>>({});
+  const [pendingIds, setPendingIds] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
-    if (!items.length) return;
-
     setStates((prev) => {
-      let changed = false;
-      const next = { ...prev };
+      const next = { ...sourceStates };
 
-      items.forEach((item) => {
-        const id = getId(item);
-        if (!id || pendingIdsRef.current.has(id)) return;
-
-        const sourceState = buildSourceState(item, getItemLiked, getItemCount);
-        const existing = next[id];
-        if (
-          !existing ||
-          existing.liked !== sourceState.liked ||
-          existing.count !== sourceState.count
-        ) {
-          next[id] = sourceState;
-          changed = true;
-        }
+      pendingIdsRef.current.forEach((id) => {
+        if (prev[id]) next[id] = prev[id];
       });
 
-      return changed ? next : prev;
+      return next;
     });
-  }, [items]);
-
-  const likedById = useMemo(
-    () =>
-      Object.fromEntries(
-        Object.entries(states).map(([id, itemState]) => [id, itemState.liked]),
-      ) as Record<string, boolean>,
-    [states],
-  );
-
-  const countsById = useMemo(
-    () =>
-      Object.fromEntries(
-        Object.entries(states).map(([id, itemState]) => [id, itemState.count]),
-      ) as Record<string, number>,
-    [states],
-  );
+  }, [sourceStates]);
 
   const getState = useCallback(
-    (id: string, fallback?: Partial<LikeState>) =>
-      states[id] ?? buildFallbackState(fallback),
-    [states],
+    (id: string) => states[id] ?? sourceStates[id] ?? { liked: false, count: 0 },
+    [sourceStates, states],
   );
 
   const toggle = useCallback(
     async (id: string) => {
-      if (!id || pendingIdsRef.current.has(id)) return;
+      if (!id || pendingIdsRef.current.has(id) || !(id in sourceStates)) return;
 
       if (!isAuthenticated()) {
         await onUnauthenticated();
         return;
       }
 
-      const item = items.find((candidate) => getId(candidate) === id);
-      const previous = getState(id, {
-        liked: item ? getItemLiked(item) : false,
-        count: item ? getItemCount(item) ?? 0 : 0,
-      });
+      const previous = getState(id);
       const optimistic = getNextLikeState(previous);
 
       pendingIdsRef.current.add(id);
+      setPendingIds((prev) => ({ ...prev, [id]: true }));
+      // Show the next like state immediately before the backend responds.
       setStates((prev) => ({ ...prev, [id]: optimistic }));
 
       try {
-        const result = await mutate(id, optimistic, previous, item);
+        const result = await mutate(id, optimistic, previous);
+        // Confirm with backend data.
         setStates((prev) => ({
           ...prev,
-          [id]: normalizeLikeState(result, optimistic),
+          [id]: result,
         }));
       } catch (error) {
+        // If the request fails, restore the state from before the click.
         setStates((prev) => ({ ...prev, [id]: previous }));
-        await onError(normalizeLikeError(error, errorMessage), error);
+        await onError(getLikeErrorMessage(error, errorMessage), error);
       } finally {
         pendingIdsRef.current.delete(id);
+        setPendingIds(({ [id]: _removed, ...rest }) => rest);
       }
     },
     [
-      items,
-      getId,
-      getItemLiked,
-      getItemCount,
+      sourceStates,
       isAuthenticated,
       onUnauthenticated,
       mutate,
@@ -272,11 +152,8 @@ export const useLikeToggleMap = <TItem>({
   );
 
   return {
-    states,
-    likedById,
-    countsById,
     getState,
     toggle,
-    isPending: (id: string) => pendingIdsRef.current.has(id),
+    isPending: (id: string) => pendingIds[id] === true,
   };
 };

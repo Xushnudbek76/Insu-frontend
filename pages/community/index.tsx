@@ -21,6 +21,7 @@ import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
 import MobileCommunityPage from '@/libs/components/mobile/community/MobileCommunityPage';
 import { userVar } from '@/apollo/store';
 import { getMeLiked, useLikeToggleMap } from '@/libs/hooks/useLikeToggle';
+import type { LikeState } from '@/libs/types/common';
 import { sweetMixinErrorAlert } from '@/libs/sweetAlert';
 import { BoardArticleCategory } from '@/libs/enums/board-article.enum';
 import { toAssetUrl } from '@/libs/api';
@@ -137,11 +138,22 @@ const CommunityPage: NextPage = () => {
   const total = data?.getBoardArticles.metaCounter?.[0]?.total ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / LIMIT));
 
-  const articleLikes = useLikeToggleMap<BoardArticleData>({
-    items: articles,
-    getId: (article) => article._id,
-    getItemLiked: (article) => getMeLiked(article.meLiked),
-    getItemCount: (article) => article.articleLikes,
+  const articleLikeSourceStates = useMemo<Record<string, LikeState>>(
+    () =>
+      Object.fromEntries(
+        articles.map((article) => [
+          article._id,
+          {
+            liked: getMeLiked(article.meLiked),
+            count: article.articleLikes,
+          },
+        ]),
+      ),
+    [articles],
+  );
+
+  const articleLikes = useLikeToggleMap({
+    sourceStates: articleLikeSourceStates,
     isAuthenticated: () => Boolean(userVar()?._id),
     onUnauthenticated: () => sweetMixinErrorAlert(t('Please login to like posts.')),
     mutate: async (articleId, optimistic) => {
@@ -158,17 +170,13 @@ const CommunityPage: NextPage = () => {
     errorMessage: t('Could not update likes.'),
   });
 
-  const articleLikeStates = useMemo(
+  const articleLikeStates = useMemo<Record<string, LikeState>>(
     () =>
       Object.fromEntries(
-        articles.map((article) => {
-          const likeState = articleLikes.getState(article._id, {
-            liked: getMeLiked(article.meLiked),
-            count: article.articleLikes,
-          });
-
-          return [article._id, likeState];
-        }),
+        articles.map((article) => [
+          article._id,
+          articleLikes.getState(article._id),
+        ]),
       ),
     [articles, articleLikes.getState],
   );

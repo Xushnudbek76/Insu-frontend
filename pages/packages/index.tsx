@@ -17,6 +17,7 @@ import { GET_PACKAGES } from '@/apollo/user/query';
 import { LIKE_TARGET_PACKAGE } from '@/apollo/package/mutation';
 import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
 import { getMeLiked, useLikeToggleMap } from '@/libs/hooks/useLikeToggle';
+import type { LikeState } from '@/libs/types/common';
 import MobilePackagesPage from '@/libs/components/mobile/packages/MobilePackagesPage';
 import {
   PACKAGE_COVERAGE_OPTIONS,
@@ -105,11 +106,22 @@ const PackagesPage: NextPage = () => {
 
   const packages = data?.getPackages?.list ?? [];
 
-  const packageLikes = useLikeToggleMap<InsurancePackage>({
-    items: packages,
-    getId: (pkg) => pkg._id,
-    getItemLiked: (pkg) => getMeLiked(pkg.meLiked),
-    getItemCount: (pkg) => pkg.packageLikes,
+  const packageLikeSourceStates = useMemo<Record<string, LikeState>>(
+    () =>
+      Object.fromEntries(
+        packages.map((pkg) => [
+          pkg._id,
+          {
+            liked: getMeLiked(pkg.meLiked),
+            count: pkg.packageLikes ?? 0,
+          },
+        ]),
+      ),
+    [packages],
+  );
+
+  const packageLikes = useLikeToggleMap({
+    sourceStates: packageLikeSourceStates,
     isAuthenticated: () => Boolean(userVar()?._id),
     onUnauthenticated: () => sweetMixinErrorAlert(t('Please login to like packages.')),
     mutate: async (packageId, optimistic) => {
@@ -129,10 +141,7 @@ const PackagesPage: NextPage = () => {
   const visiblePackages = useMemo(
     () =>
       packages.map((pkg) => {
-        const likeState = packageLikes.getState(pkg._id, {
-          liked: getMeLiked(pkg.meLiked),
-          count: pkg.packageLikes ?? 0,
-        });
+        const likeState = packageLikes.getState(pkg._id);
 
         return {
           ...pkg,

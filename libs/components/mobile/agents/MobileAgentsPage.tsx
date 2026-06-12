@@ -9,6 +9,7 @@ import BadgeOutlinedIcon from '@mui/icons-material/BadgeOutlined';
 import { useTranslation } from 'next-i18next/pages';
 import { formatCount } from '@/libs/utils/format';
 import { buildPageNumbers } from '@/libs/utils/pagination';
+import type { LikeState } from '@/libs/types/common';
 
 interface AgentData {
   _id: string;
@@ -30,8 +31,7 @@ interface MobileAgentsPageProps {
   totalPages: number;
   loading: boolean;
   agents: AgentData[];
-  likedByAgent: Record<string, boolean>;
-  likesByAgent: Record<string, number>;
+  agentLikeStates: Record<string, LikeState>;
   sortOptions: { value: string; labelKey: string }[];
   displayName: (agent: AgentData, fallback: string) => string;
   readableStatus: (status?: string | null) => string;
@@ -52,8 +52,7 @@ const MobileAgentsPage = ({
   totalPages,
   loading,
   agents,
-  likedByAgent,
-  likesByAgent,
+  agentLikeStates,
   sortOptions,
   displayName,
   readableStatus,
@@ -112,8 +111,10 @@ const MobileAgentsPage = ({
       ) : (
         <Box className='mobile-agents-list'>
           {agents.map((agent) => {
-            const liked = likedByAgent[agent._id] ?? agent.meLiked?.[0]?.myFavorite ?? false;
-            const likes = likesByAgent[agent._id] ?? agent.memberLikes;
+            const likeState = agentLikeStates[agent._id] ?? {
+              liked: agent.meLiked?.[0]?.myFavorite === true,
+              count: agent.memberLikes ?? 0,
+            };
             return (
               <Stack key={agent._id} className='mobile-agent-card' onClick={() => onOpenAgent(agent._id)}>
                 <Box component='img' src={agentImage(agent.memberImage)} alt={displayName(agent, t('Insurance Agent'))} className='mobile-agent-photo' />
@@ -128,9 +129,9 @@ const MobileAgentsPage = ({
                       <VisibilityOutlinedIcon />
                       {formatCount(agent.memberViews)}
                     </span>
-                    <button className={liked ? 'liked' : ''} onClick={(event) => onToggleLike(event, agent._id)}>
-                      {liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
-                      {formatCount(likes)}
+                    <button className={likeState.liked ? 'liked' : ''} onClick={(event) => onToggleLike(event, agent._id)}>
+                      {likeState.liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+                      {formatCount(likeState.count)}
                     </button>
                     <span>
                       <ChatBubbleIcon />

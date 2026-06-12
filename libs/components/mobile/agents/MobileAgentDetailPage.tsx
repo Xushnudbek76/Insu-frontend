@@ -15,6 +15,7 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { useTranslation } from 'next-i18next/pages';
 import { buildPageNumbers } from '@/libs/utils/pagination';
 import { formatCount } from '@/libs/utils/format';
+import type { LikeState } from '@/libs/types/common';
 
 interface AgentDetail {
   _id: string;
@@ -95,8 +96,7 @@ interface MobileAgentDetailPageProps {
   reviewTotal: number;
   reviewTotalPages: number;
   reviewsLoading: boolean;
-  packageLiked: Record<string, boolean>;
-  packageLikes: Record<string, number>;
+  packageLikeStates: Record<string, LikeState>;
   getAsset: (path?: string | null) => string;
   getPackageImage: (images?: string[] | null) => string;
   displayName: (agent?: AgentDetail | null) => string;
@@ -139,8 +139,7 @@ const MobileAgentDetailPage = ({
   reviewTotal,
   reviewTotalPages,
   reviewsLoading,
-  packageLiked,
-  packageLikes,
+  packageLikeStates,
   getAsset,
   getPackageImage,
   displayName,
@@ -281,8 +280,10 @@ const MobileAgentDetailPage = ({
         ) : (
           <Box className='mobile-packages-list'>
             {listings.map((pkg) => {
-              const liked = packageLiked[pkg._id] ?? pkg.meLiked?.[0]?.myFavorite ?? false;
-              const likes = packageLikes[pkg._id] ?? pkg.packageLikes;
+              const likeState = packageLikeStates[pkg._id] ?? {
+                liked: pkg.meLiked?.[0]?.myFavorite === true,
+                count: pkg.packageLikes ?? 0,
+              };
               return (
                 <Stack key={pkg._id} className='mobile-package-card' onClick={() => onOpenPackage(pkg._id)}>
                   <Box className='mobile-package-image' style={{ backgroundImage: `url(${getPackageImage(pkg.packageImages)})` }} />
@@ -298,9 +299,9 @@ const MobileAgentDetailPage = ({
                     </Stack>
                     <Stack className='mobile-package-stats'>
                       <span><VisibilityOutlinedIcon />{formatCount(pkg.packageViews)}</span>
-                      <button className={liked ? 'liked' : ''} onClick={(event) => onLikePackage(event, pkg._id)}>
-                        {liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
-                        {formatCount(likes)}
+                      <button className={likeState.liked ? 'liked' : ''} onClick={(event) => onLikePackage(event, pkg._id)}>
+                        {likeState.liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+                        {formatCount(likeState.count)}
                       </button>
                       <span><ChatBubbleIcon />{formatCount(pkg.packageComments)}</span>
                     </Stack>

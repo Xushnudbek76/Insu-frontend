@@ -131,18 +131,21 @@ const CommunityDetailPage: NextPage = () => {
       minute: '2-digit',
     });
 
-  const articleLike = useSingleLikeToggle<BoardArticleData>({
-    source: article,
-    getSourceLiked: (source) => getMeLiked(source.meLiked),
-    getSourceCount: (source) => source.articleLikes,
+  const articleLike = useSingleLikeToggle({
+    sourceState: {
+      liked: getMeLiked(article?.meLiked),
+      count: article?.articleLikes ?? 0,
+    },
     isAuthenticated: () => Boolean(userVar()?._id),
     onUnauthenticated: () => sweetMixinErrorAlert(t('Please login to like posts.')),
-    mutate: async (optimistic, _previous, source) => {
+    mutate: async (optimistic) => {
+      if (!articleId) return optimistic;
+
       const result = await likeTargetBoardArticle({
-        variables: { articleId: source._id },
+        variables: { articleId },
       });
       const updated = result.data?.likeTargetBoardArticle;
-      if (!updated) return null;
+      if (!updated) return optimistic;
 
       return {
         liked: optimistic.liked,
