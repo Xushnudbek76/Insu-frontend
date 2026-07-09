@@ -1,24 +1,24 @@
-import { useState, useMemo, useEffect } from 'react';
-import { NextPage } from 'next';
-import { useRouter } from 'next/router';
-import { Box } from '@mui/material';
-import { useQuery, useMutation } from '@apollo/client/react';
-import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import ChatBubbleOutlinedIcon from '@mui/icons-material/ChatBubbleOutlined';
-import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
-import withLayoutMain from '@/layout/LayoutHome';
-import { userVar } from '@/apollo/store';
-import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
-import { getMeLiked, useSingleLikeToggle } from '@/libs/hooks/useLikeToggle';
-import { GET_PACKAGE, GET_PACKAGES } from '@/apollo/user/query';
-import { GET_COMMENTS } from '@/apollo/comment/query';
-import { LIKE_TARGET_PACKAGE } from '@/apollo/package/mutation';
-import { sweetMixinErrorAlert } from '@/libs/sweetAlert';
-import { formatCount } from '@/libs/utils/format';
-import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
-import { useTranslation } from 'next-i18next/pages';
+import { useState, useMemo, useEffect } from "react";
+import { NextPage } from "next";
+import { useRouter } from "next/router";
+import { Box } from "@mui/material";
+import { useQuery, useMutation } from "@apollo/client/react";
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import ChatBubbleOutlinedIcon from "@mui/icons-material/ChatBubbleOutlined";
+import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
+import withLayoutMain from "@/layout/LayoutHome";
+import { userVar } from "@/apollo/store";
+import useDeviceDetect from "@/libs/hooks/useDeviceDetect";
+import { getMeLiked, useSingleLikeToggle } from "@/libs/hooks/useLikeToggle";
+import { GET_PACKAGE, GET_PACKAGES } from "@/apollo/user/query";
+import { GET_COMMENTS } from "@/apollo/comment/query";
+import { LIKE_TARGET_PACKAGE } from "@/apollo/package/mutation";
+import { sweetMixinErrorAlert } from "@/libs/sweetAlert";
+import { formatCount } from "@/libs/utils/format";
+import { serverSideTranslations } from "next-i18next/pages/serverSideTranslations";
+import { useTranslation } from "next-i18next/pages";
 import {
   PackageDetailSkeleton,
   PackageDetailError,
@@ -29,29 +29,29 @@ import {
   RelatedPackages,
   getPackageImage,
   typeLabel,
-} from '@/libs/components/packages';
-import MobilePackageDetailPage from '@/libs/components/mobile/packages/MobilePackageDetailPage';
+} from "@/libs/components/packages";
+import MobilePackageDetailPage from "@/libs/components/mobile/packages/MobilePackageDetailPage";
 import type {
   PackageDetail,
   Comment,
   RelatedPackage,
-} from '@/libs/components/packages';
+} from "@/libs/components/packages";
 
 export const getServerSideProps = async ({
-  locale = 'en',
+  locale = "en",
 }: {
   locale?: string;
 }) => ({
   props: {
-    ...(await serverSideTranslations(locale, ['common'])),
+    ...(await serverSideTranslations(locale, ["common"])),
   },
 });
 
 const PackageDetailPage: NextPage = () => {
   const router = useRouter();
-  const { t } = useTranslation('common');
+  const { t } = useTranslation("common");
   const device = useDeviceDetect();
-  const packageId = typeof router.query.id === 'string' ? router.query.id : '';
+  const packageId = typeof router.query.id === "string" ? router.query.id : "";
 
   const [comments, setComments] = useState<Comment[]>([]);
   const [commentTotal, setCommentTotal] = useState(0);
@@ -68,8 +68,8 @@ const PackageDetailPage: NextPage = () => {
       input: {
         page: 1,
         limit: 4,
-        sort: 'packageViews',
-        direction: 'DESC',
+        sort: "packageViews",
+        direction: "DESC",
         search: {},
       },
     }),
@@ -83,19 +83,19 @@ const PackageDetailPage: NextPage = () => {
   } = useQuery<{ getPackage: PackageDetail }>(GET_PACKAGE, {
     variables: { packageId },
     skip: !packageId,
-    fetchPolicy: 'cache-and-network',
-    nextFetchPolicy: 'cache-first',
+    fetchPolicy: "cache-and-network",
+    nextFetchPolicy: "cache-first",
   });
 
   const pkg = packageData?.getPackage ?? null;
 
-  const { data: commentsData } = useQuery<{
+  const { data: commentsData, refetch: refetchComments } = useQuery<{
     getComments: { list: Comment[]; metaCounter: { total: number }[] };
   }>(GET_COMMENTS, {
     variables: commentsQueryVariables,
     skip: !packageId,
-    fetchPolicy: 'cache-and-network',
-    nextFetchPolicy: 'cache-first',
+    fetchPolicy: "network-only",
+    nextFetchPolicy: "cache-first",
   });
 
   useEffect(() => {
@@ -110,8 +110,8 @@ const PackageDetailPage: NextPage = () => {
   }>(GET_PACKAGES, {
     variables: relatedPackagesQueryVariables,
     skip: !pkg,
-    fetchPolicy: 'cache-and-network',
-    nextFetchPolicy: 'cache-first',
+    fetchPolicy: "cache-and-network",
+    nextFetchPolicy: "cache-first",
   });
 
   const related = useMemo(() => {
@@ -122,7 +122,7 @@ const PackageDetailPage: NextPage = () => {
   }, [relatedData, pkg]);
 
   const [likePackage] = useMutation<{ likeTargetPackage: PackageDetail }>(
-    LIKE_TARGET_PACKAGE
+    LIKE_TARGET_PACKAGE,
   );
 
   const packageLike = useSingleLikeToggle({
@@ -131,7 +131,8 @@ const PackageDetailPage: NextPage = () => {
       count: pkg?.packageLikes ?? 0,
     },
     isAuthenticated: () => Boolean(userVar()?._id),
-    onUnauthenticated: () => sweetMixinErrorAlert(t('Please login to like packages.')),
+    onUnauthenticated: () =>
+      sweetMixinErrorAlert(t("Please login to like packages.")),
     mutate: async (optimistic) => {
       if (!packageId) return optimistic;
 
@@ -145,25 +146,26 @@ const PackageDetailPage: NextPage = () => {
       };
     },
     onError: (message) => sweetMixinErrorAlert(message),
-    errorMessage: t('Error updating like.'),
+    errorMessage: t("Error updating like."),
   });
 
   const handleCommentAdded = (newComment: Comment) => {
     setComments((prev) => [newComment, ...prev]);
     setCommentTotal((t) => t + 1);
+    refetchComments();
   };
 
   if (packageLoading) return <PackageDetailSkeleton />;
 
   if (packageError) {
     const gqlError = packageError as any;
-    const msg = gqlError?.graphQLErrors?.[0]?.message ?? '';
+    const msg = gqlError?.graphQLErrors?.[0]?.message ?? "";
     return (
       <PackageDetailError
         message={
-          msg === 'No data found!'
-            ? t('Insurance not found.')
-            : t('Failed to load. Please try again.')
+          msg === "No data found!"
+            ? t("Insurance not found.")
+            : t("Failed to load. Please try again.")
         }
         onBack={() => router.back()}
       />
@@ -172,7 +174,7 @@ const PackageDetailPage: NextPage = () => {
 
   if (!pkg) return null;
 
-  if (device === 'mobile') {
+  if (device === "mobile") {
     return (
       <MobilePackageDetailPage
         packageId={packageId}
@@ -182,7 +184,7 @@ const PackageDetailPage: NextPage = () => {
         related={related}
         liked={packageLike.liked}
         likeCount={packageLike.count}
-        onBack={() => router.push('/packages')}
+        onBack={() => router.push("/packages")}
         onLike={packageLike.toggle}
         onCommentAdded={handleCommentAdded}
       />
@@ -190,55 +192,55 @@ const PackageDetailPage: NextPage = () => {
   }
 
   return (
-    <Box className={'pd-page'}>
-      <Box className={'pd-container'}>
-        <Box className={'pd-main'}>
-          <Box className={'pd-header'}>
-            <Box className={'pd-badges'}>
-              <span className={'pd-type-badge'}>
+    <Box className={"pd-page"}>
+      <Box className={"pd-container"}>
+        <Box className={"pd-main"}>
+          <Box className={"pd-header"}>
+            <Box className={"pd-badges"}>
+              <span className={"pd-type-badge"}>
                 {t(typeLabel(pkg.packageType))}
               </span>
-              {pkg.packageStatus === 'ACTIVE' && (
-                <span className={'pd-status-active'}>
-                  <CheckCircleOutlinedIcon /> {t('Active')}
+              {pkg.packageStatus === "ACTIVE" && (
+                <span className={"pd-status-active"}>
+                  <CheckCircleOutlinedIcon /> {t("Active")}
                 </span>
               )}
             </Box>
-            <h1 className={'pd-title'}>{pkg.packageTitle}</h1>
+            <h1 className={"pd-title"}>{pkg.packageTitle}</h1>
           </Box>
 
-          <Box className={'pd-hero-img'}>
+          <Box className={"pd-hero-img"}>
             <Box
-              className={'pd-hero-bg'}
+              className={"pd-hero-bg"}
               style={{
                 backgroundImage: `url(${getPackageImage(pkg.packageImages)})`,
               }}
             />
-            <Box className={'pd-hero-overlay'} />
+            <Box className={"pd-hero-overlay"} />
           </Box>
 
-          <Box className={'pd-stats'}>
-            <span className={'pd-stat'}>
+          <Box className={"pd-stats"}>
+            <span className={"pd-stat"}>
               <VisibilityOutlinedIcon />
-              {formatCount(pkg.packageViews)} {t('Views')}
+              {formatCount(pkg.packageViews)} {t("Views")}
             </span>
             <button
-              className={`pd-stat pd-like${packageLike.liked ? ' liked' : ''}`}
+              className={`pd-stat pd-like${packageLike.liked ? " liked" : ""}`}
               onClick={packageLike.toggle}
             >
               {packageLike.liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
-              {formatCount(packageLike.count)} {t('Likes')}
+              {formatCount(packageLike.count)} {t("Likes")}
             </button>
-            <span className={'pd-stat'}>
+            <span className={"pd-stat"}>
               <ChatBubbleOutlinedIcon />
-              {formatCount(commentTotal)} {t('Comments')}
+              {formatCount(commentTotal)} {t("Comments")}
             </span>
           </Box>
 
           {pkg.packageDesc && (
-            <Box component={'section'}>
-              <h2 className={'pd-section-title'}>{t('Package Overview')}</h2>
-              <p className={'pd-overview-text'}>{pkg.packageDesc}</p>
+            <Box component={"section"}>
+              <h2 className={"pd-section-title"}>{t("Package Overview")}</h2>
+              <p className={"pd-overview-text"}>{pkg.packageDesc}</p>
             </Box>
           )}
 
@@ -257,7 +259,7 @@ const PackageDetailPage: NextPage = () => {
           />
         </Box>
 
-        <Box component={'aside'} className={'pd-sidebar'}>
+        <Box component={"aside"} className={"pd-sidebar"}>
           <PackagePricingCard
             packageId={packageId}
             price={pkg.packagePrice}
