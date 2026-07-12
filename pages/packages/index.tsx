@@ -64,29 +64,21 @@ const PackagesPage: NextPage = () => {
 
   const [page, setPage] = useState(1);
   const [sort, setSort] = useState('createdAt');
-  const [appliedFilters, setAppliedFilters] = useState<PackageFilterValues>({
-    selectedType: '',
-    selectedStatus: '',
-    searchText: '',
-    priceMin: '',
-    priceMax: '',
-    coverageLimit: '',
-  });
 
   const search = useMemo(() => {
     const nextSearch: Record<string, unknown> = {};
 
-    if (appliedFilters.selectedType) nextSearch.packageType = appliedFilters.selectedType;
-    if (appliedFilters.selectedStatus) nextSearch.packageStatus = appliedFilters.selectedStatus;
-    if (appliedFilters.searchText.trim()) nextSearch.text = appliedFilters.searchText.trim();
-    if (appliedFilters.priceMin) nextSearch.priceMin = Number(appliedFilters.priceMin);
-    if (appliedFilters.priceMax) nextSearch.priceMax = Number(appliedFilters.priceMax);
-    if (appliedFilters.coverageLimit) {
-      nextSearch.coverageMin = Number(appliedFilters.coverageLimit);
+    if (filterValues.selectedType) nextSearch.packageType = filterValues.selectedType;
+    if (filterValues.selectedStatus) nextSearch.packageStatus = filterValues.selectedStatus;
+    if (filterValues.searchText.trim()) nextSearch.text = filterValues.searchText.trim();
+    if (filterValues.priceMin) nextSearch.priceMin = Number(filterValues.priceMin);
+    if (filterValues.priceMax) nextSearch.priceMax = Number(filterValues.priceMax);
+    if (filterValues.coverageLimit) {
+      nextSearch.coverageMin = Number(filterValues.coverageLimit);
     }
 
     return nextSearch;
-  }, [appliedFilters]);
+  }, [filterValues]);
 
   const packageQueryVariables = useMemo(
     () => ({
@@ -162,9 +154,9 @@ const PackagesPage: NextPage = () => {
     console.error('getPackages error', error);
   }, [error]);
 
-  const handleApplyFilters = () => {
+  const handleFilterChange = (values: PackageFilterValues) => {
+    setFilterValues(values);
     setPage(1);
-    setAppliedFilters(filterValues);
   };
 
   const handleToggleLike = (e: MouseEvent, id: string) => {
@@ -182,7 +174,6 @@ const PackagesPage: NextPage = () => {
     return (
       <MobilePackagesPage
         filterValues={filterValues}
-        setFilterValues={setFilterValues}
         typeOptions={PACKAGE_TYPE_OPTIONS}
         statusOptions={PACKAGE_STATUS_FILTER_OPTIONS}
         coverageOptions={PACKAGE_COVERAGE_OPTIONS}
@@ -196,7 +187,7 @@ const PackagesPage: NextPage = () => {
         getImage={getImage}
         typeLabel={(value) => t(typeLabel(value))}
         formatCoverage={formatCoverage}
-        onApplyFilters={handleApplyFilters}
+        onFilterChange={handleFilterChange}
         onSortChange={(value) => {
           setSort(value);
           setPage(1);
@@ -219,14 +210,13 @@ const PackagesPage: NextPage = () => {
         </p>
       </Box>
 
-          <Box className={'packages-body'}>
+      <Box className={'packages-body'}>
         <PackageFilter
           values={filterValues}
           typeOptions={PACKAGE_TYPE_OPTIONS}
           statusOptions={PACKAGE_STATUS_FILTER_OPTIONS}
           coverageOptions={PACKAGE_COVERAGE_OPTIONS}
-          onChange={setFilterValues}
-          onApply={handleApplyFilters}
+          onChange={handleFilterChange}
         />
 
         <Box className={'packages-content'}>

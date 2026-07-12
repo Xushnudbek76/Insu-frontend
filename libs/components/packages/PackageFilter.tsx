@@ -19,7 +19,6 @@ interface PackageFilterProps {
   statusOptions: PackageSelectOption[];
   coverageOptions: PackageSelectOption[];
   onChange: (values: PackageFilterValues) => void;
-  onApply: () => void;
 }
 
 const PackageFilter = ({
@@ -28,7 +27,6 @@ const PackageFilter = ({
   statusOptions,
   coverageOptions,
   onChange,
-  onApply,
 }: PackageFilterProps) => {
   const { t } = useTranslation('common');
 
@@ -126,10 +124,6 @@ const PackageFilter = ({
           ))}
         </select>
       </Box>
-
-      <button className={'apply-btn'} onClick={onApply}>
-        {t('Apply Filters')}
-      </button>
     </Box>
   );
 };

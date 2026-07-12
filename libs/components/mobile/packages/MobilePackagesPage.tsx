@@ -1,4 +1,4 @@
-import { Dispatch, MouseEvent, SetStateAction, useState } from 'react';
+import { MouseEvent, useState } from 'react';
 import { Box, Stack } from '@mui/material';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -33,7 +33,7 @@ interface InsurancePackage {
 
 interface MobilePackagesPageProps {
   filterValues: PackageFilterValues;
-  setFilterValues: Dispatch<SetStateAction<PackageFilterValues>>;
+  onFilterChange: (values: PackageFilterValues) => void;
   typeOptions: PackageSelectOption[];
   statusOptions: PackageSelectOption[];
   coverageOptions: PackageSelectOption[];
@@ -47,7 +47,6 @@ interface MobilePackagesPageProps {
   getImage: (images?: string[] | null) => string;
   typeLabel: (value: string) => string;
   formatCoverage: (value?: number | null) => string | null;
-  onApplyFilters: () => void;
   onSortChange: (value: string) => void;
   onPageChange: (page: number) => void;
   onOpenPackage: (packageId: string) => void;
@@ -56,7 +55,7 @@ interface MobilePackagesPageProps {
 
 const MobilePackagesPage = ({
   filterValues,
-  setFilterValues,
+  onFilterChange,
   typeOptions,
   statusOptions,
   coverageOptions,
@@ -70,7 +69,6 @@ const MobilePackagesPage = ({
   getImage,
   typeLabel,
   formatCoverage,
-  onApplyFilters,
   onSortChange,
   onPageChange,
   onOpenPackage,
@@ -111,11 +109,7 @@ const MobilePackagesPage = ({
             typeOptions={typeOptions}
             statusOptions={statusOptions}
             coverageOptions={coverageOptions}
-            onChange={setFilterValues}
-            onApply={() => {
-              onApplyFilters();
-              setFiltersOpen(false);
-            }}
+            onChange={onFilterChange}
           />
         </Box>
       )}

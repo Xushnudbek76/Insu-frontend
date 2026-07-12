@@ -163,27 +163,6 @@ $mono: "JetBrains Mono", monospace;
                     border-color: $pkg-blue;
                 }
             }
-
-            .apply-btn {
-                margin-top: 8px;
-                width: 100%;
-                padding: 12px;
-                background: $pkg-blue;
-                color: #ffffff;
-                border: none;
-                border-radius: 8px;
-                font-family: $hk;
-                font-size: 15px;
-                font-weight: 600;
-                cursor: pointer;
-                transition: filter 0.2s;
-                &:hover {
-                    filter: brightness(1.1);
-                }
-                &:active {
-                    filter: brightness(0.92);
-                }
-            }
         }
 
         .packages-content {
