@@ -1,18 +1,18 @@
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 
-const SITE_NAME = 'INSU Web';
-const DEFAULT_TITLE = 'INSU Web | Insurance Platform Portfolio';
+const SITE_NAME = 'INSU AI';
+const DEFAULT_TITLE = 'INSU AI | Insurance Platform ';
 const DEFAULT_DESCRIPTION =
-  'INSU Web is a full-stack insurance platform frontend for browsing plans, comparing coverage, managing policies, submitting claims, and joining a customer community.';
+  'INSU AI is a full-stack insurance platform frontend for browsing plans, comparing coverage, managing policies, submitting claims, and joining a customer community.';
 const KEYWORDS = [
-  'INSU Web',
+  'INSU AI',
   'insurance platform',
   'insurance marketplace',
-  'Next.js portfolio',
+  'Next.js insurance app',
   'GraphQL insurance app',
   'Apollo Client',
-  'full-stack portfolio',
+  'full-stack insurance platform',
 ];
 const DEFAULT_IMAGE = '/img/hero-img/health.webp';
 
