@@ -8,6 +8,8 @@ import Advertisement from '@/libs/components/homepage/Advertisement';
 import HomeComments from '@/libs/components/homepage/HomeComments';
 import BoardArticles from '@/libs/components/homepage/BoardArticles';
 import Header from '@/libs/components/homepage/Header';
+import HomeFaq from '@/libs/components/homepage/HomeFaq';
+import HomeCta from '@/libs/components/homepage/HomeCta';
 import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
 
 export const getStaticProps = async ({ locale = 'en' }: { locale?: string }) => ({
@@ -24,10 +26,12 @@ const HomePage: NextPage = () => {
 			<Stack className={'home-page'}>
 				<Header />
 				<InsuranceAdviser />
-				<PopularPackages />
-				<Advertisement />
 				<HomeComments />
+				<Advertisement />
+				<PopularPackages />
 				<BoardArticles />
+				<HomeFaq />
+				<HomeCta />
 			</Stack>
 		);
 	} else {
@@ -35,10 +39,12 @@ const HomePage: NextPage = () => {
 			<Stack className={'home-page'}>
 				<Header />
 				<InsuranceAdviser />
-				<PopularPackages />
-				<Advertisement />
 				<HomeComments />
+				<Advertisement />
+				<PopularPackages />
 				<BoardArticles />
+				<HomeFaq />
+				<HomeCta />
 			</Stack>
 		);
 	}

@@ -1,4 +1,4 @@
-import { ChangeEvent, MouseEvent } from 'react';
+import { ChangeEvent, MouseEvent, SyntheticEvent } from 'react';
 import { Box, Stack } from '@mui/material';
 import PhoneOutlinedIcon from '@mui/icons-material/PhoneOutlined';
 import PersonAddAltOutlinedIcon from '@mui/icons-material/PersonAddAltOutlined';
@@ -7,6 +7,7 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import ChatBubbleIcon from '@mui/icons-material/ChatBubble';
+import ChatBubbleOutlineRoundedIcon from '@mui/icons-material/ChatBubbleOutlineRounded';
 import StarBorderOutlinedIcon from '@mui/icons-material/StarBorderOutlined';
 import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
 import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
@@ -98,6 +99,7 @@ interface MobileAgentDetailPageProps {
   reviewsLoading: boolean;
   packageLikeStates: Record<string, LikeState>;
   getAsset: (path?: string | null) => string;
+  onAvatarError: (event: SyntheticEvent<HTMLImageElement>) => void;
   getPackageImage: (images?: string[] | null) => string;
   displayName: (agent?: AgentDetail | null) => string;
   readableStatus: (status?: string | null) => string;
@@ -141,6 +143,7 @@ const MobileAgentDetailPage = ({
   reviewsLoading,
   packageLikeStates,
   getAsset,
+  onAvatarError,
   getPackageImage,
   displayName,
   readableStatus,
@@ -170,10 +173,10 @@ const MobileAgentDetailPage = ({
       </button>
 
       <Stack className='mobile-agent-profile-card'>
-        <Box component='img' src={getAsset(agent.memberImage)} alt={displayName(agent)} className='mobile-agent-profile-photo' />
+        <Box component='img' src={getAsset(agent.memberImage)} alt={displayName(agent)} className='mobile-agent-profile-photo' onError={onAvatarError} />
         <span>{t(readableStatus(agent.memberStatus))}</span>
         <h1>{displayName(agent)}</h1>
-        <small>{agent.memberType || t('Agent')}</small>
+        <small>{agent.memberType ? t(readableStatus(agent.memberType)) : t('Agent')}</small>
         <div className='mobile-agent-phone'>
           <PhoneOutlinedIcon />
           <strong>{agent.memberPhone || t('Contact unavailable')}</strong>
@@ -233,7 +236,7 @@ const MobileAgentDetailPage = ({
               const alreadyFollowing = item.meFollowed?.[0]?.myFollowing ?? false;
               return (
                 <Stack key={item._id} className='mobile-network-card'>
-                  <Box component='img' src={getAsset(member?.memberImage)} alt={name} />
+                  <Box component='img' src={getAsset(member?.memberImage)} alt={name} onError={onAvatarError} />
                   <div>
                     <strong>{name}</strong>
                     <span>{member?.memberType || t('Member')}</span>
@@ -303,7 +306,7 @@ const MobileAgentDetailPage = ({
                         {likeState.liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
                         {formatCount(likeState.count)}
                       </button>
-                      <span><ChatBubbleIcon />{formatCount(pkg.packageComments)}</span>
+                      <span><ChatBubbleOutlineRoundedIcon />{formatCount(pkg.packageComments)}</span>
                     </Stack>
                   </Stack>
                 </Stack>
@@ -344,7 +347,7 @@ const MobileAgentDetailPage = ({
             {reviews.map((review) => (
               <Stack key={review._id} className='mobile-review-card'>
                 <div className='mobile-review-head'>
-                  <Box component='img' src={getAsset(review.memberData?.memberImage)} alt={review.memberData?.memberNick ?? t('Member')} />
+                  <Box component='img' src={getAsset(review.memberData?.memberImage)} alt={review.memberData?.memberNick ?? t('Member')} onError={onAvatarError} />
                   <div>
                     <strong>{review.memberData?.memberNick ?? t('Member')}</strong>
                     <span>{formatDate(review.createdAt, routerLocale)}</span>

@@ -96,7 +96,8 @@ const PackagesPage: NextPage = () => {
     LIKE_TARGET_PACKAGE,
   );
 
-  const packages = data?.getPackages?.list ?? [];
+  // A fresh `[]` on every render would re-run the like-state sync effect forever while loading.
+  const packages = useMemo(() => data?.getPackages?.list ?? [], [data]);
 
   const packageLikeSourceStates = useMemo<Record<string, LikeState>>(
     () =>

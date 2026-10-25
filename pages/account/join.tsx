@@ -1,3 +1,5 @@
+import { useRouter } from 'next/router';
+import { getInternalReturnPath } from '@/libs/utils/internalReturnPath';
 import { useState } from "react";
 import { NextPage } from "next";
 import {
@@ -32,6 +34,7 @@ export const getStaticProps = async ({
 });
 
 const JoinPage: NextPage = () => {
+  const router = useRouter();
   const { t } = useTranslation("common");
   const device = useDeviceDetect();
   const [activeTab, setActiveTab] = useState(0);
@@ -61,7 +64,7 @@ const JoinPage: NextPage = () => {
         memberPassword: loginPassword,
       });
       await sweetTopSuccessAlert(t("Welcome back!"));
-      window.location.href = "/";
+      void router.push(getInternalReturnPath(router.query.returnTo));
     } catch (err: any) {
       setError(err?.message ?? t("Login failed"));
     } finally {
@@ -81,7 +84,7 @@ const JoinPage: NextPage = () => {
         memberType: signupType,
       });
       await sweetTopSuccessAlert(t("Account created successfully!"));
-      window.location.href = "/";
+      void router.push(getInternalReturnPath(router.query.returnTo));
     } catch (err: any) {
       setError(err?.message ?? t("Signup failed"));
     } finally {

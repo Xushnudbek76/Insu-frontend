@@ -88,7 +88,8 @@ const AgentsPage: NextPage = () => {
     LIKE_TARGET_MEMBER,
   );
 
-  const agents = data?.getAgents.list ?? [];
+  // A fresh `[]` on every render would re-run the like-state sync effect forever while loading.
+  const agents = useMemo(() => data?.getAgents.list ?? [], [data]);
   const total = data?.getAgents.metaCounter?.[0]?.total ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / LIMIT));
 

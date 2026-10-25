@@ -134,7 +134,8 @@ const CommunityPage: NextPage = () => {
     likeTargetBoardArticle: { _id: string; articleLikes: number };
   }>(LIKE_TARGET_BOARD_ARTICLE);
 
-  const articles = data?.getBoardArticles.list ?? [];
+  // A fresh `[]` on every render would re-run the like-state sync effect forever while loading.
+  const articles = useMemo(() => data?.getBoardArticles.list ?? [], [data]);
   const total = data?.getBoardArticles.metaCounter?.[0]?.total ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / LIMIT));
 

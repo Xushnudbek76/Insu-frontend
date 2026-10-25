@@ -86,11 +86,10 @@
         }
 
         h2 {
+            @include serif-heading;
             margin: 14px 0 6px;
             font-size: 27px;
             line-height: 1.05;
-            font-weight: 900;
-            letter-spacing: -0.05em;
         }
 
         p {
@@ -234,11 +233,10 @@
         }
 
         h1 {
+            @include serif-heading;
             margin: 12px 0 10px;
             font-size: 46px;
             line-height: 1.02;
-            font-weight: 900;
-            letter-spacing: -0.06em;
         }
 
         p {
@@ -290,11 +288,10 @@
         }
 
         h2 {
+            @include serif-heading;
             margin: 9px 0 0;
             font-size: 32px;
             line-height: 1.08;
-            font-weight: 900;
-            letter-spacing: -0.05em;
         }
 
         select,
@@ -486,10 +483,9 @@
         }
 
         h2 {
+            @include serif-heading;
             margin: 16px 0 10px;
             font-size: 27px;
-            font-weight: 900;
-            letter-spacing: -0.04em;
         }
 
         p {

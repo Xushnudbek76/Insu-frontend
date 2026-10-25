@@ -3,6 +3,7 @@ import { Stack, Box } from '@mui/material';
 import { useRouter } from 'next/router';
 import { useLazyQuery } from '@apollo/client/react';
 import { useTranslation } from 'next-i18next/pages';
+import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
 import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
 import { GET_INSURANCE_RECOMMENDATION } from '@/apollo/user/query';
 
@@ -45,6 +46,12 @@ const INSURANCE_TYPE_OPTIONS: { value: InsuranceTypeValue; label: string }[] = [
 	{ value: 'HOME', label: 'Home' },
 	{ value: 'HEALTH', label: 'Health' },
 	{ value: 'TRAVEL', label: 'Travel' },
+];
+
+const ADVISER_STEPS = [
+	'Pick what you want to cover',
+	'Add your age and a monthly budget',
+	'Get a shortlist with the reasons behind it',
 ];
 
 const InsuranceAdviser: React.FC = () => {
@@ -125,11 +132,21 @@ const InsuranceAdviser: React.FC = () => {
 				<Stack className={'ai-header'}>
 					<Box component={'div'} className={'ai-header-text'}>
 						<span className={'section-label'}>{t('AI Recommendation')}</span>
-						<strong className={'section-title'}>{t('AI Insurance Advisor')}</strong>
+						<h2 className={'section-title'}>{t('AI Insurance Advisor')}</h2>
 						<p className={'section-desc'}>
 							{t("Tell us what you want to protect and we'll suggest the best insurance plans for you.")}
 						</p>
 					</Box>
+					<ol className={'ai-steps'}>
+						{ADVISER_STEPS.map((step, index) => (
+							<li key={step}>
+								<span className={'step-num'}>
+									{index + 1}/{ADVISER_STEPS.length}
+								</span>
+								<span className={'step-text'}>{t(step)}</span>
+							</li>
+						))}
+					</ol>
 				</Stack>
 				<Stack className={'ai-content'}>
 					<Box component={'form'} className={'ai-form'} onSubmit={handleSubmit}>
@@ -196,8 +213,9 @@ const InsuranceAdviser: React.FC = () => {
 						{(error || apiError) && !formError && (
 							<p className={'form-error'}>{getErrorMessage()}</p>
 						)}
-						<button type="submit" className={'primary-btn'} disabled={loading}>
+						<button type="submit" className={'home-btn primary'} disabled={loading}>
 							{loading ? t('Asking AI...') : t('Get recommendation')}
+							<ArrowForwardRoundedIcon />
 						</button>
 					</Box>
 					<Box component={'div'} className={'ai-result'}>

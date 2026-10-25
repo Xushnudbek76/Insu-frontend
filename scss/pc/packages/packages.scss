@@ -1,15 +1,9 @@
-@import url("https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap");
-
 $pkg-blue: #0058be;
 $pkg-bg: #f8f9ff;
 $pkg-white: #ffffff;
 $pkg-border: #e2e8f0;
 $pkg-grey: #64748b;
 $pkg-dark: #0b1c30;
-
-$hk: "Hanken Grotesk", sans-serif;
-$inter: "Inter", sans-serif;
-$mono: "JetBrains Mono", monospace;
 
 #pc-wrap {
     .packages-page {
@@ -26,18 +20,16 @@ $mono: "JetBrains Mono", monospace;
             gap: 16px;
 
             .hero-title {
-                font-family: $hk;
+                @include serif-heading;
                 font-size: 44px;
-                font-weight: 700;
                 color: #ffffff;
                 line-height: 1.15;
-                letter-spacing: -0.02em;
                 margin: 0;
                 max-width: 700px;
             }
 
             .hero-sub {
-                font-family: $inter;
+                font-family: $font;
                 font-size: 17px;
                 color: rgba(255, 255, 255, 0.65);
                 line-height: 1.6;
@@ -68,14 +60,13 @@ $mono: "JetBrains Mono", monospace;
             flex-direction: column;
 
             .filters-title {
-                font-family: $hk;
+                @include serif-heading;
                 font-size: 18px;
-                font-weight: 700;
                 color: $pkg-dark;
                 margin: 0 0 4px;
             }
             .filters-sub {
-                font-family: $inter;
+                font-family: $font;
                 font-size: 13px;
                 color: $pkg-grey;
                 margin: 0 0 20px;
@@ -91,7 +82,7 @@ $mono: "JetBrains Mono", monospace;
             }
 
             .filter-label {
-                font-family: $mono;
+                font-family: $font;
                 font-size: 11px;
                 font-weight: 500;
                 color: $pkg-grey;
@@ -117,7 +108,7 @@ $mono: "JetBrains Mono", monospace;
                     cursor: pointer;
                 }
                 .checkbox-text {
-                    font-family: $inter;
+                    font-family: $font;
                     font-size: 14px;
                     color: $pkg-dark;
                 }
@@ -133,7 +124,7 @@ $mono: "JetBrains Mono", monospace;
                     padding: 8px 10px;
                     border: 1px solid $pkg-border;
                     border-radius: 6px;
-                    font-family: $inter;
+                    font-family: $font;
                     font-size: 13px;
                     color: $pkg-dark;
                     background: $pkg-bg;
@@ -153,7 +144,7 @@ $mono: "JetBrains Mono", monospace;
                 padding: 9px 12px;
                 border: 1px solid $pkg-border;
                 border-radius: 6px;
-                font-family: $inter;
+                font-family: $font;
                 font-size: 14px;
                 color: $pkg-dark;
                 background: $pkg-bg;
@@ -181,7 +172,7 @@ $mono: "JetBrains Mono", monospace;
             border-bottom: 1px solid $pkg-border;
 
             .results-count {
-                font-family: $inter;
+                font-family: $font;
                 font-size: 14px;
                 color: $pkg-grey;
                 strong {
@@ -196,7 +187,7 @@ $mono: "JetBrains Mono", monospace;
                 gap: 10px;
 
                 .sort-label {
-                    font-family: $mono;
+                    font-family: $font;
                     font-size: 11px;
                     font-weight: 500;
                     color: $pkg-grey;
@@ -207,7 +198,7 @@ $mono: "JetBrains Mono", monospace;
                     padding: 8px 14px 8px 12px;
                     border: 1px solid $pkg-border;
                     border-radius: 6px;
-                    font-family: $inter;
+                    font-family: $font;
                     font-size: 14px;
                     color: $pkg-dark;
                     background: $pkg-white;
@@ -266,7 +257,7 @@ $mono: "JetBrains Mono", monospace;
                     left: 12px;
                     padding: 4px 10px;
                     border-radius: 4px;
-                    font-family: $mono;
+                    font-family: $font;
                     font-size: 11px;
                     font-weight: 500;
                     letter-spacing: 0.06em;
@@ -293,7 +284,7 @@ $mono: "JetBrains Mono", monospace;
                     right: 12px;
                     padding: 4px 10px;
                     border-radius: 4px;
-                    font-family: $mono;
+                    font-family: $font;
                     font-size: 11px;
                     font-weight: 500;
                     background: #f59e0b;
@@ -310,9 +301,8 @@ $mono: "JetBrains Mono", monospace;
             }
 
             .card-title {
-                font-family: $hk;
+                @include serif-heading;
                 font-size: 16px;
-                font-weight: 600;
                 color: $pkg-dark;
                 line-height: 1.35;
                 margin: 0;
@@ -328,14 +318,14 @@ $mono: "JetBrains Mono", monospace;
                 gap: 5px;
 
                 .price-amount {
-                    font-family: $hk;
+                    font-family: $font;
                     font-size: 24px;
                     font-weight: 700;
                     color: $pkg-blue;
                     line-height: 1;
                 }
                 .price-unit {
-                    font-family: $inter;
+                    font-family: $font;
                     font-size: 13px;
                     color: $pkg-grey;
                 }
@@ -350,7 +340,7 @@ $mono: "JetBrains Mono", monospace;
                     display: flex;
                     align-items: center;
                     gap: 4px;
-                    font-family: $mono;
+                    font-family: $font;
                     font-size: 12px;
                     color: $pkg-grey;
                     svg {
@@ -372,7 +362,7 @@ $mono: "JetBrains Mono", monospace;
                     display: flex;
                     align-items: center;
                     gap: 4px;
-                    font-family: $inter;
+                    font-family: $font;
                     font-size: 12px;
                     color: $pkg-grey;
                     svg {
@@ -384,7 +374,7 @@ $mono: "JetBrains Mono", monospace;
                     display: flex;
                     align-items: center;
                     gap: 4px;
-                    font-family: $inter;
+                    font-family: $font;
                     font-size: 12px;
                     color: $pkg-grey;
                     background: none;
@@ -443,14 +433,14 @@ $mono: "JetBrains Mono", monospace;
                 color: #c6c6cd;
             }
             p {
-                font-family: $hk;
+                font-family: $font;
                 font-size: 18px;
                 font-weight: 600;
                 color: $pkg-dark;
                 margin: 0;
             }
             span {
-                font-family: $inter;
+                font-family: $font;
                 font-size: 14px;
                 color: $pkg-grey;
             }
@@ -472,7 +462,7 @@ $mono: "JetBrains Mono", monospace;
                 border: 1px solid $pkg-border;
                 border-radius: 6px;
                 background: $pkg-white;
-                font-family: $inter;
+                font-family: $font;
                 font-size: 14px;
                 color: $pkg-dark;
                 cursor: pointer;
@@ -507,7 +497,7 @@ $mono: "JetBrains Mono", monospace;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-family: $inter;
+                font-family: $font;
                 font-size: 14px;
                 color: $pkg-grey;
             }

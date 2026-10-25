@@ -81,11 +81,10 @@
             }
 
             h1 {
+                @include serif-heading;
                 margin: 0;
                 font-size: 60px;
                 line-height: 1.02;
-                font-weight: 700;
-                letter-spacing: -0.04em;
             }
 
             p {
@@ -107,8 +106,6 @@
     }
 
     .community-sidebar-card,
-    .community-detail-card,
-    .community-comments-card,
     .community-write-card {
         background: #fff;
         border: 1px solid #dde2ea;
@@ -133,10 +130,10 @@
         }
 
         h2 {
+            @include serif-heading;
             margin: 20px 0 8px;
             font-size: 36px;
             line-height: 1.05;
-            letter-spacing: -0.04em;
         }
 
         p {
@@ -208,10 +205,10 @@
         border-bottom: 1px solid #dde2ea;
 
         h2 {
+            @include serif-heading;
             margin: 0;
             font-size: 48px;
             line-height: 1.05;
-            letter-spacing: -0.05em;
         }
 
         p {
@@ -224,9 +221,7 @@
     .community-top-write,
     .community-filters button,
     .community-pagination button,
-    .community-comment-form button,
-    .community-write-actions button,
-    .community-back-btn {
+    .community-write-actions button {
         border: 0;
         cursor: pointer;
         transition: opacity 0.2s ease, transform 0.2s ease, background 0.2s ease;
@@ -243,7 +238,6 @@
 
     .community-top-write,
     .community-filters button,
-    .community-comment-form button,
     .community-write-actions button:not(.ghost) {
         padding: 14px 20px;
         border-radius: 14px;
@@ -376,10 +370,10 @@
         }
 
         h3 {
+            @include serif-heading;
             margin: 14px 0 10px;
             font-size: 28px;
             line-height: 1.08;
-            letter-spacing: -0.04em;
             word-break: break-word;
         }
 
@@ -488,195 +482,13 @@
         }
     }
 
-    .community-empty,
-    .community-detail-empty,
-    .community-detail-loading,
-    .community-comment-empty {
+    .community-empty {
         padding: 48px 24px;
         border: 1px dashed #c6c4d9;
         border-radius: 18px;
         background: #fff;
         text-align: center;
         color: #5d5e65;
-    }
-
-    .community-back-btn {
-        margin: 40px 0 20px;
-        padding: 0;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        background: transparent;
-        color: #2218dc;
-        font-size: 15px;
-        font-weight: 700;
-    }
-
-    .community-detail-card {
-        overflow: hidden;
-
-        .community-detail-hero {
-            height: 360px;
-            background-size: cover;
-            background-position: center;
-            background-color: #dfe5ee;
-        }
-
-        .community-detail-body {
-            padding: 32px;
-        }
-
-        .community-detail-meta-top,
-        .community-detail-stats,
-        .community-comments-header,
-        .community-comment-head,
-        .community-write-actions {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-        }
-
-        h1 {
-            margin: 18px 0;
-            font-size: 48px;
-            line-height: 1.05;
-            letter-spacing: -0.05em;
-        }
-
-        .community-detail-author {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            margin-bottom: 24px;
-
-            strong,
-            span {
-                display: block;
-            }
-
-            span {
-                margin-top: 4px;
-                color: #616269;
-                font-size: 14px;
-            }
-        }
-
-        .community-detail-content {
-            margin: 0;
-            white-space: pre-wrap;
-            color: #303345;
-            font-size: 16px;
-            line-height: 1.9;
-        }
-
-        .community-detail-stats {
-            margin-top: 28px;
-            padding-top: 24px;
-            border-top: 1px solid #e5e7ec;
-            flex-wrap: wrap;
-
-            span,
-            button {
-                display: inline-flex;
-                align-items: center;
-                gap: 8px;
-                color: #303345;
-                font-size: 14px;
-                font-weight: 700;
-                background: transparent;
-            }
-
-            button.liked {
-                color: #2218dc;
-            }
-
-            button {
-                cursor: pointer;
-            }
-        }
-    }
-
-    .community-comments-card {
-        margin: 24px 0 72px;
-        padding: 28px;
-
-        .community-comments-header {
-            margin-bottom: 18px;
-
-            h2 {
-                margin: 0;
-                font-size: 28px;
-                letter-spacing: -0.03em;
-            }
-
-            span {
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                min-width: 34px;
-                height: 34px;
-                border-radius: 999px;
-                background: #eef0ff;
-                color: #2218dc;
-                font-weight: 700;
-            }
-        }
-
-        .community-comment-form {
-            display: grid;
-            gap: 14px;
-            margin-bottom: 24px;
-
-            textarea {
-                width: 100%;
-                min-height: 120px;
-                padding: 16px;
-                border: 1px solid #d7dbe4;
-                border-radius: 16px;
-                outline: none;
-                resize: vertical;
-                font-size: 15px;
-            }
-
-            button {
-                justify-self: flex-end;
-            }
-        }
-
-        .community-comment-list {
-            display: grid;
-            gap: 16px;
-        }
-
-        .community-comment-item {
-            display: flex;
-            gap: 14px;
-            padding: 18px;
-            border-radius: 16px;
-            background: #f8f9fb;
-        }
-
-        .community-comment-body {
-            flex: 1;
-            min-width: 0;
-
-            p {
-                margin: 8px 0 0;
-                color: #303345;
-                line-height: 1.7;
-                white-space: pre-wrap;
-            }
-        }
-
-        .community-comment-head {
-            align-items: baseline;
-
-            span {
-                color: #767588;
-                font-size: 13px;
-            }
-        }
     }
 
     .community-write-card {
@@ -698,10 +510,10 @@
         }
 
         h1 {
+            @include serif-heading;
             margin: 0;
             font-size: 44px;
             line-height: 1.05;
-            letter-spacing: -0.04em;
         }
 
         p {
@@ -853,10 +665,7 @@
 
         .community-toolbar,
         .community-filters,
-        .community-write-actions,
-        .community-detail-card .community-detail-meta-top,
-        .community-detail-card .community-detail-stats,
-        .community-comments-card .community-comments-header {
+        .community-write-actions {
             flex-direction: column;
             align-items: stretch;
         }
@@ -867,15 +676,13 @@
         }
 
         .community-card .community-card-image,
-        .community-card .skeleton-block,
-        .community-detail-card .community-detail-hero {
+        .community-card .skeleton-block {
             height: 220px;
         }
 
         .community-card h3,
         .community-toolbar h2,
-        .community-write-header h1,
-        .community-detail-card h1 {
+        .community-write-header h1 {
             font-size: 32px;
         }
     }

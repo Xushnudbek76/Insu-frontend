@@ -1,3 +1,5 @@
+import Link from 'next/link';
+import { getPurchaseLabel } from '@/libs/components/messages/helpers';
 import { Box, Stack } from '@mui/material';
 import AddTaskOutlinedIcon from '@mui/icons-material/AddTaskOutlined';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
@@ -84,12 +86,12 @@ const MyPoliciesContent = ({
     ) : error ? (
       <MyPageEmpty title={t('Could not load policies.')} text={error} />
     ) : policies.length === 0 ? (
-      <MyPageEmpty title={t('No policies yet')} text={t('Apply for an insurance package and your policies will appear here.')} />
+      <MyPageEmpty title={t('No policies yet')} text={t('Chat with an agent to find your insurance. Accepted offers and policies will appear here.')} />
     ) : (
       <Stack className='mypage-list'>
         {policies.map((policy) => (
           <Stack key={policy._id} className='mypage-policy-card'>
-            <Box className={`mypage-status ${policy.policyStatus.toLowerCase()}`}>{t(policy.policyStatus)}</Box>
+            <Box className={`mypage-status ${policy.policyStatus.toLowerCase()}`}>{t(getPurchaseLabel(policy))}</Box>
             <Stack className='mypage-card-main'>
               <h3>{policy.packageName}</h3>
               <p>{t('Policy ID')}: {policy._id}</p>
@@ -100,6 +102,7 @@ const MyPoliciesContent = ({
               </Box>
             </Stack>
             <Stack className='mypage-card-actions'>
+              {policy.conversationId && <Link href={`/mypage?category=messages&conversationId=${policy.conversationId}`}>{t('Back to Conversation')}</Link>}
               {policy.policyStatus === 'ACTIVE' && (
                 <>
                   <button onClick={() => onOpenClaimPanel(policy._id)}>

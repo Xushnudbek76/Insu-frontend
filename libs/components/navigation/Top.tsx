@@ -5,6 +5,8 @@ import { Avatar, IconButton, Menu, MenuItem } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import ShieldRoundedIcon from '@mui/icons-material/ShieldRounded';
+import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
 import { useTranslation } from 'next-i18next/pages';
 
 import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
@@ -36,6 +38,8 @@ const Top = () => {
   const [profileMenuAnchor, setProfileMenuAnchor] = useState<null | HTMLElement>(null);
   const [languageMenuAnchor, setLanguageMenuAnchor] = useState<null | HTMLElement>(null);
   const [locale, setLocale] = useState('en');
+  const [scrolled, setScrolled] = useState(false);
+  const isHome = router.pathname === '/';
 
   useEffect(() => {
     const dispose = userVar.onNextChange((nextUser) => setUser(nextUser));
@@ -54,6 +58,15 @@ const Top = () => {
       router.replace(router.asPath, router.asPath, { locale: nextLocale });
     }
   }, [router]);
+
+  // On the homepage the bar sits over the hero photo until the user scrolls.
+  useEffect(() => {
+    if (!isHome) return;
+    const handleScroll = () => setScrolled(window.scrollY > 80);
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [isHome]);
 
   const links = useMemo(() => {
     return user ? [...baseLinks, { href: '/mypage', label: 'My Page' }] : baseLinks;
@@ -149,17 +162,26 @@ const Top = () => {
     );
   }
 
+  const navbarClass = `navbar${isHome ? ' overlay' : ''}${isHome && scrolled ? ' scrolled' : ''}`;
+
   return (
     <div id="top">
-      <nav className="navbar">
+      <nav className={navbarClass}>
         <div className="navbar-inner">
-          <div className="logo-box">
-            <NextLink href="/" passHref legacyBehavior>
-              <a>INSU</a>
-            </NextLink>
-          </div>
+          <div className="nav-group">
+            <div className="logo-box">
+              <NextLink href="/" passHref legacyBehavior>
+                <a>
+                  <span className="logo-mark" aria-hidden="true">
+                    <ShieldRoundedIcon />
+                  </span>
+                  INSU
+                </a>
+              </NextLink>
+            </div>
 
-          <div className="router-box">{renderLinks()}</div>
+            <div className="router-box">{renderLinks()}</div>
+          </div>
 
           <div className="user-box">
             {user ? (
@@ -189,6 +211,10 @@ const Top = () => {
               </NextLink>
             )}
             {renderLanguageMenu()}
+            <NextLink href="/#insurance-adviser" className="nav-cta">
+              {t('Find a plan')}
+              <ArrowForwardRoundedIcon />
+            </NextLink>
           </div>
         </div>
       </nav>

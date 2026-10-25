@@ -1,88 +1,86 @@
 import React from 'react';
 import { Stack, Box } from '@mui/material';
 import NextLink from 'next/link';
-import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
-import { useTranslation } from 'next-i18next/pages';
+import { useQuery } from '@apollo/client/react';
+import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
+import { Trans, useTranslation } from 'next-i18next/pages';
+import { GET_AGENTS, GET_PACKAGES } from '@/apollo/user/query';
+import { getTotal } from '@/libs/utils/format';
+import type { MetaCounter } from '@/libs/types/common';
+
+// Unsplash photo-1642522029686-5485ea7e6042 (Unsplash License), saved locally at 2400px.
+const HERO_PHOTO = '/img/hero-img/agent-desk.webp';
+
+interface TotalOnly {
+	metaCounter?: MetaCounter | MetaCounter[] | null;
+}
+
+const COUNT_INPUT = { page: 1, limit: 1, sort: 'createdAt', direction: 'DESC', search: {} };
 
 const Header = () => {
-	const device = useDeviceDetect();
 	const { t } = useTranslation('common');
 
-	if (device === 'mobile') {
-		return (
-			<Stack className={'header-filter'}>
-				<Stack className={'hero-inner'}>
-					<Box component={'div'} className={'hero-text'}>
-						<strong className={'hero-title'}>
-							{t('AI insurance made for real life')}
-						</strong>
-						<p className={'hero-desc'}>
-							{t('We make insurance affordable, easy to understand, and tailored to your needs. Some plans start at $0.')}
-						</p>
-						<Box component={'div'} className={'hero-actions'}>
-							<NextLink href={'/packages'} className={'hero-btn primary'}>
-								{t('Browse Insurance')}
-							</NextLink>
-							
-						</Box>
-					</Box>
-				</Stack>
-			</Stack>
-		);
-	} else {
-		return (
-			<Stack className={'header-filter'}>
-				<Stack className={'hero-inner'}>
-					<Box component={'div'} className={'hero-text'}>
-						<strong className={'hero-title'}>
-							{t('Health insurance made for real life')}
-						</strong>
-						<p className={'hero-desc'}>
-							{t('We do not just offer health insurance. We make sure it is affordable, easy to understand, and covers the care you really need, whenever you need it. And yes, some plans start at $0.')}
-						</p>
-						<Box component={'div'} className={'hero-actions'}>
-							<NextLink href={'/packages'} className={'hero-btn primary'}>
-								{t('Browse Insurance')}
-							</NextLink>
-							<NextLink href={'/#insurance-adviser'} className={'hero-btn secondary'}>
-								{t('Find a plan')}
-							</NextLink>
-						</Box>
-					</Box>
-					<Box component={'div'} className={'hero-images'}>
-						<Box component={'div'} className={'img-col left-col'}>
-							<Box component={'div'} className={'hero-card car-card'}>
-								<Box
-									component={'img'}
-									className={'hero-card-image'}
-									src={'/img/hero-img/car.webp'}
-									alt={t('car insurance')}
-								/>
-							</Box>
-							<Box component={'div'} className={'hero-card home-card'}>
-								<Box
-									component={'img'}
-									className={'hero-card-image'}
-									src={'/img/hero-img/home.webp'}
-									alt={t('home insurance')}
-								/>
-							</Box>
-						</Box>
-						<Box component={'div'} className={'img-col right-col'}>
-							<Box component={'div'} className={'hero-card health-card'}>
-								<Box
-									component={'img'}
-									className={'hero-card-image'}
-									src={'/img/hero-img/health.webp'}
-									alt={t('health insurance')}
-								/>
-							</Box>
-						</Box>
-					</Box>
-				</Stack>
-			</Stack>
-		);
-	}
+	// Only the totals are needed for the trust line above the headline
+	const { data: agentsData } = useQuery<{ getAgents: TotalOnly }>(GET_AGENTS, {
+		variables: { input: COUNT_INPUT },
+		fetchPolicy: 'cache-and-network',
+	});
+	const { data: packagesData } = useQuery<{ getPackages: TotalOnly }>(GET_PACKAGES, {
+		variables: { input: COUNT_INPUT },
+		fetchPolicy: 'cache-and-network',
+	});
+
+	const agentTotal = getTotal(agentsData?.getAgents?.metaCounter);
+	const planTotal = getTotal(packagesData?.getPackages?.metaCounter);
+
+	const trustItems = [
+		agentTotal > 0
+			? t('trusted agents count', {
+					count: agentTotal,
+					defaultValue_one: '{{count}} trusted agent',
+					defaultValue: '{{count}} trusted agents',
+				})
+			: null,
+		planTotal > 0
+			? t('insurance plans count', {
+					count: planTotal,
+					defaultValue_one: '{{count}} insurance plan',
+					defaultValue: '{{count}} insurance plans',
+				})
+			: null,
+	].filter(Boolean);
+
+	return (
+		<Stack className={'header-filter'}>
+			<Box
+				component={'section'}
+				className={'hero-frame'}
+				style={{ backgroundImage: `url('${HERO_PHOTO}')` }}
+			>
+				<Box component={'div'} className={'hero-content'}>
+					{trustItems.length > 0 && <p className={'hero-trust'}>{trustItems.join(' · ')}</p>}
+					<h1 className={'hero-title'}>
+						<Trans
+							t={t}
+							i18nKey={'hero title html'}
+							defaults={'Insurance that <i>fits your life.</i>'}
+							components={{ i: <i /> }}
+						/>
+					</h1>
+					<p className={'hero-desc'}>
+						{t('Car, home, health and travel plans in plain words. Compare them yourself, or let our adviser find a few that fit.')}
+					</p>
+					<NextLink href={'/packages'} className={'home-btn primary hero-cta'}>
+						{t('Browse Insurance')}
+						<ArrowForwardRoundedIcon />
+					</NextLink>
+					<NextLink href={'/#insurance-adviser'} className={'hero-link'}>
+						{t('Find a plan')}
+					</NextLink>
+				</Box>
+			</Box>
+		</Stack>
+	);
 };
 
 export default Header;

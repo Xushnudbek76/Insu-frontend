@@ -29,6 +29,14 @@ button {
     box-shadow: none;
 }
 
+// Browsers don't pass the page font into form controls, so they fell back to Arial
+button,
+input,
+select,
+textarea {
+    font-family: inherit;
+}
+
 span,
 p {
     line-height: 1.2;
@@ -47,6 +55,7 @@ hr {
 @import "pc/packages/packages.scss";
 @import "pc/packages/package-detail.scss";
 @import "pc/community/community.scss";
+@import "pc/community/detail.scss";
 @import "pc/cs/cs.scss";
 @import "pc/myPage/mypage.scss";
 @import "pc/admin/admin.scss";
@@ -54,3 +63,5 @@ hr {
 @import "pc/agents/detail.scss";
 /** VERSION: MOBILE **/
 @import "mobile/main.scss";
+
+@import "messages.scss";

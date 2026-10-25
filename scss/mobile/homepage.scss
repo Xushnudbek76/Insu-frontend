@@ -1,188 +1,512 @@
-/** MOBILE — HOMEPAGE **/
+/** MOBILE — HOMEPAGE (Ethos-style, matches scss/pc/homepage/homepage.scss) **/
 
-#mobile-wrap {
-  .header-filter {
-    padding: 40px 0 32px;
-    background: $brand;
+$home-line: #e6e8ee;
 
-    .hero-inner {
-      padding: 0 16px;
+#mobile-wrap .home-page {
+  /* Shared pieces */
+
+  .section-tag,
+  .section-label {
+    align-self: flex-start;
+    font-family: $font;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: $brand;
+  }
+
+  h1,
+  h2 {
+    // The reset forces Poppins on <i>, so inherit the heading's serif instead
+    i {
+      font-family: inherit;
+      font-style: italic;
+      color: $brand;
+    }
+  }
+
+  .home-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 15px 22px;
+    border: 0;
+    border-radius: 8px;
+    font-family: $font;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+
+    svg {
+      font-size: 19px;
+    }
+
+    &.primary {
+      background: $brand;
+      color: $white;
+    }
+
+    &.dark {
+      background: $dark;
+      color: $white;
+    }
+
+    &.light {
+      background: $white;
+      color: $dark;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+    }
+  }
+
+  .more-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: $font;
+    font-size: 14px;
+    font-weight: 600;
+    color: $brand;
+
+    svg {
+      font-size: 17px;
+    }
+  }
+
+  .info-box {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+
+    .left {
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 12px;
 
-      .hero-label {
-        font-family: $font;
-        font-size: 11px;
-        font-weight: 600;
-        letter-spacing: 2px;
-        text-transform: uppercase;
-        color: $primary;
+      h2 {
+        font-family: $serif;
+        font-size: 34px;
+        font-weight: 500;
+        line-height: 1.1;
+        letter-spacing: -0.02em;
+        color: $dark;
       }
 
-      .hero-title {
-        font-family: $font;
-        font-size: 28px;
-        font-weight: 700;
-        line-height: 1.25;
-        color: $white;
-      }
-
-      .hero-desc {
+      p {
         font-family: $font;
         font-size: 14px;
-        font-weight: 400;
-        line-height: 1.7;
-        color: rgba(255, 255, 255, 0.82);
-      }
-
-      .hero-actions {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-
-        a.hero-btn {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 14px 9px;
-          font-family: $font;
-          font-size: 15px;
-          font-weight: 600;
-          line-height: 1;
-          white-space: nowrap;
-          border-radius: 30px;
-          text-decoration: none;
-          cursor: pointer;
-          transition: background 0.2s, border-color 0.2s, color 0.2s;
-
-          &.primary {
-            background: $white;
-            color: $brand;
-            border: 2px solid $white;
-
-            &:active {
-              background: #f0f0ff;
-            }
-          }
-
-          &.secondary {
-            background: transparent;
-            border: 2px solid rgba(255, 255, 255, 0.7);
-            color: $white;
-
-            &:active {
-              border-color: $white;
-              color: $white;
-            }
-          }
-        }
+        line-height: 1.6;
+        color: $grey;
       }
     }
   }
 
+  /** HERO **/
+
+  .header-filter {
+    .hero-frame {
+      position: relative;
+      height: calc(100svh - 56px);
+      min-height: 560px;
+      max-height: 720px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      overflow: hidden;
+      background-color: $dark;
+      background-size: cover;
+      // Centre on the man and his hand on the papers
+      background-position: 48% center;
+      background-repeat: no-repeat;
+
+      &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background:
+          linear-gradient(180deg, rgba(12, 14, 32, 0) 30%, rgba(12, 14, 32, 0.74) 100%),
+          rgba(12, 14, 32, 0.12);
+      }
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      padding: 0 20px 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .hero-trust {
+      margin-bottom: 14px;
+      font-family: $font;
+      font-size: 12px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.86);
+    }
+
+    .hero-title {
+      font-family: $serif;
+      font-size: 42px;
+      font-weight: 500;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      color: $white;
+      text-wrap: balance;
+
+      i {
+        display: block;
+        color: #c9c9ff;
+      }
+    }
+
+    .hero-desc {
+      margin-top: 14px;
+      font-family: $font;
+      font-size: 15px;
+      line-height: 1.55;
+      color: rgba(255, 255, 255, 0.88);
+      text-wrap: balance;
+    }
+
+    .hero-cta {
+      width: 100%;
+      margin-top: 24px;
+      justify-content: space-between;
+    }
+
+    .hero-link {
+      margin-top: 16px;
+      padding: 4px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.55);
+      font-family: $font;
+      font-size: 14px;
+      font-weight: 500;
+      color: $white;
+    }
+  }
+
+  /** MEMBER REVIEWS **/
+
+  .home-comments {
+    padding: 56px 0;
+    overflow: hidden;
+    background: $light;
+
+    .container {
+      padding: 0 16px;
+      flex-direction: column;
+    }
+
+    .comments-wrapper {
+      width: 100%;
+      margin-top: 24px;
+    }
+
+    .swiper {
+      width: 100%;
+      overflow: visible;
+    }
+
+    .swiper .swiper-wrapper {
+      transition-timing-function: linear !important;
+    }
+
+    .swiper-slide {
+      width: 280px;
+      display: flex;
+      height: auto;
+    }
+
+    .comment-card {
+      width: 100%;
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid $home-line;
+      border-radius: 14px;
+      background: $white;
+    }
+
+    .comment-quote-mark {
+      font-size: 22px;
+      color: $brand;
+    }
+
+    .comment-content {
+      margin-top: 4px;
+      font-family: $serif;
+      font-size: 16px;
+      line-height: 1.4;
+      color: $dark;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .comment-header {
+      margin-top: auto;
+      padding-top: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .comment-avatar {
+      width: 32px;
+      height: 32px;
+    }
+
+    .comment-author {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+
+      .name {
+        font-family: $font;
+        font-size: 13px;
+        font-weight: 600;
+        color: $dark;
+      }
+
+      .date {
+        font-family: $font;
+        font-size: 11px;
+        color: $grey;
+      }
+    }
+
+    .empty-list {
+      width: 100%;
+      height: 160px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: $font;
+      color: $grey;
+    }
+  }
+
+  /** WHY INSU **/
+
+  .advertisement {
+    padding: 56px 0;
+    background: $white;
+
+    .container {
+      padding: 0 16px;
+    }
+
+    .ad-inner {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+    }
+
+    .ad-header {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 14px;
+    }
+
+    .ad-title {
+      font-family: $serif;
+      font-size: 38px;
+      font-weight: 500;
+      line-height: 1.06;
+      letter-spacing: -0.02em;
+      color: $dark;
+    }
+
+    .ad-subtitle {
+      font-family: $font;
+      font-size: 14px;
+      line-height: 1.6;
+      color: $grey;
+    }
+
+    .home-btn {
+      margin-top: 6px;
+    }
+
+    .ad-features {
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .ad-feature {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .ad-feature-icon {
+      font-size: 24px;
+      color: $brand;
+    }
+
+    .ad-feature-label {
+      margin-top: 2px;
+      font-family: $serif;
+      font-size: 22px;
+      font-weight: 500;
+      color: $dark;
+    }
+
+    .ad-feature-desc {
+      font-family: $font;
+      font-size: 14px;
+      line-height: 1.6;
+      color: $grey;
+    }
+  }
+
+  /** AI ADVISER **/
+
   .trend-packages {
-    padding: 36px 0 24px;
-    background: #ffffff;
+    padding: 56px 0;
+    background: $white;
 
     .container {
       padding: 0 16px;
       display: flex;
       flex-direction: column;
-      gap: 18px;
+      gap: 28px;
+    }
+
+    .ai-header {
+      gap: 24px;
     }
 
     .ai-header-text {
       display: flex;
       flex-direction: column;
-      gap: 10px;
-
-      .section-label {
-        font-family: $font;
-        font-size: 11px;
-        font-weight: 700;
-        letter-spacing: 0.16em;
-        text-transform: uppercase;
-        color: $brand;
-      }
+      gap: 12px;
 
       .section-title {
-        font-family: $font;
-        font-size: 28px;
-        font-weight: 700;
-        line-height: 1.1;
+        font-family: $serif;
+        font-size: 36px;
+        font-weight: 500;
+        line-height: 1.08;
+        letter-spacing: -0.02em;
         color: $dark;
       }
 
       .section-desc {
-        margin: 0;
         font-family: $font;
         font-size: 14px;
-        line-height: 1.65;
+        line-height: 1.6;
         color: $grey;
       }
     }
 
+    .ai-steps {
+      display: flex;
+      flex-direction: column;
+
+      li {
+        display: flex;
+        align-items: baseline;
+        gap: 14px;
+        padding: 13px 0;
+        border-top: 1px solid $home-line;
+
+        &:last-child {
+          border-bottom: 1px solid $home-line;
+        }
+      }
+
+      .step-num {
+        flex: 0 0 30px;
+        font-family: $font;
+        font-size: 12px;
+        font-weight: 600;
+        color: $brand;
+      }
+
+      .step-text {
+        font-family: $font;
+        font-size: 14px;
+        line-height: 1.5;
+        color: $dark;
+      }
+    }
+
     .ai-content {
-      display: grid;
-      gap: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
     }
 
     .ai-form,
     .ai-result {
-      border: 1px solid $border;
-      border-radius: 20px;
-      background: #ffffff;
-      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+      border: 1px solid $home-line;
+      border-radius: 14px;
+      background: $white;
+      box-shadow: 0 10px 26px rgba(15, 23, 42, 0.06);
     }
 
     .ai-form {
-      padding: 16px;
+      padding: 20px 16px;
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 18px;
     }
 
     .field-group,
     .field {
       display: flex;
       flex-direction: column;
-      gap: 8px;
     }
 
     .field-row {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
     }
 
     .field-label {
+      display: block;
+      margin-bottom: 8px;
       font-family: $font;
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 500;
       color: $dark;
     }
 
     .type-chip-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 6px;
     }
 
     .type-chip {
-      min-height: 38px;
-      padding: 0 14px;
-      border-radius: 999px;
-      border: 1px solid $border;
-      background: #fff;
+      padding: 11px 0;
+      border: 1px solid $home-line;
+      border-radius: 8px;
+      background: $white;
       font-family: $font;
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 500;
       color: $dark;
 
       &.active {
         border-color: $brand;
-        background: rgba($brand, 0.08);
+        background: rgba($brand, 0.06);
         color: $brand;
       }
     }
@@ -190,43 +514,58 @@
     .text-input,
     .text-area {
       width: 100%;
-      padding: 12px 14px;
-      border: 1px solid $border;
-      border-radius: 14px;
-      box-sizing: border-box;
+      border: 1px solid $home-line;
+      border-radius: 8px;
+      background: $white;
       font-family: $font;
-      font-size: 14px;
+      font-size: 16px;
       color: $dark;
-      background: #ffffff;
-      resize: vertical;
+
+      &::placeholder {
+        color: #a3a5ab;
+        font-size: 13px;
+      }
+
+      &:focus {
+        outline: none;
+        border-color: $brand;
+        box-shadow: 0 0 0 3px rgba($brand, 0.12);
+      }
+    }
+
+    .text-input {
+      height: 48px;
+      padding: 0 12px;
+      -moz-appearance: textfield;
+
+      &::-webkit-outer-spin-button,
+      &::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
     }
 
     .text-area {
-      min-height: 112px;
+      padding: 12px;
+      line-height: 1.5;
+      resize: vertical;
     }
 
-    .primary-btn {
-      min-height: 46px;
-      border: 0;
-      border-radius: 999px;
-      background: $brand;
-      color: $white;
-      font-family: $font;
-      font-size: 14px;
-      font-weight: 700;
+    .ai-form .home-btn {
+      justify-content: space-between;
     }
 
     .form-error {
-      margin: 0;
-      color: #d32f2f;
+      margin: -6px 0 0;
+      font-family: $font;
       font-size: 13px;
-      font-weight: 600;
       line-height: 1.5;
+      color: #d32f2f;
     }
 
     .ai-result {
-      min-height: 200px;
-      padding: 16px;
+      min-height: 120px;
+      padding: 20px 16px;
       display: flex;
       align-items: stretch;
     }
@@ -237,555 +576,500 @@
       width: 100%;
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      color: $grey;
+      gap: 8px;
       font-family: $font;
       font-size: 14px;
-      line-height: 1.65;
+      line-height: 1.6;
+      color: $grey;
     }
 
     .ai-result-empty strong {
+      font-family: $serif;
+      font-size: 19px;
+      font-weight: 500;
       color: $dark;
-      font-size: 16px;
+    }
+
+    .ai-result-content {
+      gap: 16px;
     }
 
     .risk-badge {
       align-self: flex-start;
       padding: 6px 10px;
-      border-radius: 999px;
-      background: #e1e0ff;
-      color: $brand;
+      border-radius: 6px;
+      background: rgba($brand, 0.08);
       font-size: 12px;
-      font-weight: 700;
-      margin-bottom: 50px;
+      font-weight: 600;
+      color: $brand;
     }
+
     .ai-reason {
       margin-top: 10px;
+      color: $dark;
     }
+
     .ai-packages {
-      display: grid;
-      gap: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
     }
 
     .package-card {
-      padding: 12px 14px;
-      border: 1px solid $border;
-      border-radius: 16px;
-      background: #f8f9fb;
+      padding: 14px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 4px;
+      border: 1px solid $home-line;
+      border-radius: 12px;
+      background: $white;
     }
 
     .package-type {
       font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
+      font-weight: 500;
       color: $brand;
     }
 
     .package-name {
+      font-family: $serif;
+      font-size: 17px;
+      font-weight: 500;
+      color: $dark;
+    }
+
+    .package-desc {
+      font-size: 13px;
+      line-height: 1.5;
+      color: $grey;
+    }
+
+    .package-price {
       font-size: 16px;
       font-weight: 700;
       color: $dark;
     }
 
-    .package-desc {
-      margin: 0;
-      color: $grey;
+    .factors-label {
+      display: block;
+      margin-bottom: 6px;
       font-size: 13px;
-      line-height: 1.6;
-    }
-
-    .package-price {
-      font-size: 14px;
-      font-weight: 700;
+      font-weight: 600;
       color: $dark;
     }
-  }
 
-  .advertisement {
-    padding: 36px 0 32px;
-    background: $dark;
-
-    .container {
-      padding: 0 16px;
-    }
-
-    .ad-inner {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    .ad-header {
-      text-align: left;
-
-      .ad-title {
-        display: block;
-        font-family: $font;
-        font-size: 22px;
-        font-weight: 600;
-        color: $white;
-        margin-bottom: 6px;
-      }
-
-      .ad-subtitle {
-        margin: 0;
-        font-family: $font;
-        font-size: 13px;
-        font-weight: 400;
-        line-height: 1.7;
-        color: rgba(255, 255, 255, 0.78);
-      }
-    }
-
-    .ad-cards {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .ad-card {
-      padding: 12px 14px;
-      border-radius: 14px;
-      background: #1f222a;
-      border: 1px solid rgba(148, 163, 184, 0.25);
-      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.32);
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .ad-card-label {
-      font-family: $font;
+    .factors-list {
+      padding-left: 18px;
+      list-style: disc;
       font-size: 13px;
-      font-weight: 600;
-      color: $white;
-    }
-
-    .ad-card-desc {
-      margin: 0;
-      font-family: $font;
-      font-size: 12px;
-      font-weight: 400;
-      line-height: 1.7;
-      color: rgba(226, 232, 240, 0.9);
-    }
-
-    .ad-cta {
-      margin-top: 4px;
-      display: flex;
-      flex-direction: row;
-      justify-content: flex-start;
-    }
-
-    .ad-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 12px 20px;
-      border-radius: 999px;
-      font-family: $font;
-      font-size: 14px;
-      font-weight: 600;
-      text-decoration: none;
-      border: 2px solid $primary;
-      background: $primary;
-      color: $white;
-      cursor: pointer;
-      width: auto;
-      transition: background 0.15s, border-color 0.15s;
-
-      &:active {
-        background: darken($primary, 8%);
-        border-color: darken($primary, 8%);
-      }
+      color: $grey;
     }
   }
+
+  /** POPULAR PACKAGES **/
 
   .popular-packages {
-    padding: 36px 0 32px;
-    background: #f6f6f6;
+    padding: 56px 0;
+    background: $light;
 
     .container {
       padding: 0 16px;
+      flex-direction: column;
     }
 
     .card-box {
-      margin-top: 20px;
-      width: 100%;
+      margin: 24px -16px 0;
     }
 
+    // Swipe row instead of a long stack of cards
     .popular-grid {
       display: flex;
-      flex-direction: column;
-      gap: 14px;
+      flex-direction: row;
+      gap: 12px;
+      padding: 0 16px 4px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-padding: 0 16px;
+      scrollbar-width: none;
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
     }
 
     .package-card {
-      padding: 14px;
-      border-radius: 16px;
-      background: $white;
-      box-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
+      flex: 0 0 78%;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      overflow: hidden;
+      border: 1px solid $home-line;
+      border-radius: 14px;
+      background: $white;
+      scroll-snap-align: start;
       cursor: pointer;
     }
 
     .package-image-wrap {
+      position: relative;
       width: 100%;
-      height: 180px;
-      border-radius: 12px;
+      aspect-ratio: 4 / 3;
       overflow: hidden;
-      background: #eef2ff;
+      background: #e6e8f5;
     }
 
     .package-image {
       width: 100%;
       height: 100%;
-      object-fit: cover;
       display: block;
+      object-fit: cover;
     }
 
     .package-type {
+      position: absolute;
+      left: 10px;
+      top: 10px;
+      padding: 5px 9px;
+      border-radius: 6px;
+      background: $white;
       font-family: $font;
       font-size: 11px;
       font-weight: 600;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      color: $primary;
-    }
-
-    .package-name {
-      font-family: $font;
-      font-size: 17px;
-      font-weight: 700;
       color: $dark;
-    }
-
-    .package-desc {
-      margin: 0;
-      font-family: $font;
-      font-size: 13px;
-      line-height: 1.6;
-      color: $grey;
-    }
-
-    .package-price {
-      font-family: $font;
-      font-size: 14px;
-      font-weight: 600;
-      color: $dark;
-    }
-
-    .package-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-    }
-
-    .package-meta {
-      font-family: $font;
-      font-size: 12px;
-      color: $grey;
     }
 
     .like-btn {
-      padding: 4px;
-    }
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      width: 34px;
+      height: 34px;
+      background: $white;
 
-    .like-icon {
-      font-size: 20px;
-      color: $grey;
+      .like-icon {
+        font-size: 18px;
+        color: $dark;
+      }
 
-      &.liked {
+      &.liked .like-icon {
         color: #e53935;
       }
     }
 
-    .empty-list {
-      min-height: 120px;
+    .package-body {
+      flex: 1;
+      padding: 16px 16px 14px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .package-name {
+      font-family: $serif;
+      font-size: 20px;
+      font-weight: 500;
+      line-height: 1.2;
+      color: $dark;
+    }
+
+    .package-desc {
+      margin-top: 6px;
+      font-family: $font;
+      font-size: 13px;
+      line-height: 1.5;
+      color: $grey;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .package-footer {
+      margin-top: auto;
+      padding-top: 14px;
       display: flex;
       align-items: center;
-      justify-content: center;
-      font-family: $font;
-      color: $grey;
-    }
-  }
-
-  .home-comments {
-    padding: 56px 0 56px;
-    background: #f6f6f6;
-
-    .container {
-      padding: 0 16px;
-    }
-
-    .comments-wrapper {
-      width: 100%;
-      margin-top: 32px;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .swiper {
-      width: 100%;
-      padding-bottom: 24px;
-    }
-
-    .swiper .swiper-wrapper {
-      transition-timing-function: linear !important;
-    }
-
-    .swiper-slide {
-      display: flex;
-      height: auto;
-    }
-
-    .comment-card {
-      padding: 14px 16px;
-      border-radius: 16px;
-      background: $white;
-      box-shadow: 0 8px 22px rgba(15, 23, 42, 0.12);
-      display: flex;
-      flex-direction: column;
+      justify-content: space-between;
       gap: 8px;
     }
 
-    .comment-header {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      gap: 10px;
-    }
+    .package-price {
+      font-family: $font;
+      font-size: 12px;
+      color: $grey;
 
-    .comment-avatar {
-      width: 36px;
-      height: 36px;
-    }
-
-    .comment-author {
-      display: flex;
-      flex-direction: column;
-
-      .name {
-        font-family: $font;
-        font-size: 13px;
-        font-weight: 600;
+      b {
+        font-size: 19px;
+        font-weight: 700;
         color: $dark;
       }
     }
 
-    .comment-content {
-      margin: 0;
+    .package-meta {
       font-family: $font;
-      font-size: 13px;
-      font-weight: 400;
-      line-height: 1.6;
+      font-size: 11px;
       color: $grey;
     }
 
     .empty-list {
-      width: 100%;
-      height: 160px;
+      min-height: 120px;
+      margin: 0 16px;
       display: flex;
-      justify-content: center;
       align-items: center;
-      color: $grey;
+      justify-content: center;
       font-family: $font;
-    }
-
-    .swiper-pagination-bullets {
-      margin-top: 18px;
-      position: static;
-    }
-
-    .swiper-pagination-bullet {
-      background: rgba(15, 23, 42, 0.25);
-      opacity: 1;
-
-      &-active {
-        background: $brand;
-      }
+      color: $grey;
     }
   }
+
+  /** COMMUNITY GUIDE CARD **/
 
   .board-articles {
     width: 100%;
     background: $white;
 
     .hero-inner {
-      padding: 42px 16px 46px;
+      padding: 56px 16px;
+    }
 
-      .article-magazine {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr);
-        gap: 28px;
+    .guide-card {
+      position: relative;
+      padding: 32px 20px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+      overflow: hidden;
+      border-radius: 20px;
+      background-size: cover;
+      background-position: center;
+
+      &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(12, 14, 32, 0.45) 0%, rgba(12, 14, 32, 0.78) 100%);
+      }
+    }
+
+    .guide-intro,
+    .guide-links {
+      position: relative;
+      z-index: 1;
+    }
+
+    .guide-intro {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+
+      .section-tag {
+        color: #c9c9ff;
       }
 
-      .side-column {
-        gap: 22px;
-        order: 2;
+      h2 {
+        font-family: $serif;
+        font-size: 36px;
+        font-weight: 500;
+        line-height: 1.06;
+        letter-spacing: -0.02em;
+        color: $white;
       }
 
-      .feature {
-        order: 1;
-      }
-
-      .latest-column {
-        order: 3;
-        gap: 0;
-
-        h3 {
-          margin: 0 0 14px;
-          padding-top: 20px;
-          border-top: 1px solid $border;
-          font-family: $font;
-          font-size: 13px;
-          font-weight: 800;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
-          color: $dark;
-        }
-      }
-
-      .magazine-card {
-        min-width: 0;
-        cursor: pointer;
-      }
-
-      .magazine-image {
-        overflow: hidden;
-        background: #eef1ff;
-
-        .article-image {
-          width: 100%;
-          height: 100%;
-          background-size: cover;
-          background-position: center;
-          background-repeat: no-repeat;
-        }
-      }
-
-      .magazine-copy {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .article-category {
-        margin-top: 10px;
-        color: $brand;
-        font-family: $font;
-        font-size: 10px;
-        font-weight: 800;
-        letter-spacing: 0.04em;
-        text-transform: uppercase;
-      }
-
-      .article-title {
-        margin: 6px 0 0;
-        font-family: $font;
-        font-size: 18px;
-        line-height: 1.18;
-        font-weight: 800;
-        color: $dark;
-      }
-
-      small {
-        margin-top: 8px;
-        color: $grey;
-        font-family: $font;
-        font-size: 11px;
-        line-height: 1.35;
-      }
-
-      .side .magazine-image {
-        width: 100%;
-        aspect-ratio: 1.34 / 1;
-      }
-
-      .feature {
-        text-align: center;
-
-        .magazine-image {
-          width: 100%;
-          aspect-ratio: 1.46 / 1;
-        }
-
-        .magazine-copy {
-          align-items: center;
-        }
-
-        .article-title {
-          font-size: 26px;
-          line-height: 1.1;
-        }
-
-        .article-excerpt {
-          margin: 10px 0 0;
-          color: $grey;
-          font-family: $font;
-          font-size: 13px;
-          line-height: 1.55;
-          display: -webkit-box;
-          -webkit-line-clamp: 3;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-        }
-      }
-
-      .latest-item {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) 74px;
-        gap: 12px;
-        padding: 0 0 14px;
-        margin-bottom: 14px;
-        border-bottom: 1px solid $border;
-        cursor: pointer;
-      }
-
-      .latest-copy {
-        min-width: 0;
-
-        p {
-          margin: 0;
-          color: $dark;
-          font-family: $font;
-          font-size: 14px;
-          font-weight: 800;
-          line-height: 1.18;
-          display: -webkit-box;
-          -webkit-line-clamp: 3;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-        }
-
-        small {
-          display: block;
-          margin-top: 7px;
-        }
-      }
-
-      .latest-thumb {
-        width: 74px;
-        height: 58px;
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-      }
-
-      .articles-empty {
-        padding: 30px 0;
-        color: $grey;
+      p {
         font-family: $font;
         font-size: 14px;
-        text-align: center;
+        line-height: 1.6;
+        color: rgba(255, 255, 255, 0.82);
       }
+
+      .home-btn {
+        margin-top: 4px;
+        padding: 12px 18px;
+      }
+    }
+
+    .guide-links {
+      gap: 10px;
+    }
+
+    .guide-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px;
+      border-radius: 12px;
+      background: $white;
+    }
+
+    .guide-link-copy {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+
+      strong {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-family: $font;
+        font-size: 14px;
+        font-weight: 600;
+        color: $dark;
+      }
+    }
+
+    .guide-link-meta {
+      font-family: $font;
+      font-size: 11px;
+      color: $grey;
+    }
+
+    .guide-link-arrow {
+      flex-shrink: 0;
+      font-size: 19px;
+      color: $dark;
+    }
+
+    .guide-skeleton {
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.16);
+    }
+
+    .guide-empty {
+      padding: 20px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.12);
+      font-family: $font;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.82);
+    }
+  }
+
+  /** FAQ **/
+
+  .home-faq {
+    padding: 56px 0;
+    background: $light;
+
+    .container {
+      padding: 0 16px;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .home-faq-head {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+
+      h2 {
+        font-family: $serif;
+        font-size: 36px;
+        font-weight: 500;
+        color: $dark;
+      }
+    }
+
+    .home-faq-item {
+      border-bottom: 1px solid $home-line;
+
+      &:first-child {
+        border-top: 1px solid $home-line;
+      }
+
+      summary {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 18px 0;
+        list-style: none;
+        font-family: $font;
+        font-size: 15px;
+        font-weight: 500;
+        color: $dark;
+
+        &::-webkit-details-marker {
+          display: none;
+        }
+      }
+
+      p {
+        padding: 0 0 18px;
+        font-family: $font;
+        font-size: 14px;
+        line-height: 1.65;
+        color: $grey;
+        white-space: pre-wrap;
+      }
+
+      &[open] .home-faq-icon {
+        transform: rotate(45deg);
+      }
+    }
+
+    .home-faq-icon {
+      flex-shrink: 0;
+      font-size: 20px;
+      color: $dark;
+      transition: transform 0.2s;
+    }
+  }
+
+  /** FINAL CALL TO ACTION **/
+
+  .home-cta {
+    padding: 64px 0;
+    background: $white;
+
+    .container {
+      padding: 0 16px;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    h2 {
+      font-family: $serif;
+      font-size: 38px;
+      font-weight: 500;
+      line-height: 1.08;
+      letter-spacing: -0.02em;
+      color: $dark;
+      text-wrap: balance;
+    }
+
+    p {
+      margin-top: 14px;
+      font-family: $font;
+      font-size: 14px;
+      line-height: 1.6;
+      color: $grey;
+      text-wrap: balance;
+    }
+
+    .home-cta-actions {
+      width: 100%;
+      margin-top: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+
+      .home-btn {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+
+    .home-cta-link {
+      padding: 4px 0;
+      border-bottom: 1px solid $dark;
+      font-family: $font;
+      font-size: 14px;
+      font-weight: 500;
+      color: $dark;
     }
   }
 }

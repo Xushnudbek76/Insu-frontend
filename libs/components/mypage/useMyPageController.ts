@@ -1,3 +1,4 @@
+import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutlined';
 import { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useMutation, useQuery } from '@apollo/client/react';
@@ -346,7 +347,8 @@ export const useMyPageController = (): MyPageControllerResult => {
     : null;
 
   const navItems: MyPageNavItem[] = [
-    { key: 'myProfile', label: t('My Profile'), icon: AccountCircleOutlinedIcon },
+    { key: 'messages', label: t('Messages'), icon: ChatBubbleOutlineIcon },
+      { key: 'myProfile', label: t('My Profile'), icon: AccountCircleOutlinedIcon },
     ...(isAgent ? [{ key: 'myPackages' as Category, label: t('My Packages'), icon: Inventory2OutlinedIcon }] : []),
     ...(isAgent ? [{ key: 'addPackage' as Category, label: t('Add Package'), icon: AddBusinessOutlinedIcon }] : []),
     { key: 'myPolicies', label: t('My Policies'), icon: AssignmentOutlinedIcon },

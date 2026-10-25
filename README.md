@@ -171,3 +171,9 @@ Open inbound access for ports `3000` and `3007` in the VPS firewall or cloud sec
 ## License
 
 Private - All rights reserved.
+
+## Private agent conversations
+
+Select **Chat with Agent** on a package to open a private, saved conversation. My Page → **Messages** holds the inbox, offer, and purchase status on desktop/mobile. Clients accept an agent offer and pay the agent directly; the policy activates only after the assigned agent confirms receipt. There is no website checkout.
+
+The backend must include the agent-chat API and purchase index migration described in `insurance-ai/docs/agent-chat-rollout.md`. Set NEXT_PUBLIC_GRAPHQL_URL and NEXT_PUBLIC_SOCKET_URL to that backend. New flow: chat → offer → acceptance → direct payment → agent confirmation → My Policies.

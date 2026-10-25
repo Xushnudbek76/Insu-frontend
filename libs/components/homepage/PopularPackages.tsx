@@ -1,6 +1,8 @@
 import React, { useMemo } from "react";
 import { Stack, Box, IconButton } from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 import { useRouter } from "next/router";
 import NextLink from "next/link";
 import { useQuery, useMutation } from "@apollo/client/react";
@@ -13,6 +15,9 @@ import { getMeLiked, useLikeToggleMap } from "@/libs/hooks/useLikeToggle";
 import type { LikeState } from "@/libs/types/common";
 import { sweetMixinErrorAlert } from "@/libs/sweetAlert";
 import { toAssetUrl } from "@/libs/api";
+import { typeLabel } from "@/libs/components/packages/helpers";
+
+const PLACEHOLDER_IMAGE = "/img/placeholder-article.svg";
 
 interface PopularPackage {
   _id: string;
@@ -56,9 +61,10 @@ const PopularPackages: React.FC = () => {
     LIKE_TARGET_PACKAGE,
   );
 
-  const packages = data?.getPackages?.list ?? [];
+  // A fresh `[]` on every render would re-run the like-state sync effect forever while loading.
+  const packages = useMemo(() => data?.getPackages?.list ?? [], [data]);
   const getPackageImage = (images?: string[] | null) =>
-    toAssetUrl(images?.[0]) ?? "/img/placeholder-article.svg";
+    toAssetUrl(images?.[0]) ?? PLACEHOLDER_IMAGE;
 
   const packageLikeSourceStates = useMemo<Record<string, LikeState>>(
     () =>
@@ -107,106 +113,79 @@ const PopularPackages: React.FC = () => {
 
   const hasPackages = packages && packages.length > 0;
 
-  if (device === "mobile") {
+  const renderCard = (pkg: PopularPackage) => {
+    const likeState = packageLikes.getState(pkg._id);
     return (
-      <Stack className={"popular-packages"}>
-        <Stack className={"container"}>
-          <Stack className={"info-box"}>
-            <span>{t("Popular Insurance")}</span>
-          </Stack>
-          <Stack className={"card-box"}>
-            {loading && (
-              <Box component={"div"} className={"empty-list"}>
-                {t("Loading popular insurance...")}
-              </Box>
+      <Box
+        key={pkg._id}
+        component={"div"}
+        className={"package-card"}
+        onClick={() => handleCardClick(pkg._id)}
+      >
+        <Box className={"package-image-wrap"}>
+          <Box
+            component="img"
+            src={getPackageImage(pkg.packageImages)}
+            alt={pkg.packageTitle}
+            className={"package-image"}
+            onError={(event: React.SyntheticEvent<HTMLImageElement>) => {
+              const image = event.currentTarget;
+              if (!image.src.endsWith(PLACEHOLDER_IMAGE)) image.src = PLACEHOLDER_IMAGE;
+            }}
+          />
+          <span className={"package-type"}>{t(typeLabel(pkg.packageType))}</span>
+          <IconButton
+            className={"like-btn" + (likeState.liked ? " liked" : "")}
+            size="small"
+            aria-label={t("Likes")}
+            onClick={(event) => {
+              event.stopPropagation();
+              void handleToggleLike(pkg._id);
+            }}
+          >
+            {likeState.liked ? (
+              <FavoriteIcon className={"like-icon"} />
+            ) : (
+              <FavoriteBorderIcon className={"like-icon"} />
             )}
-            {!loading && error && (
-              <Box component={"div"} className={"empty-list"}>
-                {t("Could not load popular packages. Please try again later.")}
-              </Box>
-            )}
-            {!loading && !error && hasPackages && (
-              <Stack className={"popular-grid"}>
-                {packages.map((pkg) => {
-                  const likeState = packageLikes.getState(pkg._id);
-                  return (
-                    <Box
-                      key={pkg._id}
-                      component={"div"}
-                      className={"package-card"}
-                      onClick={() => handleCardClick(pkg._id)}
-                    >
-                      <Box className={"package-image-wrap"}>
-                        <Box
-                          component="img"
-                          src={getPackageImage(pkg.packageImages)}
-                          alt={pkg.packageTitle}
-                          className={"package-image"}
-                        />
-                      </Box>
-                      <span className={"package-type"}>
-                        {t(pkg.packageType)}
-                      </span>
-                      <strong className={"package-name"}>
-                        {pkg.packageTitle}
-                      </strong>
-                      {pkg.packageDesc && (
-                        <p className={"package-desc"}>{pkg.packageDesc}</p>
-                      )}
-                      <span className={"package-price"}>
-                        ${pkg.packagePrice.toLocaleString()} {t("/ month")}
-                      </span>
-                      <Box component={"div"} className={"package-footer"}>
-                        <span className={"package-meta"}>
-                          {typeof pkg.packageViews === "number"
-                            ? t("views count", {
-                                count: pkg.packageViews.toLocaleString(),
-                              })
-                            : t("New insurance")}
-                        </span>
-                        <IconButton
-                          className={"like-btn"}
-                          size="small"
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            void handleToggleLike(pkg._id);
-                          }}
-                        >
-                          <FavoriteIcon
-                            className={
-                              "like-icon" + (likeState.liked ? " liked" : "")
-                            }
-                          />
-                        </IconButton>
-                      </Box>
-                    </Box>
-                  );
-                })}
-              </Stack>
-            )}
-            {!loading && !error && !hasPackages && (
-              <Box component={"div"} className={"empty-list"}>
-                {t("No popular insurance yet")}
-              </Box>
-            )}
-          </Stack>
-        </Stack>
-      </Stack>
+          </IconButton>
+        </Box>
+        <Box component={"div"} className={"package-body"}>
+          <strong className={"package-name"}>{pkg.packageTitle}</strong>
+          {pkg.packageDesc && (
+            <p className={"package-desc"}>{pkg.packageDesc}</p>
+          )}
+          <Box component={"div"} className={"package-footer"}>
+            <span className={"package-price"}>
+              <b>${pkg.packagePrice.toLocaleString()}</b> {t("/ month")}
+            </span>
+            <span className={"package-meta"}>
+              {typeof pkg.packageViews === "number"
+                ? t("views count", {
+                    count: pkg.packageViews.toLocaleString(),
+                  })
+                : t("New insurance")}
+            </span>
+          </Box>
+        </Box>
+      </Box>
     );
-  }
+  };
 
   return (
     <Stack className={"popular-packages"}>
       <Stack className={"container"}>
         <Stack className={"info-box"}>
           <Box component={"div"} className={"left"}>
-            <span>{t("Popular Insurance")}</span>
+            <span className={"section-tag"}>{t("Insurance")}</span>
+            <h2>{t("Popular Insurance")}</h2>
             <p>{t("Popularity is based on views")}</p>
           </Box>
           <Box component={"div"} className={"right"}>
-            <div className={"more-box"}>
-              <NextLink href={"/packages"}>{t("See All Insurance")}</NextLink>
-            </div>
+            <NextLink href={"/packages"} className={"more-link"}>
+              {t("See All Insurance")}
+              <ArrowForwardRoundedIcon />
+            </NextLink>
           </Box>
         </Stack>
         <Stack className={"card-box"}>
@@ -221,70 +200,13 @@ const PopularPackages: React.FC = () => {
             </Box>
           )}
           {!loading && !error && hasPackages && (
-            <Stack className={"popular-grid"}>
-              {packages.map((pkg) => {
-                const likeState = packageLikes.getState(pkg._id);
-                return (
-                  <Box
-                    key={pkg._id}
-                    component={"div"}
-                    className={"package-card"}
-                    onClick={() => handleCardClick(pkg._id)}
-                  >
-                    <Box className={"package-image-wrap"}>
-                      <Box
-                        component="img"
-                        src={getPackageImage(pkg.packageImages)}
-                        alt={pkg.packageTitle}
-                        className={"package-image"}
-                      />
-                    </Box>
-                    <span className={"package-type"}>{t(pkg.packageType)}</span>
-                    <strong className={"package-name"}>
-                      {pkg.packageTitle}
-                    </strong>
-                    {pkg.packageDesc && (
-                      <p className={"package-desc"}>{pkg.packageDesc}</p>
-                    )}
-                    <span className={"package-price"}>
-                      ${pkg.packagePrice.toLocaleString()} {t("/ month")}
-                    </span>
-                    <Box component={"div"} className={"package-footer"}>
-                      <span className={"package-meta"}>
-                        {typeof pkg.packageViews === "number"
-                          ? t("views count", {
-                              count: pkg.packageViews.toLocaleString(),
-                            })
-                          : t("New insurance")}
-                      </span>
-                      <IconButton
-                        className={"like-btn"}
-                        size="small"
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          void handleToggleLike(pkg._id);
-                        }}
-                      >
-                        <FavoriteIcon
-                          className={
-                            "like-icon" + (likeState.liked ? " liked" : "")
-                          }
-                        />
-                      </IconButton>
-                    </Box>
-                  </Box>
-                );
-              })}
-            </Stack>
+            <Stack className={"popular-grid"}>{packages.map(renderCard)}</Stack>
           )}
           {!loading && !error && !hasPackages && (
             <Box component={"div"} className={"empty-list"}>
               {t("No popular insurance yet")}
             </Box>
           )}
-        </Stack>
-        <Stack className={"pagination-box"}>
-          <div className={"swiper-popular-pagination"}></div>
         </Stack>
       </Stack>
     </Stack>

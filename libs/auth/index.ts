@@ -34,7 +34,7 @@ export const setJwtToken = (token: string) => {
 export const logIn = async (input: LoginInput) => {
   try {
     const token = await requestAuthToken(LOGIN_MUTATION, { input });
-    updateSession(token);
+    await updateSession(token);
   } catch (error) {
     console.warn('Login failed', error);
     logOut();
@@ -45,7 +45,7 @@ export const logIn = async (input: LoginInput) => {
 export const signUp = async (input: SignupInput) => {
   try {
     const token = await requestAuthToken(SIGNUP_MUTATION, { input });
-    updateSession(token);
+    await updateSession(token);
   } catch (error) {
     console.warn('Signup failed', error);
     logOut();
@@ -61,10 +61,11 @@ export const logOut = () => {
   window.location.reload();
 };
 
-const updateSession = (token: string) => {
+const updateSession = async (token: string) => {
   if (!token) return;
   if (typeof window === 'undefined') return;
 
+  await initializeApollo().clearStore();
   setJwtToken(token);
   localStorage.setItem('login', Date.now().toString());
   updateUserInfo(token);

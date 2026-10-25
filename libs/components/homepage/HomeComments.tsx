@@ -1,16 +1,18 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Stack, Box, Avatar } from '@mui/material';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Autoplay, Pagination } from 'swiper/modules';
+import { Autoplay } from 'swiper/modules';
+import { useRouter } from 'next/router';
+import FormatQuoteRoundedIcon from '@mui/icons-material/FormatQuoteRounded';
 
 import 'swiper/css';
-import 'swiper/css/pagination';
 
 import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
 import { initializeApollo } from '@/apollo/client';
 import { GET_LATEST_COMMENTS } from '@/apollo/comment/query';
 import { toAssetUrl } from '@/libs/api';
 import { useTranslation } from 'next-i18next/pages';
+import { formatLocaleDate } from '@/libs/utils/locale';
 
 interface CommentMember {
   _id: string;
@@ -36,6 +38,7 @@ const getCommentAvatar = (image?: string | null) =>
 
 const HomeComments: React.FC = () => {
   const device = useDeviceDetect();
+  const router = useRouter();
   const { t } = useTranslation('common');
   const [comments, setComments] = useState<HomeComment[]>([]);
   const [loading, setLoading] = useState(false);
@@ -74,11 +77,11 @@ const HomeComments: React.FC = () => {
 
   const displayComments = useMemo(() => {
     if (!comments || comments.length === 0) return [];
-    if (comments.length >= 4) return comments;
+    const target = 12;
+    if (comments.length >= target) return comments;
 
-    // For visual consistency on the homepage, repeat comments
-    // so that we always have at least 4 slides in the row.
-    const target = 8;
+    // The row loops continuously, so repeat short lists until
+    // there are enough slides to fill it without gaps.
     const repeated: HomeComment[] = [];
     for (let i = 0; i < target; i += 1) {
       repeated.push(comments[i % comments.length]);
@@ -87,15 +90,17 @@ const HomeComments: React.FC = () => {
   }, [comments]);
 
   const hasComments = displayComments && displayComments.length > 0;
-  const slidesPerView = device === 'mobile' ? 1.1 : 3;
-  const spaceBetween = device === 'mobile' ? 12 : 24;
+  // Cards keep a fixed width (set in the stylesheet) however wide the screen is
+  const slidesPerView = 'auto';
+  const spaceBetween = device === 'mobile' ? 12 : 20;
 
   return (
     <Stack className={'home-comments'}>
       <Stack className={'container'}>
         <Stack className={'info-box'}>
           <Box component={'div'} className={'left'}>
-            <span>{t('What our members say')}</span>
+            <span className={'section-tag'}>{t('Reviews')}</span>
+            <h2>{t('What our members say')}</h2>
             <p>{t('Real feedback from people using our insurance.')}</p>
           </Box>
         </Stack>
@@ -121,14 +126,13 @@ const HomeComments: React.FC = () => {
 
           {!loading && !error && hasComments && (
             <Swiper
-              modules={[Autoplay, Pagination]}
+              modules={[Autoplay]}
               loop={true}
               autoplay={{
                 delay: 0,
                 disableOnInteraction: false,
                 pauseOnMouseEnter: true,
               }}
-              pagination={{ clickable: true }}
               centeredSlides={false}
               speed={4000}
               className={'comments-swiper'}
@@ -144,8 +148,10 @@ const HomeComments: React.FC = () => {
 
                 return (
                   <SwiperSlide key={`${comment._id}-${index}`}>
-                    <Box component={'div'} className={'comment-card'}>
-                      <Box component={'div'} className={'comment-header'}>
+                    <Box component={'figure'} className={'comment-card'}>
+                      <FormatQuoteRoundedIcon className={'comment-quote-mark'} />
+                      <blockquote className={'comment-content'}>{comment.commentContent}</blockquote>
+                      <Box component={'figcaption'} className={'comment-header'}>
                         <Avatar
                           src={avatarSrc}
                           alt={nick}
@@ -153,9 +159,15 @@ const HomeComments: React.FC = () => {
                         />
                         <Box component={'div'} className={'comment-author'}>
                           <strong className={'name'}>{nick}</strong>
+                          <span className={'date'}>
+                            {formatLocaleDate(comment.createdAt, router.locale, {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric',
+                            })}
+                          </span>
                         </Box>
                       </Box>
-                      <p className={'comment-content'}>{comment.commentContent}</p>
                     </Box>
                   </SwiperSlide>
                 );

@@ -1,11 +1,13 @@
+import { useState } from 'react';
 import { Avatar, Box, Stack } from '@mui/material';
-import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
+import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import ChatBubbleOutlineOutlinedIcon from '@mui/icons-material/ChatBubbleOutlineOutlined';
 import { useTranslation } from 'next-i18next/pages';
 import type { BoardArticleCategory } from '@/libs/enums/board-article.enum';
+import { toAssetUrl } from '@/libs/api';
 
 interface ArticleMember {
   _id: string;
@@ -101,80 +103,112 @@ const MobileCommunityDetailContent = ({
   onPostComment,
 }: MobileCommunityDetailPageProps) => {
   const { t } = useTranslation('common');
+  const [imageFailed, setImageFailed] = useState(false);
+  const authorName = article.memberData?.memberNick ?? t('Community Member');
 
   return (
     <Stack className='mobile-community-detail-page'>
-    <button className='mobile-back-btn' onClick={onBack}>
-      <ArrowBackOutlinedIcon />
-      {t('Back to community')}
-    </button>
-
-    <Box
-      className='mobile-community-detail-hero'
-      style={{ backgroundImage: `linear-gradient(rgba(8, 13, 20, 0.2), rgba(8, 13, 20, 0.58)), url(${getArticleImage(article.articleImage)})` }}
-    >
-      <span>{categoryLabel}</span>
-      <h1>{article.articleTitle}</h1>
-      <small>{formatDate(article.createdAt)}</small>
-    </Box>
-
-    <Stack className='mobile-community-detail-card'>
-      <Stack className='mobile-community-author'>
-        <Avatar src={article.memberData?.memberImage ?? undefined}>
-          {article.memberData?.memberNick?.[0] ?? 'U'}
-        </Avatar>
-        <div>
-          <strong>{article.memberData?.memberNick ?? t('Community Member')}</strong>
-          <span>{t('Shared with the INSU community')}</span>
-        </div>
-      </Stack>
-
-      <p>{article.articleContent}</p>
-
-      <Stack className='mobile-community-stats'>
-        <span>
-          <VisibilityOutlinedIcon />
-          {article.articleViews}
-        </span>
-        <button className={liked ? 'liked' : ''} onClick={onLike}>
-          {liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
-          {likeCount}
+      <Box component='article' className='post-detail'>
+        <button type='button' className='post-detail-back' onClick={onBack}>
+          <ArrowBackRoundedIcon />
+          {t('Back to community')}
         </button>
-        <span>
-          <ChatBubbleOutlineOutlinedIcon />
-          {commentTotal}
-        </span>
-      </Stack>
-    </Stack>
 
-    <Stack className='mobile-community-comments'>
-      <h2>{t('Comments')} ({commentTotal})</h2>
-      <textarea
-        value={commentText}
-        onChange={(event) => onCommentTextChange(event.target.value)}
-        placeholder={t('Share your thoughts about this post')}
-      />
-      <button disabled={postingComment || !commentText.trim()} onClick={onPostComment}>
-        {postingComment ? t('Posting...') : t('Post Comment')}
-      </button>
-
-      {comments.length === 0 ? (
-        <div className='mobile-comment-empty'>{t('No comments yet. Start the conversation.')}</div>
-      ) : (
-        comments.map((comment) => (
-          <div key={comment._id} className='mobile-comment-item'>
-            <Avatar src={comment.memberData?.memberImage ?? undefined}>
-              {comment.memberData?.memberNick?.[0] ?? 'U'}
-            </Avatar>
-            <div>
-              <strong>{comment.memberData?.memberNick ?? t('Member')}</strong>
-              <span>{formatDate(comment.createdAt)}</span>
-              <p>{comment.commentContent}</p>
-            </div>
+        <header className='post-detail-header'>
+          <div className='post-detail-meta'>
+            <span className='post-detail-category'>{categoryLabel}</span>
+            <span>{formatDate(article.createdAt)}</span>
           </div>
-        ))
-      )}
-    </Stack>
+          <h1>{article.articleTitle}</h1>
+          <div className='post-detail-byline'>
+            <Avatar src={toAssetUrl(article.memberData?.memberImage)} alt={authorName}>
+              {authorName[0]}
+            </Avatar>
+            <div className='post-detail-author'>
+              <strong>{authorName}</strong>
+              <span>{t('Shared with the INSU community')}</span>
+            </div>
+            <button
+              type='button'
+              className={`post-detail-like${liked ? ' liked' : ''}`}
+              aria-pressed={liked}
+              onClick={onLike}
+            >
+              {liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+              {likeCount}
+            </button>
+          </div>
+        </header>
+
+        {article.articleImage && !imageFailed && (
+          <figure className='post-detail-image'>
+            <img
+              src={getArticleImage(article.articleImage)}
+              alt={article.articleTitle}
+              onError={() => setImageFailed(true)}
+            />
+          </figure>
+        )}
+
+        <div className='post-detail-content'>{article.articleContent}</div>
+
+        <div className='post-detail-stats'>
+          <span>
+            <VisibilityOutlinedIcon />
+            {article.articleViews}
+          </span>
+          <span>
+            <FavoriteBorderIcon />
+            {likeCount}
+          </span>
+          <span>
+            <ChatBubbleOutlineOutlinedIcon />
+            {commentTotal}
+          </span>
+        </div>
+
+        <section className='post-comments'>
+          <div className='post-comments-head'>
+            <h2>{t('Comments')}</h2>
+            <span>{commentTotal}</span>
+          </div>
+
+          <div className='post-comment-form'>
+            <textarea
+              value={commentText}
+              onChange={(event) => onCommentTextChange(event.target.value)}
+              placeholder={t('Share your thoughts about this post')}
+            />
+            <button type='button' disabled={postingComment || !commentText.trim()} onClick={onPostComment}>
+              {postingComment ? t('Posting...') : t('Post Comment')}
+            </button>
+          </div>
+
+          {comments.length === 0 ? (
+            <p className='post-comment-empty'>{t('No comments yet. Start the conversation.')}</p>
+          ) : (
+            <div className='post-comment-list'>
+              {comments.map((comment) => {
+                const name = comment.memberData?.memberNick ?? t('Member');
+                return (
+                  <div key={comment._id} className='post-comment'>
+                    <Avatar src={toAssetUrl(comment.memberData?.memberImage)} alt={name}>
+                      {name[0]}
+                    </Avatar>
+                    <div className='post-comment-body'>
+                      <div className='post-comment-head'>
+                        <strong>{name}</strong>
+                        <span>{formatDate(comment.createdAt)}</span>
+                      </div>
+                      <p>{comment.commentContent}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </section>
+      </Box>
     </Stack>
   );
 };

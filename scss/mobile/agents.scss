@@ -1,32 +1,21 @@
 #mobile-wrap {
-  .mobile-agents-page,
-  .mobile-agent-detail-page {
+  .mobile-agents-page {
     padding-bottom: 40px;
     background: #f8f9fb;
   }
 
-  .mobile-agents-list,
-  .mobile-agent-profile-card,
-  .mobile-agent-section {
-    margin: 14px 16px 0;
-  }
-
-  .mobile-agent-card,
-  .mobile-agent-profile-card,
-  .mobile-agent-section {
-    border: 1px solid #e1e2e4;
-    border-radius: 22px;
-    background: #ffffff;
-    box-shadow: 0 18px 44px rgba(15, 23, 42, 0.06);
-  }
-
   .mobile-agents-list {
+    margin: 14px 16px 0;
     display: grid;
     gap: 14px;
   }
 
   .mobile-agent-card {
     overflow: hidden;
+    border: 1px solid #e1e2e4;
+    border-radius: 22px;
+    background: #ffffff;
+    box-shadow: 0 18px 44px rgba(15, 23, 42, 0.06);
   }
 
   .mobile-agent-photo {
@@ -98,208 +87,575 @@
     }
   }
 
-  .mobile-agent-profile-card {
-    padding: 20px;
-    align-items: center;
-    text-align: center;
-    gap: 10px;
-  }
+  /** AGENT DETAIL — minimal **/
 
-  .mobile-agent-profile-photo {
-    width: 120px;
-    height: 120px;
-    border-radius: 24px;
-    object-fit: cover;
-  }
+  .mobile-agent-detail-page {
+    padding: 8px 16px 48px;
+    background: $white;
+    color: $dark;
+    font-family: $font;
 
-  .mobile-agent-profile-card > span {
-    padding: 6px 10px;
-    border-radius: 999px;
-    background: #f2f4f6;
-    color: #454556;
-    font-size: 12px;
-    font-weight: 800;
-  }
-
-  .mobile-agent-profile-card h1,
-  .mobile-section-head h2 {
-    margin: 0;
-    font-size: 30px;
-    line-height: 1.05;
-    font-weight: 900;
-  }
-
-  .mobile-agent-profile-card small,
-  .mobile-section-head small {
-    color: #616269;
-  }
-
-  .mobile-agent-phone {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    color: #191c1e;
-    font-weight: 700;
-  }
-
-  .mobile-agent-profile-card p {
-    margin: 0;
-    color: #616269;
-    line-height: 1.65;
-  }
-
-  .mobile-agent-profile-card > button {
-    min-height: 46px;
-    padding: 0 18px;
-    border: 0;
-    border-radius: 999px;
-    background: #2218dc;
-    color: #ffffff;
-    font-weight: 800;
-  }
-
-  .mobile-agent-profile-card > button.following {
-    background: #191c1e;
-  }
-
-  .mobile-agent-summary-stats {
-    width: 100%;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
-
-    > div {
-      padding: 12px;
-      border-radius: 18px;
-      background: #f8f9fb;
-      display: grid;
-      justify-items: center;
-      gap: 4px;
-    }
-  }
-
-  .mobile-agent-section {
-    padding: 18px;
-    gap: 14px;
-  }
-
-  .mobile-section-head {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 10px;
-  }
-
-  .mobile-network-list,
-  .mobile-review-list {
-    display: grid;
-    gap: 12px;
-  }
-
-  .mobile-network-card,
-  .mobile-review-card {
-    display: grid;
-    gap: 12px;
-    padding: 14px;
-    border-radius: 18px;
-    background: #f8f9fb;
-  }
-
-  .mobile-network-card {
-    grid-template-columns: 48px 1fr;
-    align-items: center;
-
-    img {
-      width: 48px;
-      height: 48px;
-      border-radius: 14px;
-      object-fit: cover;
-    }
-
-    strong,
-    span,
-    small {
-      display: block;
-    }
-
-    span,
-    small {
-      color: #616269;
-    }
-
-    button {
-      margin-top: 8px;
-      width: fit-content;
-      min-height: 36px;
-      padding: 0 14px;
+    .mobile-back-btn {
+      align-self: flex-start;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin: 0 0 0 -8px;
+      padding: 8px;
       border: 0;
-      border-radius: 999px;
-      background: #191c1e;
-      color: #ffffff;
-      font-weight: 700;
+      background: transparent;
+      font-family: $font;
+      font-size: 13px;
+      font-weight: 500;
+      color: $grey;
+
+      svg {
+        font-size: 18px;
+      }
     }
-  }
 
-  .mobile-review-head {
-    display: grid;
-    grid-template-columns: 44px 1fr;
-    gap: 12px;
-    align-items: center;
+    /* Profile */
 
-    img {
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
+    .mobile-agent-profile-card {
+      margin-top: 12px;
+      align-items: center;
+      gap: 10px;
+      text-align: center;
+
+      > span {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: rgba($brand, 0.08);
+        font-size: 12px;
+        font-weight: 500;
+        color: $brand;
+
+        &::before {
+          content: '';
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: currentColor;
+        }
+      }
+
+      h1 {
+        font-family: $font;
+        font-size: 30px;
+        font-weight: 700;
+        line-height: 1.1;
+        letter-spacing: -0.04em;
+        color: $dark;
+      }
+
+      small {
+        margin-top: -6px;
+        font-size: 13px;
+        color: $grey;
+      }
+
+      p {
+        font-size: 14px;
+        line-height: 1.6;
+        color: $grey;
+      }
+
+      > button {
+        width: 100%;
+        min-height: 48px;
+        margin-top: 6px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border: 1px solid $brand;
+        border-radius: 999px;
+        background: $brand;
+        font-family: $font;
+        font-size: 15px;
+        font-weight: 600;
+        color: $white;
+
+        svg {
+          font-size: 20px;
+        }
+
+        &.following {
+          border-color: $border;
+          background: $white;
+          color: $dark;
+        }
+      }
+    }
+
+    .mobile-agent-profile-photo {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
       object-fit: cover;
+      background: $light;
     }
 
-    strong,
-    span {
-      display: block;
+    .mobile-agent-phone {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+
+      svg {
+        font-size: 17px;
+        color: $grey;
+      }
+
+      strong {
+        font-weight: 500;
+        color: $dark;
+      }
     }
 
-    span {
-      color: #616269;
-      font-size: 12px;
-    }
-  }
-
-  .mobile-review-card p {
-    margin: 0;
-    color: #191c1e;
-    line-height: 1.65;
-  }
-
-  .mobile-review-form {
-    gap: 10px;
-    padding: 16px;
-    border-radius: 18px;
-    background: #f8f9fb;
-
-    textarea {
+    // Numbers only, separated by hairlines
+    .mobile-agent-summary-stats {
       width: 100%;
-      min-height: 120px;
-      padding: 14px;
-      border: 1px solid #d9dadc;
-      border-radius: 16px;
-      box-sizing: border-box;
-      resize: vertical;
-      font: inherit;
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      border-top: 1px solid $border;
+      border-bottom: 1px solid $border;
+
+      > div {
+        padding: 14px 4px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        border-left: 1px solid $border;
+
+        &:first-child {
+          border-left: 0;
+        }
+      }
+
+      svg {
+        display: none;
+      }
+
+      strong {
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        line-height: 1;
+        color: $dark;
+      }
+
+      span {
+        font-size: 11px;
+        color: $grey;
+      }
     }
 
-    button {
-      min-height: 46px;
+    /* Sections */
+
+    .mobile-agent-section {
+      margin-top: 40px;
+      gap: 16px;
+    }
+
+    .mobile-section-head {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+
+      h2 {
+        font-family: $font;
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        color: $dark;
+      }
+
+      small {
+        font-size: 14px;
+        color: $grey;
+      }
+    }
+
+    .mobile-category-scroll {
+      width: 100%;
+      margin: 0;
+      overflow: visible;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      padding: 4px;
+      border-radius: 999px;
+      background: $light;
+
+      button {
+        min-height: 38px;
+        margin: 0;
+        border: 0;
+        border-radius: 999px;
+        background: transparent;
+        font-family: $font;
+        font-size: 13px;
+        font-weight: 500;
+        color: $grey;
+
+        &.active {
+          background: $dark;
+          color: $white;
+        }
+      }
+    }
+
+    .mobile-network-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .mobile-network-card {
+      display: grid;
+      grid-template-columns: 40px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-top: 1px solid $border;
+      border-radius: 0;
+      background: transparent;
+
+      &:first-child {
+        border-top: 0;
+      }
+
+      img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: $light;
+      }
+
+      div {
+        min-width: 0;
+      }
+
+      strong,
+      span,
+      small {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      strong {
+        font-size: 14px;
+        font-weight: 600;
+        color: $dark;
+      }
+
+      span {
+        display: none;
+      }
+
+      small {
+        margin-top: 2px;
+        font-size: 12px;
+        color: $grey;
+      }
+
+      button {
+        margin: 0;
+        min-height: 32px;
+        padding: 0 14px;
+        border: 1px solid $border;
+        border-radius: 999px;
+        background: $white;
+        font-family: $font;
+        font-size: 12px;
+        font-weight: 600;
+        color: $dark;
+      }
+    }
+
+    /* Listings */
+
+    .mobile-packages-list {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .mobile-package-card {
+      margin: 0;
+      gap: 12px;
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+      overflow: visible;
+    }
+
+    .mobile-package-image {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 4 / 3;
+      border-radius: 18px;
+      background-color: $light;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .mobile-package-body {
+      gap: 4px;
+      padding: 0;
+    }
+
+    .mobile-package-topline {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
+
+      span {
+        padding: 0;
+        background: transparent;
+        font-size: 12px;
+        font-weight: 500;
+        letter-spacing: 0;
+        text-transform: none;
+        color: $brand;
+      }
+
+      strong {
+        font-size: 16px;
+        font-weight: 700;
+        color: $dark;
+      }
+    }
+
+    .mobile-package-body h3 {
+      font-family: $font;
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: $dark;
+    }
+
+    .mobile-package-badges {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 4px 12px;
+
+      span {
+        padding: 0;
+        background: transparent;
+        font-size: 12px;
+        font-weight: 400;
+        color: $grey;
+      }
+    }
+
+    .mobile-package-stats {
+      margin-top: 6px;
+      padding-top: 0;
+      flex-direction: row;
+      justify-content: flex-start;
+      gap: 16px;
+      border-top: 0;
+
+      span,
+      button {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        min-width: 0;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        font-family: $font;
+        font-size: 13px;
+        font-weight: 500;
+        color: $grey;
+      }
+
+      svg {
+        font-size: 16px !important;
+      }
+
+      button.liked {
+        color: #e5484d;
+      }
+    }
+
+    /* Reviews */
+
+    .mobile-review-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .mobile-review-card {
+      gap: 8px;
+      padding: 16px 0;
+      border-top: 1px solid $border;
+      border-radius: 0;
+      background: transparent;
+
+      &:first-child {
+        padding-top: 0;
+        border-top: 0;
+      }
+
+      p {
+        font-size: 14px;
+        line-height: 1.6;
+        color: $dark;
+        overflow-wrap: anywhere;
+      }
+    }
+
+    .mobile-review-head {
+      display: grid;
+      grid-template-columns: 36px 1fr;
+      align-items: center;
+      gap: 10px;
+
+      img {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: $light;
+      }
+
+      strong,
+      span {
+        display: block;
+      }
+
+      strong {
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      span {
+        font-size: 12px;
+        color: $grey;
+      }
+    }
+
+    .mobile-review-form {
+      gap: 10px;
+      padding: 0;
+      border-radius: 0;
+      background: transparent;
+
+      textarea {
+        width: 100%;
+        min-height: 110px;
+        padding: 14px 16px;
+        border: 1px solid transparent;
+        border-radius: 16px;
+        background: $light;
+        font-family: $font;
+        font-size: 16px;
+        line-height: 1.5;
+        color: $dark;
+        resize: vertical;
+
+        &:focus {
+          outline: none;
+          border-color: $brand;
+          background: $white;
+        }
+      }
+
+      button {
+        min-height: 46px;
+        border: 0;
+        border-radius: 999px;
+        background: $dark;
+        font-family: $font;
+        font-size: 14px;
+        font-weight: 600;
+        color: $white;
+
+        &:disabled {
+          opacity: 0.3;
+        }
+      }
+    }
+
+    .mobile-review-form-head {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+
+      svg {
+        display: none;
+      }
+
+      strong {
+        font-size: 14px;
+        font-weight: 600;
+      }
+    }
+
+    /* Shared bits */
+
+    .mobile-empty-card {
+      margin: 0;
+      padding: 28px 16px;
       border: 0;
       border-radius: 16px;
-      background: #2218dc;
-      color: #ffffff;
-      font-weight: 800;
-    }
-  }
+      background: $light;
+      box-shadow: none;
+      text-align: center;
 
-  .mobile-review-form-head {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
+      p {
+        margin: 0;
+        font-size: 13px;
+        color: $grey;
+      }
+    }
+
+    .mobile-pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 4px;
+
+      button {
+        width: 32px;
+        height: 32px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 0;
+        border-radius: 50%;
+        background: transparent;
+        font-family: $font;
+        font-size: 13px;
+        color: $dark;
+
+        &.active {
+          background: $dark;
+          color: $white;
+        }
+
+        &:disabled {
+          color: #c4c5cc;
+        }
+      }
+    }
   }
 }

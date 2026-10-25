@@ -7,7 +7,7 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import ChatBubbleOutlineOutlinedIcon from '@mui/icons-material/ChatBubbleOutlineOutlined';
-import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
+import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
 import withLayoutMain from '@/layout/LayoutHome';
 import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
 import { getMeLiked, useSingleLikeToggle } from '@/libs/hooks/useLikeToggle';
@@ -73,6 +73,7 @@ const CommunityDetailPage: NextPage = () => {
   const { id } = router.query;
   const [commentText, setCommentText] = useState('');
   const [postingComment, setPostingComment] = useState(false);
+  const [imageFailed, setImageFailed] = useState(false);
 
   const articleId = typeof id === 'string' ? id : undefined;
 
@@ -121,6 +122,9 @@ const CommunityDetailPage: NextPage = () => {
 
   const getArticleImage = (image?: string | null) =>
     toAssetUrl(image) ?? '/img/placeholder-article.svg';
+
+  // Undefined lets MUI Avatar fall back to the member's initial.
+  const getAvatar = (image?: string | null) => toAssetUrl(image);
 
   const formatDate = (date: string) =>
     formatLocaleDate(date, router.locale, {
@@ -194,9 +198,7 @@ const CommunityDetailPage: NextPage = () => {
   if (loading) {
     return (
       <Stack className='community-detail-page'>
-        <Box className='community-shell'>
-          <div className='community-detail-loading'>{t('Loading community post...')}</div>
-        </Box>
+        <div className='post-detail-state'>{t('Loading community post...')}</div>
       </Stack>
     );
   }
@@ -204,9 +206,12 @@ const CommunityDetailPage: NextPage = () => {
   if (articleError || !article) {
     return (
       <Stack className='community-detail-page'>
-        <Box className='community-shell'>
-          <div className='community-detail-empty'>{t('This post could not be found.')}</div>
-        </Box>
+        <div className='post-detail-state'>
+          <p>{t('This post could not be found.')}</p>
+          <button type='button' onClick={() => router.push('/community')}>
+            {t('Back to Community')}
+          </button>
+        </div>
       </Stack>
     );
   }
@@ -231,95 +236,111 @@ const CommunityDetailPage: NextPage = () => {
     );
   }
 
+  const authorName = article.memberData?.memberNick ?? t('Community Member');
+  const imageSrc = toAssetUrl(article.articleImage);
+
   return (
     <Stack className='community-detail-page'>
-      <Box className='community-shell'>
-        <button className='community-back-btn' onClick={() => router.push('/community')}>
-          <ArrowBackOutlinedIcon />
+      <Box component='article' className='post-detail'>
+        <button type='button' className='post-detail-back' onClick={() => router.push('/community')}>
+          <ArrowBackRoundedIcon />
           {t('Back to Community')}
         </button>
 
-        <Box className='community-detail-card'>
-          <div
-            className='community-detail-hero'
-            style={{ backgroundImage: `url(${getArticleImage(article.articleImage)})` }}
-          />
-
-          <div className='community-detail-body'>
-            <div className='community-detail-meta-top'>
-              <span className='community-category-pill'>{t(CATEGORY_LABEL[article.articleCategory])}</span>
-              <span>{formatDate(article.createdAt)}</span>
-            </div>
-
-            <h1>{article.articleTitle}</h1>
-
-            <div className='community-detail-author'>
-              <Avatar src={article.memberData?.memberImage ?? undefined}>
-                {article.memberData?.memberNick?.[0] ?? 'U'}
-              </Avatar>
-              <div>
-                <strong>{article.memberData?.memberNick ?? t('Community Member')}</strong>
-                <span>{t('Shared with the INSU community')}</span>
-              </div>
-            </div>
-
-            <p className='community-detail-content'>{article.articleContent}</p>
-
-            <div className='community-detail-stats'>
-              <span>
-                <VisibilityOutlinedIcon />
-                {article.articleViews} {t('views')}
-              </span>
-              <button className={articleLike.liked ? 'liked' : ''} onClick={articleLike.toggle}>
-                {articleLike.liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
-                {articleLike.count} {t('likes')}
-              </button>
-              <span>
-                <ChatBubbleOutlineOutlinedIcon />
-                {commentTotal} {t('comments')}
-              </span>
-            </div>
+        <header className='post-detail-header'>
+          <div className='post-detail-meta'>
+            <span className='post-detail-category'>{t(CATEGORY_LABEL[article.articleCategory])}</span>
+            <span>{formatDate(article.createdAt)}</span>
           </div>
-        </Box>
+          <h1>{article.articleTitle}</h1>
+          <div className='post-detail-byline'>
+            <Avatar src={getAvatar(article.memberData?.memberImage)} alt={authorName}>
+              {authorName[0]}
+            </Avatar>
+            <div className='post-detail-author'>
+              <strong>{authorName}</strong>
+              <span>{t('Shared with the INSU community')}</span>
+            </div>
+            <button
+              type='button'
+              className={`post-detail-like${articleLike.liked ? ' liked' : ''}`}
+              aria-pressed={articleLike.liked}
+              onClick={articleLike.toggle}
+            >
+              {articleLike.liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+              {articleLike.count}
+            </button>
+          </div>
+        </header>
 
-        <Box className='community-comments-card'>
-          <div className='community-comments-header'>
+        {imageSrc && !imageFailed && (
+          <figure className='post-detail-image'>
+            <img src={imageSrc} alt={article.articleTitle} onError={() => setImageFailed(true)} />
+          </figure>
+        )}
+
+        <div className='post-detail-content'>{article.articleContent}</div>
+
+        <div className='post-detail-stats'>
+          <span>
+            <VisibilityOutlinedIcon />
+            {article.articleViews} {t('views')}
+          </span>
+          <span>
+            <FavoriteBorderIcon />
+            {articleLike.count} {t('likes')}
+          </span>
+          <span>
+            <ChatBubbleOutlineOutlinedIcon />
+            {commentTotal} {t('comments')}
+          </span>
+        </div>
+
+        <section className='post-comments'>
+          <div className='post-comments-head'>
             <h2>{t('Comments')}</h2>
             <span>{commentTotal}</span>
           </div>
 
-          <div className='community-comment-form'>
+          <div className='post-comment-form'>
             <textarea
               value={commentText}
               onChange={(event) => setCommentText(event.target.value)}
               placeholder={t('Share your thoughts about this post')}
             />
-            <button disabled={postingComment || !commentText.trim()} onClick={handlePostComment}>
+            <button
+              type='button'
+              disabled={postingComment || !commentText.trim()}
+              onClick={handlePostComment}
+            >
               {postingComment ? t('Posting...') : t('Post Comment')}
             </button>
           </div>
 
-          <div className='community-comment-list'>
-            {comments.length === 0 ? (
-              <div className='community-comment-empty'>{t('No comments yet. Start the conversation.')}</div>
-            ) : (
-              comments.map((comment) => (
-                <div key={comment._id} className='community-comment-item'>
-                  <Avatar src={comment.memberData?.memberImage ?? undefined}>
-                    {comment.memberData?.memberNick?.[0] ?? 'U'}
-                  </Avatar>
-                  <div className='community-comment-body'>
-                    <div className='community-comment-head'>
-                      <strong>{comment.memberData?.memberNick ?? t('Member')}</strong>
-                      <span>{formatDate(comment.createdAt)}</span>
+          {comments.length === 0 ? (
+            <p className='post-comment-empty'>{t('No comments yet. Start the conversation.')}</p>
+          ) : (
+            <div className='post-comment-list'>
+              {comments.map((comment) => {
+                const name = comment.memberData?.memberNick ?? t('Member');
+                return (
+                  <div key={comment._id} className='post-comment'>
+                    <Avatar src={getAvatar(comment.memberData?.memberImage)} alt={name}>
+                      {name[0]}
+                    </Avatar>
+                    <div className='post-comment-body'>
+                      <div className='post-comment-head'>
+                        <strong>{name}</strong>
+                        <span>{formatDate(comment.createdAt)}</span>
+                      </div>
+                      <p>{comment.commentContent}</p>
                     </div>
-                    <p>{comment.commentContent}</p>
                   </div>
-                </div>
-              ))
-            )}
-          </div>
-        </Box>
+                );
+              })}
+            </div>
+          )}
+        </section>
       </Box>
     </Stack>
   );

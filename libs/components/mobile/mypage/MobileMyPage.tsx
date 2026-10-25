@@ -1,3 +1,5 @@
+import { useRouter } from 'next/router';
+import MessagesPanel from '@/libs/components/messages/MessagesPanel';
 import { Box, Stack } from '@mui/material';
 import AddPackage from '@/libs/components/mypage/AddPackage';
 import AgentClaims from '@/libs/components/mypage/AgentClaims';
@@ -38,7 +40,9 @@ const MobileMyPage = ({
   claimPanel,
   summary,
   navigation,
-}: MobileMyPageProps) => (
+}: MobileMyPageProps) => {
+  const router = useRouter();
+  return (
   <Stack className='mobile-mypage-page'>
     <Stack className='mobile-mypage-summary'>
       <Box component='img' src={avatarUrl(profile.form.memberImage)} alt={access.user?.memberNick} className='mobile-mypage-avatar' />
@@ -71,6 +75,8 @@ const MobileMyPage = ({
         </button>
       ))}
     </Box>
+
+    {access.category === 'messages' && <MessagesPanel conversationId={typeof router.query.conversationId === 'string' ? router.query.conversationId : undefined} packageId={typeof router.query.packageId === 'string' ? router.query.packageId : undefined} />}
 
     {access.category === 'myProfile' && access.user && (
       <MyProfile
@@ -171,5 +177,6 @@ const MobileMyPage = ({
     )}
   </Stack>
 );
+};
 
 export default MobileMyPage;

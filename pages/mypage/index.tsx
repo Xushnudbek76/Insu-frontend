@@ -1,3 +1,5 @@
+import { useRouter } from 'next/router';
+import MessagesPanel from '@/libs/components/messages/MessagesPanel';
 import { NextPage } from 'next';
 import { Box, Stack } from '@mui/material';
 import VerifiedOutlinedIcon from '@mui/icons-material/VerifiedOutlined';
@@ -17,6 +19,7 @@ import MobileMyPage from '@/libs/components/mobile/mypage/MobileMyPage';
 import { useMyPageController } from '@/libs/components/mypage/useMyPageController';
 
 const MyPage: NextPage = () => {
+  const router = useRouter();
   const device = useDeviceDetect();
   const controller = useMyPageController();
   const { t, access, profile, policies, claims, agentClaims, agentPackages, favorites, packageCreation, claimPanel, summary, navigation } =
@@ -65,6 +68,8 @@ const MyPage: NextPage = () => {
               {t('Secure account area')}
             </Box>
           </Stack>
+
+          {access.category === 'messages' && <MessagesPanel conversationId={typeof router.query.conversationId === 'string' ? router.query.conversationId : undefined} packageId={typeof router.query.packageId === 'string' ? router.query.packageId : undefined} />}
 
           {access.category === 'myProfile' && (
             <MyProfile

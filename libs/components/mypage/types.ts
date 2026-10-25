@@ -6,7 +6,7 @@ export const AGENT_CLAIM_LIMIT = 5;
 export const FAVORITE_LIMIT = 6;
 export const AGENT_PACKAGE_LIMIT = 6;
 
-export type Category = 'myProfile' | 'myPackages' | 'addPackage' | 'myPolicies' | 'myClaims' | 'myFavorites' | 'agentClaims';
+export type Category = 'messages' | 'myProfile' | 'myPackages' | 'addPackage' | 'myPolicies' | 'myClaims' | 'myFavorites' | 'agentClaims';
 export type PackageType =
   | 'TERM_LIFE'
   | 'WHOLE_LIFE'
@@ -25,6 +25,8 @@ export type PolicyStatus = 'ACTIVE' | 'INACTIVE' | 'CANCELLED' | 'EXPIRED' | 'PE
 export type ClaimStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'SETTLED';
 
 export interface PolicyData {
+  conversationId?: string | null;
+  purchaseStage?: import('@/libs/components/messages/types').PurchaseStage | null;
   _id: string;
   policyStatus: PolicyStatus;
   packageId: string;
@@ -155,7 +157,7 @@ export const packageTypes: PackageType[] = [
 ];
 
 export const isCategory = (value: unknown): value is Category =>
-  ['myProfile', 'myPackages', 'addPackage', 'myPolicies', 'myClaims', 'myFavorites', 'agentClaims'].includes(`${value}`);
+  ['messages', 'myProfile', 'myPackages', 'addPackage', 'myPolicies', 'myClaims', 'myFavorites', 'agentClaims'].includes(`${value}`);
 
 export const formatCurrency = (value?: number | null) =>
   value == null

@@ -1,7 +1,29 @@
 import React from 'react';
 import { Stack, Box } from '@mui/material';
 import NextLink from 'next/link';
-import { useTranslation } from 'next-i18next/pages';
+import { Trans, useTranslation } from 'next-i18next/pages';
+import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
+import AutoAwesomeOutlinedIcon from '@mui/icons-material/AutoAwesomeOutlined';
+import TuneRoundedIcon from '@mui/icons-material/TuneRounded';
+import VerifiedUserOutlinedIcon from '@mui/icons-material/VerifiedUserOutlined';
+
+const FEATURES = [
+	{
+		Icon: AutoAwesomeOutlinedIcon,
+		label: 'AI recommendations',
+		desc: 'Let our AI suggest insurance that fits your budget and lifestyle.',
+	},
+	{
+		Icon: TuneRoundedIcon,
+		label: 'Flexible coverage',
+		desc: 'Choose from auto, home, health and travel plans in just a few clicks.',
+	},
+	{
+		Icon: VerifiedUserOutlinedIcon,
+		label: 'Trusted agents',
+		desc: 'Work with verified experts whenever you want a human opinion.',
+	},
+];
 
 const Advertisement = () => {
 	const { t } = useTranslation('common');
@@ -11,35 +33,31 @@ const Advertisement = () => {
 			<Stack className={'container'}>
 				<Box component={'div'} className={'ad-inner'}>
 					<Box component={'div'} className={'ad-header'}>
-						<span className={'ad-title'}>{t('Protect what matters most')}</span>
+						<span className={'section-tag'}>{t('Why INSU')}</span>
+						<h2 className={'ad-title'}>
+							<Trans
+								t={t}
+								i18nKey={'protect title html'}
+								defaults={'Protect what <i>matters most</i>'}
+								components={{ i: <i /> }}
+							/>
+						</h2>
 						<p className={'ad-subtitle'}>
 							{t('Smart coverage with AI recommendations, trusted agents, and flexible plans.')}
 						</p>
-					</Box>
-					<Box component={'div'} className={'ad-cards'}>
-						<Box component={'div'} className={'ad-card'}>
-							<span className={'ad-card-label'}>{t('AI recommendations')}</span>
-							<p className={'ad-card-desc'}>
-								{t('Let our AI suggest insurance that fits your budget and lifestyle.')}
-							</p>
-						</Box>
-						<Box component={'div'} className={'ad-card'}>
-							<span className={'ad-card-label'}>{t('Flexible coverage')}</span>
-							<p className={'ad-card-desc'}>
-								{t('Choose from auto, home, health and travel plans in just a few clicks.')}
-							</p>
-						</Box>
-						<Box component={'div'} className={'ad-card'}>
-							<span className={'ad-card-label'}>{t('Trusted agents')}</span>
-							<p className={'ad-card-desc'}>
-								{t('Work with verified experts whenever you want a human opinion.')}
-							</p>
-						</Box>
-					</Box>
-					<Box component={'div'} className={'ad-cta'}>
-						<NextLink href={'/packages'} passHref legacyBehavior>
-							<a className={'ad-btn'}>{t('Browse popular insurance')}</a>
+						<NextLink href={'/packages'} className={'home-btn dark'}>
+							{t('Browse popular insurance')}
+							<ArrowForwardRoundedIcon />
 						</NextLink>
+					</Box>
+					<Box component={'div'} className={'ad-features'}>
+						{FEATURES.map(({ Icon, label, desc }) => (
+							<Box key={label} component={'div'} className={'ad-feature'}>
+								<Icon className={'ad-feature-icon'} />
+								<h3 className={'ad-feature-label'}>{t(label)}</h3>
+								<p className={'ad-feature-desc'}>{t(desc)}</p>
+							</Box>
+						))}
 					</Box>
 				</Box>
 			</Stack>

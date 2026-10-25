@@ -1,7 +1,9 @@
 import React from 'react';
-import { Stack, Box, Typography, Skeleton } from '@mui/material';
+import { Stack, Box, Skeleton } from '@mui/material';
 import { useQuery } from '@apollo/client/react';
 import { useRouter } from 'next/router';
+import NextLink from 'next/link';
+import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
 import { useTranslation } from 'next-i18next/pages';
 import { GET_BOARD_ARTICLES } from '@/apollo/board-article/query';
 import { BoardArticleCategory } from '@/libs/enums/board-article.enum';
@@ -76,11 +78,14 @@ const BoardArticles: React.FC = () => {
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
   const featuredArticle = allArticles[0];
-  const sideArticles = allArticles.slice(1, 3);
-  const latestArticles = allArticles.slice(0, 5);
+  const guideArticles = allArticles.slice(0, 4);
 
-  const getArticleImage = (image?: string | null) =>
-    toAssetUrl(image) ?? '/img/placeholder-article.svg';
+  // Newest post's image behind the big card, over a dark fallback when there is none.
+  const getFeatureBackground = (image?: string | null) => {
+    const fallback = 'linear-gradient(135deg, #1d1f2b 0%, #2c2e7a 100%)';
+    const src = toAssetUrl(image);
+    return src ? `url('${src}'), ${fallback}` : fallback;
+  };
 
   const getCategoryLabel = (category: BoardArticleCategory) => {
     const labels: Record<BoardArticleCategory, string> = {
@@ -108,119 +113,52 @@ const BoardArticles: React.FC = () => {
     }
   };
 
-  const SkeletonBlock = ({ variant = 'side' }: { variant?: 'side' | 'feature' | 'latest' }) => (
-    <Box className={`magazine-card skeleton ${variant}`}>
-      <Box className='magazine-image'>
-        <Skeleton variant='rectangular' width='100%' height='100%' />
-      </Box>
-      <Box className='magazine-copy'>
-        <Skeleton variant='text' sx={{ fontSize: '12px', width: '34%' }} />
-        <Skeleton variant='text' sx={{ fontSize: variant === 'feature' ? '34px' : '18px' }} />
-        <Skeleton variant='text' sx={{ fontSize: '13px', width: '58%' }} />
-      </Box>
-    </Box>
-  );
-
-  const renderSideArticle = (article: BoardArticleData) => (
-    <Box
-      key={article._id}
-      className='magazine-card side'
-      onClick={() => openArticle(article._id)}
-      role='button'
-      tabIndex={0}
-      onKeyDown={(event) => handleCardKeyDown(event, article._id)}
-    >
-      <Box className='magazine-image'>
-        <Box
-          className='article-image'
-          style={{ backgroundImage: `url(${getArticleImage(article.articleImage)})` }}
-        />
-      </Box>
-      <Box className='magazine-copy'>
-        <span className='article-category'>{t(getCategoryLabel(article.articleCategory))}</span>
-        <Typography className='article-title'>{article.articleTitle}</Typography>
-        <small>{formatDate(article.createdAt)}</small>
-      </Box>
-    </Box>
-  );
-
-  const renderFeatureArticle = (article: BoardArticleData) => (
-    <Box
-      className='magazine-card feature'
-      onClick={() => openArticle(article._id)}
-      role='button'
-      tabIndex={0}
-      onKeyDown={(event) => handleCardKeyDown(event, article._id)}
-    >
-      <Box className='magazine-image'>
-        <Box
-          className='article-image'
-          style={{ backgroundImage: `url(${getArticleImage(article.articleImage)})` }}
-        />
-      </Box>
-      <Box className='magazine-copy'>
-        <span className='article-category'>{t(getCategoryLabel(article.articleCategory))}</span>
-        <Typography className='article-title'>{article.articleTitle}</Typography>
-        <Typography className='article-excerpt'>{article.articleContent}</Typography>
-        <small>
-          {formatDate(article.createdAt)}
-          {article.memberData?.memberNick ? ` · ${article.memberData.memberNick}` : ''}
-        </small>
-      </Box>
-    </Box>
-  );
-
-  const renderLatestArticle = (article: BoardArticleData) => (
-    <Box
-      key={article._id}
-      className='latest-item'
-      onClick={() => openArticle(article._id)}
-      role='button'
-      tabIndex={0}
-      onKeyDown={(event) => handleCardKeyDown(event, article._id)}
-    >
-      <Box className='latest-copy'>
-        <Typography>{article.articleTitle}</Typography>
-        <small>{formatDate(article.createdAt)}</small>
-      </Box>
-      <Box
-        className='latest-thumb'
-        style={{ backgroundImage: `url(${getArticleImage(article.articleImage)})` }}
-      />
-    </Box>
-  );
-
   return (
     <Stack className='board-articles'>
       <Stack className='hero-inner'>
-        {loading ? (
-          <Box className='article-magazine'>
-            <Stack className='side-column'>
-              <SkeletonBlock />
-              <SkeletonBlock />
-            </Stack>
-            <SkeletonBlock variant='feature' />
-            <Stack className='latest-column'>
-              <h3>{t('Latest')}</h3>
-              {[0, 1, 2, 3, 4].map((item) => (
-                <SkeletonBlock key={item} variant='latest' />
-              ))}
-            </Stack>
+        <Box
+          className='guide-card'
+          style={{ backgroundImage: getFeatureBackground(featuredArticle?.articleImage) }}
+        >
+          <Box className='guide-intro'>
+            <span className='section-tag'>{t('Community')}</span>
+            <h2>{t('From the community')}</h2>
+            <p>{t('Notices from our team and posts from members.')}</p>
+            <NextLink href='/community' className='home-btn light'>
+              {t('Visit community')}
+              <ArrowForwardRoundedIcon />
+            </NextLink>
           </Box>
-        ) : allArticles.length === 0 ? (
-          <Box className='articles-empty'>{t('No community articles yet.')}</Box>
-        ) : (
-          <Box className='article-magazine'>
-            <Stack className='side-column'>
-              {sideArticles.map((article) => renderSideArticle(article))}
-            </Stack>
-            {featuredArticle && renderFeatureArticle(featuredArticle)}
-            <Stack className='latest-column'>
-              <h3>{t('Latest')}</h3>
-              {latestArticles.map((article) => renderLatestArticle(article))}
-            </Stack>
-          </Box>
-        )}
+
+          <Stack className='guide-links'>
+            {loading ? (
+              [0, 1, 2].map((item) => (
+                <Skeleton key={item} variant='rounded' height={84} className='guide-skeleton' />
+              ))
+            ) : guideArticles.length === 0 ? (
+              <Box className='guide-empty'>{t('No community articles yet.')}</Box>
+            ) : (
+              guideArticles.map((article) => (
+                <Box
+                  key={article._id}
+                  className='guide-link'
+                  role='link'
+                  tabIndex={0}
+                  onClick={() => openArticle(article._id)}
+                  onKeyDown={(event) => handleCardKeyDown(event, article._id)}
+                >
+                  <Box className='guide-link-copy'>
+                    <span className='guide-link-meta'>
+                      {t(getCategoryLabel(article.articleCategory))} · {formatDate(article.createdAt)}
+                    </span>
+                    <strong>{article.articleTitle}</strong>
+                  </Box>
+                  <ArrowForwardRoundedIcon className='guide-link-arrow' />
+                </Box>
+              ))
+            )}
+          </Stack>
+        </Box>
       </Stack>
     </Stack>
   );
