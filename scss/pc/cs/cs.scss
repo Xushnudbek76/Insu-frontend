@@ -124,8 +124,8 @@
       font-size: 24px;
       line-height: 1.25;
       font-weight: 500;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      overflow-wrap: anywhere;
+      white-space: normal;
     }
 
     > span:last-child {
@@ -232,8 +232,8 @@
         font-size: 24px;
         line-height: 1.25;
         font-weight: 500;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        overflow-wrap: anywhere;
+        white-space: normal;
       }
 
       svg {
@@ -296,28 +296,27 @@
       }
     }
 
-    .cs-notice-head,
-    .cs-notice-summary {
-      grid-template-columns: 82px minmax(0, 1fr) 96px;
-    }
-
     .cs-notice-head {
-      min-height: 64px;
-      padding: 0 14px;
-      font-size: 14px;
+      display: none;
     }
 
     .cs-notice-summary {
-      min-height: 76px;
-      padding: 0 14px;
+      min-height: 96px;
+      grid-template-columns: 28px minmax(0, 1fr);
+      gap: 8px 12px;
+      padding: 18px 16px;
 
       strong {
-        padding: 0 10px;
+        padding: 0;
         font-size: 16px;
+        line-height: 1.5;
       }
 
       > span:last-child {
+        grid-column: 2;
+        text-align: left;
         font-size: 13px;
+        color: $grey;
       }
     }
 
@@ -333,7 +332,7 @@
     }
 
     .cs-notice-content {
-      padding: 0 20px 24px 106px;
+      padding: 0 20px 24px 56px;
       font-size: 14px;
     }
 
@@ -352,7 +351,7 @@
     .cs-faq-line > button {
       min-height: 72px;
       grid-template-columns: 54px minmax(0, 1fr) 28px;
-      padding: 0 14px;
+      padding: 18px 14px;
 
       span {
         width: 40px;

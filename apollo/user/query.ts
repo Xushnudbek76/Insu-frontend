@@ -46,6 +46,7 @@ export const GET_PACKAGE = gql`
       memberData {
         _id
         memberNick
+        memberFullName
         memberImage
       }
       meLiked {

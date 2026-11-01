@@ -33,13 +33,13 @@ const PackagePricingCard = ({
       </Box>
       <ul className={'pd-features'}>
         <li>
-          <CheckCircleOutlinedIcon /> {t('Zero Deductible Options')}
+          <CheckCircleOutlinedIcon /> {t('Discuss coverage with your agent')}
         </li>
         <li>
-          <CheckCircleOutlinedIcon /> {t('24/7 Technical Support')}
+          <CheckCircleOutlinedIcon /> {t('Review terms before you decide')}
         </li>
         <li>
-          <CheckCircleOutlinedIcon /> {t('Direct Digital Claims')}
+          <CheckCircleOutlinedIcon /> {t('Arrange payment directly with your agent')}
         </li>
       </ul>
       <button

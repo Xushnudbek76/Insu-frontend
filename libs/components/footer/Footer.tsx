@@ -27,7 +27,6 @@ const Footer = () => {
             <div className="link-group">
               <strong>{t('Support')}</strong>
               <NextLink href="/cs">{t('Help Center')}</NextLink>
-              <a href="mailto:support@insu.ai">{t('Contact')}</a>
               <NextLink href="/about">{t('About')}</NextLink>
             </div>
           </div>

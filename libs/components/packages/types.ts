@@ -1,6 +1,7 @@
 export interface MemberData {
   _id: string;
   memberNick?: string | null;
+  memberFullName?: string | null;
   memberImage?: string | null;
 }
 

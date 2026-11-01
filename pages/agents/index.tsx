@@ -50,7 +50,7 @@ interface GetAgentsResponse {
 }
 
 const displayName = (agent: AgentData, fallback: string) =>
-  agent.memberNick || agent.memberFullName || fallback;
+  agent.memberFullName || agent.memberNick || fallback;
 
 const agentImage = (image?: string | null) =>
   toAssetUrl(image) ?? "/img/placeholder-article.svg";

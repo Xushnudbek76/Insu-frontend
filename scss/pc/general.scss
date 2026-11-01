@@ -777,3 +777,45 @@
     }
   }
 }
+
+// Stretched links retain whole-card navigation and native keyboard/link actions.
+.pkg-card,
+.mobile-package-card {
+  position: relative;
+
+  .package-card-link {
+    color: inherit;
+    text-decoration: none;
+    white-space: normal;
+    overflow-wrap: anywhere;
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      border-radius: inherit;
+    }
+
+    &:focus-visible {
+      outline: none;
+
+      &::after {
+        outline: 3px solid $brand;
+        outline-offset: -3px;
+      }
+    }
+  }
+
+  .like-btn,
+  .mobile-package-stats button {
+    position: relative;
+    z-index: 2;
+  }
+}
+
+@media (max-width: 768px) {
+  .chatting {
+    display: none;
+  }
+}

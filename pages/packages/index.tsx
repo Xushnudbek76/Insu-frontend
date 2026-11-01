@@ -1,4 +1,5 @@
 import { NextPage } from 'next';
+import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import { MouseEvent, useEffect, useMemo, useState } from 'react';
 import { Stack, Box } from '@mui/material';
@@ -194,7 +195,6 @@ const PackagesPage: NextPage = () => {
           setPage(1);
         }}
         onPageChange={setPage}
-        onOpenPackage={(packageId) => router.push(`/packages/${packageId}`)}
         onToggleLike={handleToggleLike}
       />
     );
@@ -279,7 +279,6 @@ const PackagesPage: NextPage = () => {
                   <Box
                     key={pkg._id}
                     className={'pkg-card'}
-                    onClick={() => router.push(`/packages/${pkg._id}`)}
                   >
                     <Box className={'card-img-wrap'}>
                       <Box
@@ -297,7 +296,9 @@ const PackagesPage: NextPage = () => {
                     </Box>
 
                     <Box className={'card-body'}>
-                      <p className={'card-title'}>{pkg.packageTitle}</p>
+                      <p className={'card-title'}>
+                        <NextLink className="package-card-link" href={`/packages/${pkg._id}`}>{pkg.packageTitle}</NextLink>
+                      </p>
                       <Box className={'card-price'}>
                         <span className={'price-amount'}>
                           ${pkg.packagePrice.toLocaleString()}
@@ -328,6 +329,9 @@ const PackagesPage: NextPage = () => {
                           {formatCount(pkg.packageViews)}
                         </span>
                         <button
+                          type="button"
+                          aria-label={`${t(liked ? 'Unlike' : 'Like')} ${pkg.packageTitle}`}
+                          aria-pressed={Boolean(liked)}
                           className={`stat like-btn${liked ? ' liked' : ''}`}
                           onClick={(event) => handleToggleLike(event, pkg._id)}
                         >

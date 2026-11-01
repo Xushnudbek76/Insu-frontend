@@ -7,7 +7,7 @@ import { useEffect } from 'react';
 
 import { useApollo } from '@/apollo/client';
 import type { AppProps } from 'next/app';
-import { getJwtToken, updateUserInfo } from '@/libs/auth';
+import { ensureSession, refreshSession } from '@/libs/auth';
 import { appWithTranslation } from 'next-i18next/pages';
 import type { UserConfig } from 'next-i18next/pages';
 import i18nextConfig from '../next-i18next.config';
@@ -28,10 +28,12 @@ function App({ Component, pageProps }: AppProps) {
   const client = useApollo(null);
 
   useEffect(() => {
-    const token = getJwtToken();
-    if (token) {
-      updateUserInfo(token);
-    }
+    void ensureSession();
+    const onStorage = (event: StorageEvent) => {
+      if (event.key === 'insu-session-change') void refreshSession();
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
   }, []);
 
   return (

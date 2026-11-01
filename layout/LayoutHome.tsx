@@ -7,8 +7,6 @@ import Chat from '@/libs/components/Chat';
 const LayoutHomeInner = ({ page }: { page: ReactElement }) => {
   const device = useDeviceDetect();
 
-  if (!device) return null;
-
   const wrapId = device === 'mobile' ? 'mobile-wrap' : 'pc-wrap';
 
   return (

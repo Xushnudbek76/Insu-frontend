@@ -1,4 +1,5 @@
 import { MouseEvent, useState } from 'react';
+import NextLink from 'next/link';
 import { Box, Stack } from '@mui/material';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -49,7 +50,6 @@ interface MobilePackagesPageProps {
   formatCoverage: (value?: number | null) => string | null;
   onSortChange: (value: string) => void;
   onPageChange: (page: number) => void;
-  onOpenPackage: (packageId: string) => void;
   onToggleLike: (event: MouseEvent, id: string) => void;
 }
 
@@ -71,7 +71,6 @@ const MobilePackagesPage = ({
   formatCoverage,
   onSortChange,
   onPageChange,
-  onOpenPackage,
   onToggleLike,
 }: MobilePackagesPageProps) => {
   const { t } = useTranslation('common');
@@ -136,7 +135,7 @@ const MobilePackagesPage = ({
           {packages.map((pkg) => {
             const liked = pkg.meLiked?.[0]?.myFavorite;
             return (
-              <Stack key={pkg._id} className='mobile-package-card' onClick={() => onOpenPackage(pkg._id)}>
+              <Stack key={pkg._id} className='mobile-package-card'>
                 <Box
                   className='mobile-package-image'
                   style={{ backgroundImage: `url(${getImage(pkg.packageImages)})` }}
@@ -146,7 +145,7 @@ const MobilePackagesPage = ({
                     <span>{typeLabel(pkg.packageType)}</span>
                     <strong>${pkg.packagePrice.toLocaleString()}{t('/mo')}</strong>
                   </div>
-                  <h3>{pkg.packageTitle}</h3>
+                  <h3><NextLink className="package-card-link" href={`/packages/${pkg._id}`}>{pkg.packageTitle}</NextLink></h3>
                   <Stack className='mobile-package-badges'>
                     {pkg.packageCoverageLimit != null && (
                       <span>
@@ -161,7 +160,7 @@ const MobilePackagesPage = ({
                       <VisibilityOutlinedIcon />
                       {formatCount(pkg.packageViews)}
                     </span>
-                    <button className={liked ? 'liked' : ''} onClick={(event) => onToggleLike(event, pkg._id)}>
+                    <button type="button" aria-label={`${t(liked ? 'Unlike' : 'Like')} ${pkg.packageTitle}`} aria-pressed={Boolean(liked)} className={liked ? 'liked' : ''} onClick={(event) => onToggleLike(event, pkg._id)}>
                       {liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
                       {formatCount(pkg.packageLikes)}
                     </button>

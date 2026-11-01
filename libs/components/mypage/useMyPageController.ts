@@ -1,3 +1,4 @@
+import { useReactiveVar } from '@apollo/client/react';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutlined';
 import { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
@@ -10,7 +11,7 @@ import SupportAgentOutlinedIcon from '@mui/icons-material/SupportAgentOutlined';
 import AddBusinessOutlinedIcon from '@mui/icons-material/AddBusinessOutlined';
 import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
 import { useTranslation } from 'next-i18next/pages';
-import { userVar } from '@/apollo/store';
+import { userVar, sessionReadyVar } from '@/apollo/store';
 import { GET_MY_POLICIES } from '@/apollo/policy/query';
 import { CANCEL_POLICY } from '@/apollo/policy/mutation';
 import { GET_CLAIMS_BY_AGENT, GET_MY_CLAIMS } from '@/apollo/claim/query';
@@ -19,7 +20,7 @@ import { GET_FAVORITE_PACKAGES } from '@/apollo/favorite/query';
 import { IMAGE_UPLOADER_MUTATION, IMAGES_UPLOADER_MUTATION, UPDATE_MEMBER } from '@/apollo/member/mutation';
 import { CREATE_PACKAGE, UPDATE_PACKAGE } from '@/apollo/package/mutation';
 import { GET_AGENT_PACKAGES } from '@/apollo/package/query';
-import { getJwtToken, logOut, setJwtToken, updateUserInfo } from '@/libs/auth';
+import { ensureSession, logOut, updateUserInfo } from '@/libs/auth';
 import { sweetMixinErrorAlert, sweetTopSuccessAlert } from '@/libs/sweetAlert';
 import type { CustomJwtPayload } from '@/libs/types/customJwtPayload';
 import { getMyPageErrorMessage } from '@/libs/components/mypage/error';
@@ -146,8 +147,8 @@ export interface MyPageControllerResult {
 export const useMyPageController = (): MyPageControllerResult => {
   const router = useRouter();
   const { t } = useTranslation('common');
-  const [authReady, setAuthReady] = useState(false);
-  const [user, setUser] = useState<CustomJwtPayload | null>(() => userVar());
+  const authReady = useReactiveVar(sessionReadyVar);
+  const user = useReactiveVar(userVar);
   const [policyPage, setPolicyPage] = useState(1);
   const [policyStatus, setPolicyStatus] = useState('');
   const [favoritePage, setFavoritePage] = useState(1);
@@ -173,17 +174,7 @@ export const useMyPageController = (): MyPageControllerResult => {
   const isAgent = user?.memberType === 'AGENT';
   const isAdmin = user?.memberType === 'ADMIN';
 
-  useEffect(() => {
-    const token = getJwtToken();
-    if (token && !userVar()?._id) updateUserInfo(token);
-    setUser(userVar());
-    setAuthReady(true);
-
-    const dispose = userVar.onNextChange((nextUser) => setUser(nextUser));
-    return () => {
-      if (typeof dispose === 'function') dispose();
-    };
-  }, []);
+  useEffect(() => { void ensureSession(); }, []);
 
   useEffect(() => {
     if (authReady && !user?._id) router.replace('/account/join');
@@ -309,7 +300,7 @@ export const useMyPageController = (): MyPageControllerResult => {
     },
   );
 
-  const [updateMember] = useMutation<{ updateMember: CustomJwtPayload & { accessToken?: string } }>(UPDATE_MEMBER);
+  const [updateMember] = useMutation<{ updateMember: CustomJwtPayload }>(UPDATE_MEMBER);
   const [uploadImage] = useMutation<{ imageUploader: string }>(IMAGE_UPLOADER_MUTATION);
   const [uploadImages] = useMutation<{ imagesUploader: string[] }>(IMAGES_UPLOADER_MUTATION);
   const [createPackage] = useMutation<{ createPackage: { _id: string } }>(CREATE_PACKAGE);
@@ -544,12 +535,7 @@ export const useMyPageController = (): MyPageControllerResult => {
           },
         },
       });
-      const token = result.data?.updateMember.accessToken;
-      if (token) {
-        setJwtToken(token);
-        updateUserInfo(token);
-        setUser(userVar());
-      }
+      if (result.data?.updateMember) updateUserInfo(result.data.updateMember);
       await sweetTopSuccessAlert(t('Profile updated successfully.'));
     } catch (err: unknown) {
       await sweetMixinErrorAlert(getMyPageErrorMessage(err, t('Could not update profile.')));

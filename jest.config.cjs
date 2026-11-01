@@ -7,4 +7,6 @@ module.exports = {
     '^@/(.*)$': '<rootDir>/$1',
   },
   testMatch: ['**/*.test.ts'],
+  modulePathIgnorePatterns: ['<rootDir>/.next/'],
+  testPathIgnorePatterns: ['/node_modules/', '<rootDir>/.next/'],
 };

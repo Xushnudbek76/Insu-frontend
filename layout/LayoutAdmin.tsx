@@ -1,22 +1,23 @@
+import { useReactiveVar } from '@apollo/client/react';
 import type { ComponentType, ReactElement } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { Box, Stack } from '@mui/material';
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
 import ShieldOutlinedIcon from '@mui/icons-material/ShieldOutlined';
 import { useRouter } from 'next/router';
-import { userVar } from '@/apollo/store';
+import { userVar, sessionReadyVar } from '@/apollo/store';
 import AdminMenuList from '@/libs/components/admin/AdminMenuList';
 import { adminUserImage } from '@/libs/admin/image';
-import { getJwtToken, logOut, updateUserInfo } from '@/libs/auth';
+import { ensureSession, logOut } from '@/libs/auth';
 import useDeviceDetect from '@/libs/hooks/useDeviceDetect';
 import type { CustomJwtPayload } from '@/libs/types/customJwtPayload';
 
 const LayoutAdminInner = ({ page }: { page: ReactElement }) => {
   const router = useRouter();
-  const [user, setUser] = useState<CustomJwtPayload | null>(() => userVar());
+  const user = useReactiveVar(userVar);
   const device = useDeviceDetect();
   const wrapId = device === 'mobile' ? 'mobile-wrap' : 'pc-wrap';
-  const [authReady, setAuthReady] = useState(false);
+  const authReady = useReactiveVar(sessionReadyVar);
   const sidebarScrollRef = useRef<HTMLDivElement | null>(null);
   const [sidebarScrollState, setSidebarScrollState] = useState({
     hasOverflow: false,
@@ -24,17 +25,7 @@ const LayoutAdminInner = ({ page }: { page: ReactElement }) => {
     atBottom: false,
   });
 
-  useEffect(() => {
-    const token = getJwtToken();
-    if (token && !userVar()?._id) updateUserInfo(token);
-    setUser(userVar());
-    setAuthReady(true);
-
-    const dispose = userVar.onNextChange((nextUser) => setUser(nextUser));
-    return () => {
-      if (typeof dispose === 'function') dispose();
-    };
-  }, []);
+  useEffect(() => { void ensureSession(); }, []);
 
   useEffect(() => {
     if (!authReady) return;

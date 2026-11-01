@@ -21,7 +21,7 @@ const FEATURES = [
 	{
 		Icon: VerifiedUserOutlinedIcon,
 		label: 'Trusted agents',
-		desc: 'Work with verified experts whenever you want a human opinion.',
+		desc: 'Talk through your options with an agent whenever you want a human opinion.',
 	},
 ];
 

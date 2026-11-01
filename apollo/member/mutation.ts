@@ -21,7 +21,6 @@ export const LOGIN_MUTATION = gql`
       memberPoints
       memberLikes
       memberViews
-      accessToken
     }
   }
 `;
@@ -47,7 +46,6 @@ export const SIGNUP_MUTATION = gql`
       memberPoints
       memberLikes
       memberViews
-      accessToken
     }
   }
 `;
@@ -85,7 +83,6 @@ export const UPDATE_MEMBER = gql`
       memberPoints
       memberLikes
       memberViews
-      accessToken
     }
   }
 `;

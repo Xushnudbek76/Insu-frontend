@@ -1,3 +1,4 @@
+import { useReactiveVar } from '@apollo/client/react';
 import { useState, useMemo, useEffect } from 'react';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
@@ -33,7 +34,7 @@ const Top = () => {
   const router = useRouter();
   const { t } = useTranslation('common');
   const device = useDeviceDetect();
-  const [user, setUser] = useState(() => userVar());
+  const user = useReactiveVar(userVar);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileMenuAnchor, setProfileMenuAnchor] = useState<null | HTMLElement>(null);
   const [languageMenuAnchor, setLanguageMenuAnchor] = useState<null | HTMLElement>(null);
@@ -41,10 +42,7 @@ const Top = () => {
   const [scrolled, setScrolled] = useState(false);
   const isHome = router.pathname === '/';
 
-  useEffect(() => {
-    const dispose = userVar.onNextChange((nextUser) => setUser(nextUser));
-    return () => { if (typeof dispose === 'function') dispose(); };
-  }, []);
+
 
   useEffect(() => {
     if (!router.isReady) return;

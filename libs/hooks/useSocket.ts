@@ -2,7 +2,6 @@ import { useEffect, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useReactiveVar } from '@apollo/client/react';
 import { socketVar, userVar } from '@/apollo/store';
-import { getJwtToken } from '@/libs/auth';
 
 const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL ?? 'http://localhost:3007';
 
@@ -16,12 +15,9 @@ export const useSocket = () => {
 
     if (socketRef.current?.connected) return;
 
-    const token = getJwtToken();
-
-    const newSocket = io(SOCKET_URL, {
+    const newSocket = io({
       transports: ['websocket', 'polling'],
-      auth: { token },
-      query: { token },
+      withCredentials: true,
       reconnection: true,
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
@@ -52,14 +48,9 @@ export const useSocket = () => {
   }, []);
 
   useEffect(() => {
-    if (socketRef.current && user) {
-      const token = getJwtToken();
-      if (token) {
-        socketRef.current.auth = { token };
-        if (!socketRef.current.connected) {
-          socketRef.current.connect();
-        }
-      }
+    if (socketRef.current) {
+      // A new handshake picks up a changed HttpOnly session cookie.
+      socketRef.current.disconnect().connect();
     }
   }, [user]);
 

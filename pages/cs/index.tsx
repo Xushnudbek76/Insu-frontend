@@ -123,16 +123,17 @@ const CsPage: NextPage = () => {
                   <button
                     className='cs-notice-summary'
                     type='button'
+                    id={`notice-trigger-${notice._id}`}
+                    aria-expanded={open}
+                    aria-controls={`notice-content-${notice._id}`}
                     onClick={() => setOpenNoticeId(open ? null : notice._id)}
                   >
-                    <span className={index === 0 ? 'cs-notice-badge' : 'cs-notice-number'}>
-                      {index === 0 ? notice.noticeCategory?.toLowerCase() : index + 1}
-                    </span>
+                    <span className='cs-notice-number'>{index + 1}</span>
                     <strong>{notice.noticeTitle}</strong>
                     <span>{formatDate(notice.createdAt, router.locale)}</span>
                   </button>
-                  <Collapse in={open} timeout='auto' unmountOnExit>
-                    <Box className='cs-notice-content'>{notice.noticeContent}</Box>
+                  <Collapse in={open} timeout='auto'>
+                    <Box id={`notice-content-${notice._id}`} role="region" aria-labelledby={`notice-trigger-${notice._id}`} className='cs-notice-content'>{notice.noticeContent}</Box>
                   </Collapse>
                 </Stack>
               );
@@ -165,13 +166,13 @@ const CsPage: NextPage = () => {
               const open = openFaqId === faq._id;
               return (
                 <Stack className='cs-faq-line' key={faq._id}>
-                  <button type='button' onClick={() => setOpenFaqId(open ? null : faq._id)}>
+                  <button type='button' id={`faq-trigger-${faq._id}`} aria-expanded={open} aria-controls={`faq-answer-${faq._id}`} onClick={() => setOpenFaqId(open ? null : faq._id)}>
                     <span>Q</span>
                     <strong>{faq.faqQuestion}</strong>
                     <KeyboardArrowDownOutlinedIcon className={open ? 'open' : ''} />
                   </button>
-                  <Collapse in={open} timeout='auto' unmountOnExit>
-                    <Box className='cs-faq-answer'>{faq.faqAnswer}</Box>
+                  <Collapse in={open} timeout='auto'>
+                    <Box id={`faq-answer-${faq._id}`} role="region" aria-labelledby={`faq-trigger-${faq._id}`} className='cs-faq-answer'>{faq.faqAnswer}</Box>
                   </Collapse>
                 </Stack>
               );

@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useApolloClient, useReactiveVar } from '@apollo/client/react';
 import { io } from 'socket.io-client';
 import { userVar } from '@/apollo/store';
-import { getJwtToken } from '@/libs/auth';
 import {
   GET_CONVERSATION,
   GET_CONVERSATION_MESSAGES,
@@ -240,10 +239,7 @@ export function useMessages({
     const timer = window.setInterval(() => {
       if (!document.hidden) void refresh();
     }, 15000);
-    const url = (
-      process.env.NEXT_PUBLIC_SOCKET_URL ?? 'http://localhost:3007'
-    ).replace(/\/$/, '');
-    const socket = io(`${url}/agent-chat`, { auth: { token: getJwtToken() } });
+    const socket = io('/agent-chat', { withCredentials: true });
     socket.on('connect', onFocus);
     socket.on('conversation:updated', onFocus);
     window.addEventListener('focus', onFocus);

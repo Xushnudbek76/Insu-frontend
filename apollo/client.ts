@@ -3,26 +3,24 @@ import { ApolloClient, InMemoryCache, ApolloLink, from } from '@apollo/client';
 import { onError } from '@apollo/client/link/error';
 import { setContext } from '@apollo/client/link/context';
 import UploadHttpLink from 'apollo-upload-client/UploadHttpLink.mjs';
-import { getJwtToken } from '@/libs/auth';
+import { getCsrfToken } from '@/libs/auth/csrf';
 
 let apolloClient: ApolloClient | undefined;
 
 const GRAPHQL_ENDPOINT =
-  process.env.NEXT_PUBLIC_GRAPHQL_URL ?? 'http://localhost:3007/graphql';
+  typeof window === 'undefined'
+    ? process.env.NEXT_PUBLIC_GRAPHQL_URL ?? 'http://localhost:3007/graphql'
+    : '/api/graphql';
 
 const createAuthLink = () =>
-  setContext((_, { headers }) => {
-    const token = getJwtToken();
+  setContext(async (_, { headers }) => {
+    const csrfToken = await getCsrfToken();
 
     return {
       headers: {
         ...headers,
         'apollo-require-preflight': 'true',
-        ...(token
-          ? {
-              Authorization: `Bearer ${token}`,
-            }
-          : {}),
+        ...(csrfToken ? { 'x-csrf-token': csrfToken } : {}),
       },
     };
   });

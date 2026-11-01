@@ -274,7 +274,7 @@ const AgentDetailPage: NextPage = () => {
   const networkTotalPages = Math.max(1, Math.ceil(networkTotal / NETWORK_LIMIT));
   const networkLoading = (networkTab === 'followers' ? followersLoading : followingsLoading) && !networkItems.length;
   const displayName = (agent?: AgentDetail | null) =>
-    agent?.memberNick || agent?.memberFullName || t('Insurance Agent');
+    agent?.memberFullName || agent?.memberNick || t('Insurance Agent');
 
   const packageLikeSourceStates = useMemo<Record<string, LikeState>>(
     () =>
