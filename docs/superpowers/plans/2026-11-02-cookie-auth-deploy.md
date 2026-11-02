@@ -17,8 +17,8 @@ Frontend identity comes from a no-store session endpoint and login/profile respo
 - [x] Implement same-origin proxies, cookie-aware Apollo/upload/socket clients and session hydration. Remove legacy tokens and update protected views/profile refresh.
 - [x] Run both full suites, type checks, deployment-generator tests, builds, local HTTP/GraphQL/upload/WebSocket integration and browser login/logout/refresh checks.
 - [x] Review and resolve security/correctness findings. Verify no secrets are staged.
-- [ ] Verify GitHub account Xushnudbek76 and mapped author email; fetch both repos, commit all intended changes and push develop/master without force or discarding remote work.
-- [ ] Build Linux images tagged with the reviewed commits, update existing Azure apps/jobs while preserving custom domains, secrets, storage mounts and replica settings. Verify live cookie flags, CSRF rejection, auth, uploads and chat without real payments or policy changes.
+- [x] Verify GitHub account Xushnudbek76 and mapped author email; fetch both repos, commit all intended changes and push develop/master without force or discarding remote work.
+- [x] Build Linux images tagged with the reviewed commits, update existing Azure apps/jobs while preserving custom domains, secrets, storage mounts and replica settings. Verify live cookie flags, CSRF rejection, auth, uploads and chat without real payments or policy changes.
 
 ## Release limits
 
@@ -30,4 +30,4 @@ Frontend: 21 unit tests and 2 proxy regression tests passed; type checking and p
 
 Local HTTP integration passed cookie attributes, minimal claims, schema token removal, session hydration, CSRF/origin rejection, authenticated mutations, multipart image processing, proxied private WebSocket connection, logout disconnection and revoked-cookie replay rejection. The local HTTP-only test override was used only on localhost; production must use Secure cookies. Browser sign-in, protected dashboard reload and logout passed using an existing synthetic demo account.
 
-No policy offers, claims, payments or public/private messages were submitted. Prior audit fixes are included. Remaining publishing and live verification tasks are recorded above.
+No policy offers, claims, payments or public/private messages were submitted. Prior audit fixes are included. Publishing and live verification are complete; see the [release record](../../releases/2026-11-02-cookie-auth.md).
